@@ -1,0 +1,5 @@
+.netrwhist
+.vim/plugged
+__pycache__/
+.DS_Store
+*~

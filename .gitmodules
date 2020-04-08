@@ -1,0 +1,21 @@
+[submodule ".zsh/plugins/zsh-completions"]
+	path = .zsh/plugins/zsh-completions
+	url = https://github.com/zsh-users/zsh-completions.git
+[submodule ".zsh/plugins/zsh-syntax-highlighting"]
+	path = .zsh/plugins/zsh-syntax-highlighting
+	url = https://github.com/zsh-users/zsh-syntax-highlighting.git
+[submodule ".zsh/plugins/base16-shell"]
+	path = .zsh/plugins/base16-shell
+	url = https://github.com/chriskempson/base16-shell
+[submodule ".zsh/plugins/z"]
+	path = .zsh/plugins/z
+	url = https://github.com/rupa/z.git
+[submodule ".zsh/plugins/zsh-prompt-powerline"]
+	path = .zsh/plugins/zsh-prompt-powerline
+	url = https://github.com/Valodim/zsh-prompt-powerline
+[submodule ".zsh/dircolors/dircolors-jellybeans"]
+	path = .zsh/dircolors/dircolors-jellybeans
+	url = https://github.com/peterhellberg/dircolors-jellybeans
+[submodule ".zsh/dircolors/dircolors-solarized"]
+	path = .zsh/dircolors/dircolors-solarized
+	url = https://github.com/seebi/dircolors-solarized
