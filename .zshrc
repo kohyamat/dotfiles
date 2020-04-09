@@ -153,66 +153,24 @@ fi
 #export TERM='xterm-color'
 autoload -Uz colors && colors
 
-# Git info
-# https://gist.github.com/scelis/244215/download#
-# Autoload zsh functions
-fpath=($HOME/.zsh/functions $fpath)
-autoload -U $HOME/.zsh/functions/*(:t)
-# Enable auto-execution of functions
-typeset -ga preexec_functions
-typeset -ga precmd_functions
-typeset -ga chpwd_functions
-# Append git functions needed for prompt
-preexec_functions+='preexec_update_git_vars'
-precmd_functions+='precmd_update_git_vars'
-chpwd_functions+='chpwd_update_git_vars'
-
 # Set the prompt
-LA_COLOR () {
-case $(uptime | sed 's/.*: \([0-9]\.[0-9]*\).*/\1/') in
-    0.[0-4]*)
-        echo $fg[blue]
-        ;;
-    0.[5-9]*)
-        echo $fg[cyan]
-        ;;
-    1.*)
-        echo $fg[green]
-        ;;
-    2.*)
-        echo $fg[yellow]
-        ;;
-    3.*)
-        echo $fg[magenta]
-        ;;
-    *)
-        echo $fg[red]
-        ;;
-esac
-}
+fpath+=$HOME/.zsh/plugins/pure
+autoload -U promptinit; promptinit
+prompt pure
 
-case ${UID} in
-    0)
-        PROMPT='%(?.%{${LA_COLOR}%}.%{$fg[red]%})%B%(?!:)!:()%b%{${reset_color}%} '
-        PROMPT="${PROMPT}"'%{$fg[red]%}%B%/#%b$(prompt_git_info)%{${reset_color}%} '
-        PROMPT2="[%n]> "
-        SPROMPT="%{${fg[megenta]}%}X( %{${reset_color}%}%{${fg[default]}%}%r is correct? [n,y,a,e]:%{${reset_color}%} "
-        [ -n "${REMOTEHOST}${SSH_CONNECTION}" ] &&
-            PROMPT='%(?.%{${LA_COLOR}%}.%{$fg[red]%})%B%(?!:)!:()%b%{${reset_color}%} ' &&
-            PROMPT="${PROMPT}"'%{${fg_bold[blue]}%}%n@${HOST%%.*}%{${reset_color}%} ' &&
-            PROMPT="${PROMPT}"'%{$fg[default]%}%B%~%b$(prompt_git_info)%{${reset_color}%} '
-        ;;
-    *)
-        PROMPT='%(?.%{$(LA_COLOR)%}.%{$fg[red]%})%B%(?!:)!:()%b%{${reset_color}%} '
-        PROMPT="${PROMPT}"'%{$fg[default]%}%B%~%b$(prompt_git_info)%{${reset_color}%} '
-        PROMPT2="[%n]> "
-        SPROMPT="%{${fg[megenta]}%}X( %{${reset_color}%}%{${fg[default]}%}%r is correct? [n,y,a,e]:%{${reset_color}%} "
-        [ -n "${REMOTEHOST}${SSH_CONNECTION}" ] &&
-            PROMPT='%(?.%{$(LA_COLOR)%}.%{$fg[red]%})%B%(?!:)!:()%b%{${reset_color}%} ' &&
-            PROMPT="${PROMPT}"'%{${fg_bold[blue]}%}%n@${HOST%%.*}%{${reset_color}%} ' &&
-            PROMPT="${PROMPT}"'%{$fg[default]%}%B%~%b$(prompt_git_info)%{${reset_color}%} '
-        ;;
-esac
+# # Git info
+# # https://gist.github.com/scelis/244215/download#
+# # Autoload zsh functions
+# fpath=($HOME/.zsh/functions $fpath)
+# autoload -U $HOME/.zsh/functions/*(:t)
+# # Enable auto-execution of functions
+# typeset -ga preexec_functions
+# typeset -ga precmd_functions
+# typeset -ga chpwd_functions
+# # Append git functions needed for prompt
+# preexec_functions+='preexec_update_git_vars'
+# precmd_functions+='precmd_update_git_vars'
+# chpwd_functions+='chpwd_update_git_vars'
 
 # tmux
 # --------------------------------------------------
@@ -248,5 +206,5 @@ source ~/.zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 export WWW_HOME="http://www.google.com"
 
 # Base16 Shell
-BASE16_SHELL="${HOME}/.zsh/plugins/base16-shell/base16-ashes.dark.sh"
-[[ -s $BASE16_SHELL ]] && source $BASE16_SHELL
+# BASE16_SHELL="${HOME}/.zsh/plugins/base16-shell/base16-ashes.dark.sh"
+# [[ -s $BASE16_SHELL ]] && source $BASE16_SHELL
