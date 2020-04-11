@@ -236,7 +236,7 @@ Plug 'lindemann09/jags.vim', { 'for': 'jags' }
 Plug 'mdlerch/mc-stan.vim', { 'for': 'stan' }
 
 " Code diagnostics
-Plug 'dense-analysis/ale'
+" Plug 'dense-analysis/ale'
 
 " Runner
 Plug 'skywind3000/asyncrun.vim'
@@ -774,12 +774,26 @@ let g:php_folding = 1
 let g:SimpylFold_docstring_preview = 1
 
 " " vim-lsp ------------------------------------------
+nmap <silent> <leader>df :LspDocumentFormat<CR>
+
+let s:pyls_config = {'pyls': {'plugins': {
+    \   'pycodestyle': {'enabled': v:false},
+    \   'pydocstyle': {'enabled': v:true},
+    \   'pylint': {'enabled': v:false},
+    \   'flake8': {'enabled': v:true},
+    \   'jedi_definition': {
+    \     'follow_imports': v:true,
+    \     'follow_builtin_imports': v:true,
+    \   },
+    \ }}}
+
 if executable('pyls')
   " pip install python-language-server
   au User lsp_setup call lsp#register_server({
         \ 'name': 'pyls',
         \ 'cmd': {server_info->['pyls']},
         \ 'whitelist': ['python'],
+        \ 'workspace_config': s:pyls_config,
         \ })
 endif
 
@@ -806,13 +820,16 @@ augroup lsp_install
 augroup END
 
 
-let g:lsp_diagnostics_enabled = 0
-" let g:lsp_highlights_enabled = 0
-" let g:lsp_textprop_enabled = 0
-" let g:lsp_signs_enabled = 1
-" let g:lsp_diagnostics_echo_cursor = 1
-" let g:lsp_signs_error = {'text': '✗'}
-" let g:lsp_signs_warning = {'text': '‼'}
+let g:lsp_diagnostics_enabled = 1
+let g:lsp_highlights_enabled = 1
+let g:lsp_textprop_enabled = 1
+let g:lsp_diagnostics_echo_cursor = 1
+let g:lsp_virtual_text_enabled = 0
+let g:lsp_signs_enabled = 1
+let g:lsp_signs_error = {'text': '✗'}
+let g:lsp_signs_warning = {'text': '‼'}
+let g:lsp_signs_information = {'text': 'i'}
+let g:lsp_signs_hint = {'text': '?'}
 
 " " Folding
 " set foldmethod=expr
@@ -890,32 +907,32 @@ let g:UltiSnipsJumpForwardTrigger="<tab>"
 let g:UltiSnipsJumpBackwardTrigger="<s-tab>"
 
 " ALE ----------------------------------------------
-let g:ale_sign_column_always = 1
-" let g:ale_lint_on_enter = 1
-" let g:ale_lint_on_save = 1
-let g:ale_fix_on_save = 0
-let g:ale_sign_error = '✗'
-let g:ale_sign_warning = '!!'
-
-nmap <silent> <leader>af : ALEFix<CR>
-
-let g:ale_linters = {
-      \    'r': ['lintr'],
-      \    'python': ['flake8'],
-      \}
-
-let g:ale_fixers = {
-      \    '*': ['remove_trailing_lines', 'trim_whitespace'],
-      \    'python': ['autopep8', 'black', 'isort'],
-      \    'r': ['styler'],
-      \}
-
-let g:ale_python_flake8_options = '--max-line-length=88 --ignore=E203'
-let g:ale_python_black_options = '-l 88'
-let g:ale_python_isort_options = '-l 88'
-
-" lintr
-let g:ale_r_lintr_options = get(g:, 'ale_r_lintr_options',
-      \ 'lintr::with_defaults(line_length_linter(88),
-      \                       single_quotes_linter = NULL
-      \                       )')
+" let g:ale_sign_column_always = 1
+" " let g:ale_lint_on_enter = 1
+" " let g:ale_lint_on_save = 1
+" let g:ale_fix_on_save = 0
+" let g:ale_sign_error = '✗'
+" let g:ale_sign_warning = '!!'
+"
+" nmap <silent> <leader>af : ALEFix<CR>
+"
+" let g:ale_linters = {
+"       \    'r': ['lintr'],
+"       \    'python': ['flake8'],
+"       \}
+"
+" let g:ale_fixers = {
+"       \    '*': ['remove_trailing_lines', 'trim_whitespace'],
+"       \    'python': ['autopep8', 'black', 'isort'],
+"       \    'r': ['styler'],
+"       \}
+"
+" let g:ale_python_flake8_options = '--max-line-length=88 --ignore=E203'
+" let g:ale_python_black_options = '-l 88'
+" let g:ale_python_isort_options = '-l 88'
+"
+" " lintr
+" let g:ale_r_lintr_options = get(g:, 'ale_r_lintr_options',
+"       \ 'lintr::with_defaults(line_length_linter(88),
+"       \                       single_quotes_linter = NULL
+"       \                       )')
