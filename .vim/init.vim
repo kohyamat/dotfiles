@@ -778,7 +778,7 @@ nmap <silent> <leader>df :LspDocumentFormat<CR>
 
 let s:pyls_config = {'pyls': {'plugins': {
     \   'pycodestyle': {'enabled': v:false},
-    \   'pydocstyle': {'enabled': v:true},
+    \   'pydocstyle': {'enabled': v:false},
     \   'pylint': {'enabled': v:false},
     \   'flake8': {'enabled': v:true},
     \   'jedi_definition': {
