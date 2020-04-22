@@ -1,0 +1,5 @@
+[pydocstyle]
+inherit = false
+ignore = D10,D212
+max-line-length = 88
+match = .*\.py
