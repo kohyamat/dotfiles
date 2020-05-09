@@ -222,6 +222,7 @@ if has('python3')
 endif
 Plug 'thomasfaingnaert/vim-lsp-snippets'
 Plug 'thomasfaingnaert/vim-lsp-ultisnips'
+Plug 'ryanolsonx/vim-lsp-swift'
 
 " Language specific syntax
 Plug 'Vimjas/vim-python-pep8-indent', { 'for': 'python' }
@@ -776,6 +777,7 @@ let g:SimpylFold_docstring_preview = 1
 " " vim-lsp ------------------------------------------
 nmap <silent> <leader>df :LspDocumentFormat<CR>
 
+" Python: python-language-server
 let s:pyls_config = {'pyls': {'plugins': {
     \   'pycodestyle': {'enabled': v:false},
     \   'pydocstyle': {'enabled': v:false},
@@ -788,7 +790,6 @@ let s:pyls_config = {'pyls': {'plugins': {
     \ }}}
 
 if executable('pyls')
-  " pip install python-language-server
   au User lsp_setup call lsp#register_server({
         \ 'name': 'pyls',
         \ 'cmd': {server_info->['pyls']},
@@ -797,11 +798,21 @@ if executable('pyls')
         \ })
 endif
 
+" R: languageserver
 if executable('R')
   au User lsp_setup call lsp#register_server({
         \ 'name': 'languagueserver',
         \ 'cmd': {server_info->['R', '--slave', '-e', 'languageserver::run()']},
         \ 'whitelist': ['r'],
+        \ })
+endif
+
+" Swift: sourcekit-lsp
+if executable('sourcekit-lsp')
+  au User lsp_setup call lsp#register_server({
+        \ 'name': 'sourcekit-lsp',
+        \ 'cmd': {server_info->['sourcekit-lsp']},
+        \ 'whitelist': ['swift'],
         \ })
 endif
 
