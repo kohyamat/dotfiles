@@ -222,13 +222,13 @@ if has('python3')
 endif
 Plug 'thomasfaingnaert/vim-lsp-snippets'
 Plug 'thomasfaingnaert/vim-lsp-ultisnips'
-Plug 'ryanolsonx/vim-lsp-swift'
 
 " Language specific syntax
 Plug 'Vimjas/vim-python-pep8-indent', { 'for': 'python' }
 Plug 'vim-ruby/vim-ruby', { 'for': 'ruby' }
-Plug 'kballard/vim-swift', { 'for': 'swift' }
+" Plug 'kballard/vim-swift', { 'for': 'swift' }
 Plug 'keith/swift.vim', { 'for': 'swift' }
+" Plug 'ryanolsonx/vim-lsp-swift', { 'for': 'swift'}
 Plug 'dag/vim-fish', { 'for': 'fish' }
 Plug 'cespare/vim-toml', { 'for': 'toml' }
 Plug 'hail2u/vim-css3-syntax', { 'for': 'css' }
@@ -609,7 +609,7 @@ inoremap <expr> , smartchr#one_of(', ', ',')
 
 augroup MyAutoCmd
   " Smart =.
-  autocmd FileType python,r inoremap <expr> =
+  autocmd FileType python,r,swift inoremap <expr> =
         \ search('\(&\<bar><bar>\<bar>+\<bar>-\<bar>/\<bar>>\<bar><\) \%#', 'bcn')? '<bs>= '
         \ : search('\(*\<bar>!\)\%#', 'bcn') ? '= '
         \ : smartchr#one_of(' = ', '=', ' == ')
@@ -682,6 +682,11 @@ augroup END
 augroup r_file
   autocmd!
   autocmd FileType r nnoremap <silent> <Leader>r :AsyncRun Rscript "%"<CR>
+augroup END
+
+augroup swift_file
+  autocmd!
+  autocmd FileType swift nnoremap <silent> <Leader>r :AsyncRun swift "%"<CR>
 augroup END
 
 " Nvim-R -------------------------------------------
