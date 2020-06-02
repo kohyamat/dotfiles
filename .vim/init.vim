@@ -695,7 +695,6 @@ let R_assign = 0
 " let R_rconsole_height = 25
 let R_objbr_place = "console,above"
 let R_nvimpager = 'tab'
-let R_show_args = 1
 let R_show_args_help = 0
 let R_wait_reply = 1
 let R_csv_delim = ','
