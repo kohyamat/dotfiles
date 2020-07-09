@@ -184,18 +184,18 @@ endif
 " ==================================================
 " Vim-plug
 if has('vim_starting')
-  set rtp+=~/.vim/plugged/vim-plug
-  if !isdirectory(expand('~/.vim/plugged/vim-plug'))
+  set rtp+=~/.config/nvim/plugged/vim-plug
+  if !isdirectory(expand('~/.config/nvim/plugged/vim-plug'))
     echo 'install vim-plug...'
-    call system('mkdir -p ~/.vim/plugged/vim-plug')
+    call system('mkdir -p ~/.config/nvim/plugged/vim-plug')
     call system('git clone https://github.com/junegunn/vim-plug.git
           \ ~/.vim/plugged/vim-plug/autoload')
   end
 endif
 
-call plug#begin('~/.vim/plugged')
+call plug#begin('~/.config/nvim/plugged')
 
-Plug 'junegunn/vim-plug', {'dir': '~/.vim/plugged/vim-plug/autoload'}
+Plug 'junegunn/vim-plug', {'dir': '~/.config/nvim/plugged/vim-plug/autoload'}
 
 " Appearance
 Plug 'cocopon/iceberg.vim'
@@ -246,6 +246,7 @@ Plug 'skywind3000/asyncrun.vim'
 " Python
 Plug 'tmhedberg/simpylfold', { 'for': 'python' }
 Plug 'bfredl/nvim-ipy', { 'do': ':UpdateRemotePlugins' }
+Plug 'psf/black', { 'for': 'python' }
 
 " R
 Plug 'jalvesaq/Nvim-R', { 'for' : 'r' }
@@ -779,8 +780,6 @@ let g:php_folding = 1
 let g:SimpylFold_docstring_preview = 1
 
 " " vim-lsp ------------------------------------------
-nmap <silent> <leader>df :LspDocumentFormat<CR>
-
 " Python: python-language-server
 let s:pyls_config = {'pyls': {'plugins': {
     \   'pycodestyle': {'enabled': v:false},
@@ -835,6 +834,8 @@ function! s:on_lsp_buffer_enabled() abort
     
     " refer to doc to add more commands
 endfunction
+
+nnoremap <silent> <leader>df :LspDocumentFormat<CR>
 
 augroup lsp_install
   au!
@@ -960,3 +961,10 @@ let g:UltiSnipsJumpBackwardTrigger="<s-tab>"
 "       \ 'lintr::with_defaults(line_length_linter(88),
 "       \                       single_quotes_linter = NULL
 "       \                       )')
+
+" Black --------------------------------------------
+let g:black_fast = 0
+let g:black_linelength = 88
+let g:black_skip_string_normalization = 0
+let g:black_virtualenv = "~/.local/share/nvim/black"
+autocmd FileType python nnoremap <silent> <leader>df :Black<CR>
