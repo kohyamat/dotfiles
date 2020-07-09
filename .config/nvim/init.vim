@@ -189,7 +189,7 @@ if has('vim_starting')
     echo 'install vim-plug...'
     call system('mkdir -p ~/.config/nvim/plugged/vim-plug')
     call system('git clone https://github.com/junegunn/vim-plug.git
-          \ ~/.vim/plugged/vim-plug/autoload')
+          \ ~/.config/nvim/plugged/vim-plug/autoload')
   end
 endif
 
@@ -290,7 +290,7 @@ else
 endif
 Plug 'Shougo/neomru.vim'
 Plug 'Shougo/vimproc.vim', {'do': 'make'}
-Plug 'nixprime/cpsm', {'do': './install.sh'}
+" Plug 'nixprime/cpsm', {'do': './install.sh'}
 Plug 'mechatroner/rainbow_csv'
 
 
@@ -405,8 +405,8 @@ endif
 " Change matchers.
 call denite#custom#source(
       \ 'file_mru', 'matchers', ['matcher/fuzzy', 'matcher/project_files'])
-call denite#custom#source(
-      \ 'file/rec', 'matchers', ['matcher/cpsm'])
+" call denite#custom#source(
+"      \ 'file/rec', 'matchers', ['matcher/cpsm'])
 
 " Change sorters.
 call denite#custom#source(
