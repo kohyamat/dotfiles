@@ -109,13 +109,13 @@ set foldcolumn=2
 
 " Mappings -----------------------------------------
 " Emacs-like keybindings on insert mode
-inoremap <C-h> <LEFT>
-inoremap <C-b> <LEFT>
-inoremap <C-l> <RIGHT>
-inoremap <C-f> <RIGHT>
-inoremap <C-a> <HOME>
-inoremap <C-e> <END>
-inoremap <C-d> <DELETE>
+" inoremap <C-h> <LEFT>
+" inoremap <C-b> <LEFT>
+" inoremap <C-l> <RIGHT>
+" inoremap <C-f> <RIGHT>
+" inoremap <C-a> <HOME>
+" inoremap <C-e> <END>
+" inoremap <C-d> <DELETE>
 
 " vv select to end line
 vnoremap v $h
@@ -215,13 +215,12 @@ Plug 'Shougo/neco-syntax'
 Plug 'prabirshrestha/asyncomplete-necosyntax.vim'
 Plug 'Shougo/neco-vim'
 Plug 'prabirshrestha/asyncomplete-necovim.vim'
-if has('python3')
-  Plug 'SirVer/ultisnips'
-  Plug 'honza/vim-snippets'
-  Plug 'prabirshrestha/asyncomplete-ultisnips.vim'
-endif
-Plug 'thomasfaingnaert/vim-lsp-snippets'
-Plug 'thomasfaingnaert/vim-lsp-ultisnips'
+Plug 'hrsh7th/vim-vsnip'
+Plug 'hrsh7th/vim-vsnip-integ'
+Plug 'mattn/vim-lsp-icons'
+
+Plug 'microsoft/vscode-python'
+Plug 'Ikuyadeu/vscode-R'
 
 " Language specific syntax
 Plug 'Vimjas/vim-python-pep8-indent', { 'for': 'python' }
@@ -270,7 +269,7 @@ endif
 Plug 'tpope/vim-surround'
 Plug 'easymotion/vim-easymotion'
 Plug 'rhysd/accelerated-jk'
-Plug 'tyru/caw.vim', {'tag': 'v1.0' }
+Plug 'tyru/caw.vim'
 Plug 'kana/vim-smartchr'
 Plug 'junegunn/vim-easy-align'
 Plug 'Shougo/context_filetype.vim'
@@ -473,7 +472,7 @@ call denite#custom#option('default', {
       \ })
 
 " cpsm ---------------------------------------------
-let g:ctrlp_match_func = {'match': 'cpsm#CtrlPMatch'}
+" let g:ctrlp_match_func = {'match': 'cpsm#CtrlPMatch'}
 
 " Defx ---------------------------------------------
 call defx#custom#column('icon', {
@@ -779,7 +778,7 @@ let g:php_folding = 1
 " SimpylFold ---------------------------------------
 let g:SimpylFold_docstring_preview = 1
 
-" " vim-lsp ------------------------------------------
+" vim-lsp ------------------------------------------
 " Python: python-language-server
 let s:pyls_config = {'pyls': {'plugins': {
     \   'pycodestyle': {'enabled': v:false},
@@ -843,7 +842,6 @@ augroup lsp_install
   autocmd User lsp_buffer_enabled call s:on_lsp_buffer_enabled()
 augroup END
 
-
 let g:lsp_diagnostics_enabled = 1
 let g:lsp_highlights_enabled = 1
 let g:lsp_textprop_enabled = 1
@@ -855,13 +853,12 @@ let g:lsp_signs_warning = {'text': '‼'}
 let g:lsp_signs_information = {'text': 'i'}
 let g:lsp_signs_hint = {'text': '?'}
 
-
 " " Folding
 " set foldmethod=expr
 "       \ foldexpr=lsp#ui#vim#folding#foldexpr()
 "       \ foldtext=lsp#ui#vim#folding#foldtext()
 "
-" " " Debug
+" " Debug
 " let g:lsp_log_verbose = 1
 " let g:lsp_log_file = expand('~/vim-lsp.log')
 
@@ -917,20 +914,6 @@ au User asyncomplete_setup call asyncomplete#register_source(asyncomplete#source
       \ 'completor': function('asyncomplete#sources#necovim#completor'),
       \ }))
 
-" UltiSnips
-if has('python3')
-  let g:UltiSnipsExpandTrigger="<c-e>"
-  call asyncomplete#register_source(asyncomplete#sources#ultisnips#get_source_options({
-        \ 'name': 'ultisnips',
-        \ 'whitelist': ['*'],
-        \ 'completor': function('asyncomplete#sources#ultisnips#completor'),
-        \ }))
-endif
-
-let g:UltiSnipsExpandTrigger="<C-k>"
-let g:UltiSnipsJumpForwardTrigger="<tab>"
-let g:UltiSnipsJumpBackwardTrigger="<s-tab>"
-
 " ALE ----------------------------------------------
 " let g:ale_sign_column_always = 1
 " " let g:ale_lint_on_enter = 1
@@ -968,3 +951,12 @@ let g:black_linelength = 88
 let g:black_skip_string_normalization = 0
 let g:black_virtualenv = "~/.local/share/nvim/black"
 autocmd FileType python nnoremap <silent> <leader>df :Black<CR>
+
+" vim-vsnip ----------------------------------------
+imap <expr> <C-j> vsnip#available(1) ? '<Plug> (vsnip-expand)' : '<C-j>'
+imap <expr> <C-l> vsnip#available(1) ? '<Plug>(vsnip-expand-or-jump)' : '<C-l>'
+smap <expr> <C-l> vsnip#available(1) ? '<Plug>(vsnip-expand-or-jump)' : '<C-l>'
+" imap <expr> <Tab> vsnip#available(1) ? '<Plug>(vsnip-jump-next)' : '<Tab>'
+" smap <expr> <Tab> vsnip#available(1) ? '<Plug>(vsnip-jump-next)' : '<Tab>'
+" imap <expr> <S-Tab> vsnip#available(-1) ? '<Plug>(vsnip-jump-prev)' : '<S-Tab>'
+" smap <expr> <S-Tab> vsnip#available(-1) ? '<Plug>(vsnip-jump-prev)' : '<S-Tab>'
