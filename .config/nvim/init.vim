@@ -225,18 +225,13 @@ Plug 'Ikuyadeu/vscode-R'
 " Language specific syntax
 Plug 'Vimjas/vim-python-pep8-indent', { 'for': 'python' }
 Plug 'vim-ruby/vim-ruby', { 'for': 'ruby' }
-" Plug 'kballard/vim-swift', { 'for': 'swift' }
 Plug 'keith/swift.vim', { 'for': 'swift' }
-" Plug 'ryanolsonx/vim-lsp-swift', { 'for': 'swift'}
 Plug 'dag/vim-fish', { 'for': 'fish' }
 Plug 'cespare/vim-toml', { 'for': 'toml' }
 Plug 'hail2u/vim-css3-syntax', { 'for': 'css' }
 Plug 'elzr/vim-json', { 'for': 'json' }
 Plug 'lindemann09/jags.vim', { 'for': 'jags' }
 Plug 'mdlerch/mc-stan.vim', { 'for': 'stan' }
-
-" Code diagnostics
-" Plug 'dense-analysis/ale'
 
 " Runner
 Plug 'skywind3000/asyncrun.vim'
@@ -245,7 +240,6 @@ Plug 'skywind3000/asyncrun.vim'
 " Python
 Plug 'tmhedberg/simpylfold', { 'for': 'python' }
 Plug 'bfredl/nvim-ipy', { 'do': ':UpdateRemotePlugins' }
-Plug 'psf/black', { 'for': 'python' }
 
 " R
 Plug 'jalvesaq/Nvim-R', { 'for' : 'r' }
@@ -914,49 +908,8 @@ au User asyncomplete_setup call asyncomplete#register_source(asyncomplete#source
       \ 'completor': function('asyncomplete#sources#necovim#completor'),
       \ }))
 
-" ALE ----------------------------------------------
-" let g:ale_sign_column_always = 1
-" " let g:ale_lint_on_enter = 1
-" " let g:ale_lint_on_save = 1
-" let g:ale_fix_on_save = 0
-" let g:ale_sign_error = '✗'
-" let g:ale_sign_warning = '!!'
-"
-" nmap <silent> <leader>af : ALEFix<CR>
-"
-" let g:ale_linters = {
-"       \    'r': ['lintr'],
-"       \    'python': ['flake8'],
-"       \}
-"
-" let g:ale_fixers = {
-"       \    '*': ['remove_trailing_lines', 'trim_whitespace'],
-"       \    'python': ['autopep8', 'black', 'isort'],
-"       \    'r': ['styler'],
-"       \}
-"
-" let g:ale_python_flake8_options = '--max-line-length=88 --ignore=E203'
-" let g:ale_python_black_options = '-l 88'
-" let g:ale_python_isort_options = '-l 88'
-"
-" " lintr
-" let g:ale_r_lintr_options = get(g:, 'ale_r_lintr_options',
-"       \ 'lintr::with_defaults(line_length_linter(88),
-"       \                       single_quotes_linter = NULL
-"       \                       )')
-
-" Black --------------------------------------------
-let g:black_fast = 0
-let g:black_linelength = 88
-let g:black_skip_string_normalization = 0
-let g:black_virtualenv = "~/.local/share/nvim/black"
-autocmd FileType python nnoremap <silent> <leader>df :Black<CR>
-
 " vim-vsnip ----------------------------------------
-imap <expr> <C-j> vsnip#available(1) ? '<Plug> (vsnip-expand)' : '<C-j>'
+imap <expr> <C-j> vsnip#available(1) ? '<Plug>(vsnip-expand)' : '<C-j>'
+smap <expr> <C-j> vsnip#expandable() ? '<Plug>(vsnip-expand)' : '<C-j>'
 imap <expr> <C-l> vsnip#available(1) ? '<Plug>(vsnip-expand-or-jump)' : '<C-l>'
 smap <expr> <C-l> vsnip#available(1) ? '<Plug>(vsnip-expand-or-jump)' : '<C-l>'
-" imap <expr> <Tab> vsnip#available(1) ? '<Plug>(vsnip-jump-next)' : '<Tab>'
-" smap <expr> <Tab> vsnip#available(1) ? '<Plug>(vsnip-jump-next)' : '<Tab>'
-" imap <expr> <S-Tab> vsnip#available(-1) ? '<Plug>(vsnip-jump-prev)' : '<S-Tab>'
-" smap <expr> <S-Tab> vsnip#available(-1) ? '<Plug>(vsnip-jump-prev)' : '<S-Tab>'
