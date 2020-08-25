@@ -20,6 +20,11 @@ endif
 " Do not display completion messages
 set shortmess+=c
 
+" Python PATH
+if !isdirectory(expand('~/.pyenv'))
+  let g:python3_host_prog = $PYENV_ROOT . '/shims/python3'
+endif
+
 " Appearance ---------------------------------------
 set title
 set number
@@ -178,7 +183,6 @@ if has('nvim')
   tnoremap <C-l> <C-\><C-n><C-w>l
 endif
 
-
 " ==================================================
 " === Plugin Manager  ==============================
 " ==================================================
@@ -186,10 +190,11 @@ endif
 if has('vim_starting')
   set rtp+=~/.config/nvim/plugged/vim-plug
   if !isdirectory(expand('~/.config/nvim/plugged/vim-plug'))
-    echo 'install vim-plug...'
+    echo 'Installing vim-plug...'
     call system('mkdir -p ~/.config/nvim/plugged/vim-plug')
     call system('git clone https://github.com/junegunn/vim-plug.git
           \ ~/.config/nvim/plugged/vim-plug/autoload')
+    echo 'Done.'
   end
 endif
 
@@ -197,15 +202,10 @@ call plug#begin('~/.config/nvim/plugged')
 
 Plug 'junegunn/vim-plug', {'dir': '~/.config/nvim/plugged/vim-plug/autoload'}
 
-" Appearance
-Plug 'cocopon/iceberg.vim'
-Plug 'vim-airline/vim-airline'
-Plug 'vim-airline/vim-airline-themes'
-
 " Completion & Language Server Protocol
-Plug 'prabirshrestha/asyncomplete.vim'
-Plug 'prabirshrestha/async.vim'
 Plug 'prabirshrestha/vim-lsp'
+Plug 'prabirshrestha/async.vim'
+Plug 'prabirshrestha/asyncomplete.vim'
 Plug 'prabirshrestha/asyncomplete-lsp.vim'
 Plug 'prabirshrestha/asyncomplete-buffer.vim'
 Plug 'prabirshrestha/asyncomplete-file.vim'
@@ -218,7 +218,6 @@ Plug 'prabirshrestha/asyncomplete-necovim.vim'
 Plug 'hrsh7th/vim-vsnip'
 Plug 'hrsh7th/vim-vsnip-integ'
 Plug 'mattn/vim-lsp-icons'
-
 Plug 'microsoft/vscode-python'
 Plug 'Ikuyadeu/vscode-R'
 
@@ -239,7 +238,11 @@ Plug 'skywind3000/asyncrun.vim'
 
 " Python
 Plug 'tmhedberg/simpylfold', { 'for': 'python' }
-Plug 'bfredl/nvim-ipy', { 'do': ':UpdateRemotePlugins' }
+if empty(globpath(&rtp, 'plugin/ipy.vim'))
+  Plug 'bfredl/nvim-ipy'
+else
+  Plug 'bfredl/nvim-ipy', { 'do': ':UpdateRemotePlugins' }
+endif
 
 " R
 Plug 'jalvesaq/Nvim-R', { 'for' : 'r' }
@@ -260,6 +263,9 @@ if !has('nvim')
 endif
 
 " Misc
+Plug 'cocopon/iceberg.vim'
+Plug 'vim-airline/vim-airline'
+Plug 'vim-airline/vim-airline-themes'
 Plug 'tpope/vim-surround'
 Plug 'easymotion/vim-easymotion'
 Plug 'rhysd/accelerated-jk'
@@ -273,8 +279,16 @@ Plug 'Konfekt/FastFold'
 Plug 'dhruvasagar/vim-table-mode'
 Plug 'Raimondi/delimitMate'
 if has('nvim')
-  Plug 'Shougo/denite.nvim', {'do': ':UpdateRemotePlugins'}
-  Plug 'Shougo/defx.nvim', {'do': ':UpdateRemotePlugins'}
+  if empty(globpath(&rtp, 'plugin/denite.vim'))
+    Plug 'Shougo/denite.nvim'
+  else
+    Plug 'Shougo/denite.nvim', { 'do': ':UpdateRemotePlugins' }
+  endif
+  if empty(globpath(&rtp, 'plugin/defx.vim'))
+    Plug 'Shougo/defx.nvim'
+  else
+    Plug 'Shougo/defx.nvim', { 'do': ':UpdateRemotePlugins' }
+  endif
 else
   Plug 'Shougo/denite.nvim'
   Plug 'Shougo/defx.nvim'
@@ -286,9 +300,14 @@ Plug 'Shougo/vimproc.vim', {'do': 'make'}
 " Plug 'nixprime/cpsm', {'do': './install.sh'}
 Plug 'mechatroner/rainbow_csv'
 
-
 call plug#end()
 
+" Install plugins at the first time
+if empty(globpath(&rtp, 'autoload/lsp.vim'))
+  echo 'Installing plugins...'
+  :PlugInstall4
+  " source ~/.config/nvim/init.vim
+endif
 
 " ==================================================
 " === Plugin configurations ========================
@@ -693,12 +712,6 @@ let R_show_args_help = 0
 let R_wait_reply = 1
 let R_csv_delim = ','
 
-" csv.vim
-" let g:csv_delim_test = ','
-" let g:csv_highlight_column = 'y'
-" let g:csv_autocmd_arrange = 1
-" let g:csv_autocmd_arrange_size = 1024*1024
-
 " nvim-ipy -----------------------------------------
 autocmd FileType python
       \ map <silent><LocalLeader><Space> <Plug>(IPy-Run)
@@ -775,41 +788,41 @@ let g:SimpylFold_docstring_preview = 1
 " vim-lsp ------------------------------------------
 " Python: python-language-server
 let s:pyls_config = {'pyls': {'plugins': {
-    \   'pycodestyle': {'enabled': v:false},
-    \   'pydocstyle': {'enabled': v:false},
-    \   'pylint': {'enabled': v:false},
-    \   'flake8': {'enabled': v:true},
-    \   'jedi_definition': {
-    \     'follow_imports': v:true,
-    \     'follow_builtin_imports': v:true,
-    \   },
-    \ }}}
+   \   'pycodestyle': {'enabled': v:false},
+   \   'pydocstyle': {'enabled': v:false},
+   \   'pylint': {'enabled': v:false},
+   \   'flake8': {'enabled': v:true},
+   \   'jedi_definition': {
+   \     'follow_imports': v:true,
+   \     'follow_builtin_imports': v:true,
+   \   },
+   \ }}}
 
 if executable('pyls')
   au User lsp_setup call lsp#register_server({
-        \ 'name': 'pyls',
-        \ 'cmd': {server_info->['pyls']},
-        \ 'whitelist': ['python'],
-        \ 'workspace_config': s:pyls_config,
-        \ })
+       \ 'name': 'pyls',
+       \ 'cmd': {server_info->['pyls']},
+       \ 'whitelist': ['python'],
+       \ 'workspace_config': s:pyls_config,
+       \ })
 endif
 
 " R: languageserver
 if executable('R')
   au User lsp_setup call lsp#register_server({
-        \ 'name': 'languagueserver',
-        \ 'cmd': {server_info->['R', '--slave', '-e', 'languageserver::run()']},
-        \ 'whitelist': ['r'],
-        \ })
+       \ 'name': 'languagueserver',
+       \ 'cmd': {server_info->['R', '--slave', '-e', 'languageserver::run()']},
+       \ 'whitelist': ['r'],
+       \ })
 endif
 
 " Swift: sourcekit-lsp
 if executable('sourcekit-lsp')
   au User lsp_setup call lsp#register_server({
-        \ 'name': 'sourcekit-lsp',
-        \ 'cmd': {server_info->['sourcekit-lsp']},
-        \ 'whitelist': ['swift'],
-        \ })
+       \ 'name': 'sourcekit-lsp',
+       \ 'cmd': {server_info->['sourcekit-lsp']},
+       \ 'whitelist': ['swift'],
+       \ })
 endif
 
 function! s:on_lsp_buffer_enabled() abort
@@ -824,7 +837,7 @@ function! s:on_lsp_buffer_enabled() abort
     nmap <buffer> [g <Plug>(lsp-previous-diagnostic)
     nmap <buffer> ]g <Plug>(lsp-next-diagnostic)
     nmap <buffer> K <plug>(lsp-hover)
-    
+
     " refer to doc to add more commands
 endfunction
 
