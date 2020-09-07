@@ -789,13 +789,18 @@ let g:SimpylFold_docstring_preview = 1
 " Python: python-language-server
 let s:pyls_config = {'pyls': {'plugins': {
    \   'pycodestyle': {'enabled': v:false},
-   \   'pydocstyle': {'enabled': v:false},
+   \   'pydocstyle': {'enabled': v:true},
    \   'pylint': {'enabled': v:false},
    \   'flake8': {'enabled': v:true},
    \   'jedi_definition': {
    \     'follow_imports': v:true,
    \     'follow_builtin_imports': v:true,
    \   },
+   \   "pyls_mypy": {
+   \      "enabled": v:true,
+   \      "live_mode": v:false
+   \   },
+   \   "pyls_isort": {'enabled': v:true}
    \ }}}
 
 if executable('pyls')
