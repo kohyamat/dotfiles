@@ -204,6 +204,7 @@ Plug 'junegunn/vim-plug', {'dir': '~/.config/nvim/plugged/vim-plug/autoload'}
 
 " Completion & Language Server Protocol
 Plug 'prabirshrestha/vim-lsp'
+Plug 'mattn/vim-lsp-settings'
 Plug 'prabirshrestha/async.vim'
 Plug 'prabirshrestha/asyncomplete.vim'
 Plug 'prabirshrestha/asyncomplete-lsp.vim'
@@ -220,6 +221,7 @@ Plug 'hrsh7th/vim-vsnip-integ'
 Plug 'mattn/vim-lsp-icons'
 Plug 'microsoft/vscode-python'
 Plug 'Ikuyadeu/vscode-R'
+Plug 'dense-analysis/ale'
 
 " Language specific syntax
 Plug 'Vimjas/vim-python-pep8-indent', { 'for': 'python' }
@@ -786,93 +788,48 @@ let g:php_folding = 1
 let g:SimpylFold_docstring_preview = 1
 
 " vim-lsp ------------------------------------------
-" Python: python-language-server
-let s:pyls_config = {'pyls': {'plugins': {
-   \   'pycodestyle': {'enabled': v:false},
-   \   'pydocstyle': {'enabled': v:true},
-   \   'pylint': {'enabled': v:false},
-   \   'flake8': {'enabled': v:true},
-   \   'jedi_definition': {
-   \     'follow_imports': v:true,
-   \     'follow_builtin_imports': v:true,
-   \   },
-   \   "pyls_mypy": {
-   \      "enabled": v:true,
-   \      "live_mode": v:false
-   \   },
-   \   "pyls_isort": {'enabled': v:true}
-   \ }}}
-
-if executable('pyls')
-  au User lsp_setup call lsp#register_server({
-       \ 'name': 'pyls',
-       \ 'cmd': {server_info->['pyls']},
-       \ 'whitelist': ['python'],
-       \ 'workspace_config': s:pyls_config,
-       \ })
-endif
-
-" R: languageserver
-if executable('R')
-  au User lsp_setup call lsp#register_server({
-       \ 'name': 'languagueserver',
-       \ 'cmd': {server_info->['R', '--slave', '-e', 'languageserver::run()']},
-       \ 'whitelist': ['r'],
-       \ })
-endif
-
-" Swift: sourcekit-lsp
-if executable('sourcekit-lsp')
-  au User lsp_setup call lsp#register_server({
-       \ 'name': 'sourcekit-lsp',
-       \ 'cmd': {server_info->['sourcekit-lsp']},
-       \ 'whitelist': ['swift'],
-       \ })
-endif
-
 function! s:on_lsp_buffer_enabled() abort
-    setlocal omnifunc=lsp#complete
-    setlocal signcolumn=yes
-    if exists('+tagfunc') | setlocal tagfunc=lsp#tagfunc | endif
-    nmap <buffer> gd <plug>(lsp-definition)
-    nmap <buffer> gr <plug>(lsp-references)
-    nmap <buffer> gi <plug>(lsp-implementation)
-    nmap <buffer> gt <plug>(lsp-type-definition)
-    nmap <buffer> <leader>rn <plug>(lsp-rename)
-    nmap <buffer> [g <Plug>(lsp-previous-diagnostic)
-    nmap <buffer> ]g <Plug>(lsp-next-diagnostic)
-    nmap <buffer> K <plug>(lsp-hover)
-
-    " refer to doc to add more commands
+  setlocal omnifunc=lsp#complete
+  setlocal signcolumn=yes
+  nmap <buffer> gd <plug>(lsp-definition)
+  nmap <buffer> <f2> <plug>(lsp-rename)
+  inoremap <expr> <cr> pumvisible() ? "\<c-y>\<cr>" : "\<cr>"
 endfunction
-
-nnoremap <silent> <leader>df :LspDocumentFormat<CR>
+  
+autocmd Filetype * if &ft!="python"|nmap <buffer> df <plug>(lsp-document-format)|endif
 
 augroup lsp_install
   au!
-  " call s:on_lsp_buffer_enabled only for languages that has the server registered.
   autocmd User lsp_buffer_enabled call s:on_lsp_buffer_enabled()
 augroup END
 
+" Debug
+command! LspDebug let lsp_log_verbose=1 | let lsp_log_file = expand('~/lsp.log')
+
 let g:lsp_diagnostics_enabled = 1
+let g:lsp_diagnostics_echo_cursor = 1
 let g:lsp_highlights_enabled = 1
 let g:lsp_textprop_enabled = 1
-let g:lsp_diagnostics_echo_cursor = 1
-let g:lsp_virtual_text_enabled = 0
-let g:lsp_signs_enabled = 1
-let g:lsp_signs_error = {'text': '✗'}
-let g:lsp_signs_warning = {'text': '‼'}
-let g:lsp_signs_information = {'text': 'i'}
-let g:lsp_signs_hint = {'text': '?'}
+let g:lsp_text_edit_enabled = 1
 
-" " Folding
+let g:lsp_settings = {
+  \ 'pyls': {
+  \   'workspace_config': {
+  \     'pyls': {
+  \       'configurationSources': ['flake8'],
+  \       'plugins': {
+  \         'pydocstyle': {'enabled': v:true},
+  \         'yapf': {'enabled': v:false},
+  \       }
+  \     }
+  \   }
+  \ },
+  \}
+ 
+" Folding
 " set foldmethod=expr
 "       \ foldexpr=lsp#ui#vim#folding#foldexpr()
 "       \ foldtext=lsp#ui#vim#folding#foldtext()
-"
-" " Debug
-" let g:lsp_log_verbose = 1
-" let g:lsp_log_file = expand('~/vim-lsp.log')
 
 " asyncomplete.vim ---------------------------------
 " Tab completion
@@ -882,7 +839,7 @@ inoremap <expr> <cr> pumvisible() ? "\<C-y>" : "\<cr>"
 
 set completeopt-=preview
 
-" log
+" Debug
 " let g:asyncomplete_log_file = expand('~/asyncomplete.log')
 
 " Sources
@@ -925,6 +882,23 @@ au User asyncomplete_setup call asyncomplete#register_source(asyncomplete#source
       \ 'whitelist': ['vim'],
       \ 'completor': function('asyncomplete#sources#necovim#completor'),
       \ }))
+
+
+
+" ALE ----------------------------------------------
+autocmd FileType python
+      \ nmap <buffer> df <plug>(ale_fix)
+
+let g:ale_linters = {
+      \    'python': ['mypy'],
+      \}
+
+let g:ale_fixers = {
+      \    '*': ['remove_trailing_lines', 'trim_whitespace'],
+      \    'python': ['yapf', 'isort'],
+      \}
+
+let g:ale_python_isort_options = '-l 88'
 
 " vim-vsnip ----------------------------------------
 imap <expr> <C-j> vsnip#available(1) ? '<Plug>(vsnip-expand)' : '<C-j>'
