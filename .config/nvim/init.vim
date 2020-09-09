@@ -899,6 +899,7 @@ let g:ale_fixers = {
       \}
 
 let g:ale_python_isort_options = '-l 88'
+let g:ale_python_mypy_options = '--ignore-missing-imports'
 
 " vim-vsnip ----------------------------------------
 imap <expr> <C-j> vsnip#available(1) ? '<Plug>(vsnip-expand)' : '<C-j>'
