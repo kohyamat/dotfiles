@@ -811,6 +811,7 @@ let g:lsp_diagnostics_echo_cursor = 1
 let g:lsp_highlights_enabled = 1
 let g:lsp_textprop_enabled = 1
 let g:lsp_text_edit_enabled = 1
+let g:lsp_virtual_text_enabled = 0
 
 let g:lsp_settings = {
   \ 'pyls': {
@@ -895,9 +896,10 @@ let g:ale_linters = {
 
 let g:ale_fixers = {
       \    '*': ['remove_trailing_lines', 'trim_whitespace'],
-      \    'python': ['yapf', 'isort'],
+      \    'python': ['black', 'isort'],
       \}
 
+let g:ale_python_black_options = '-l 88'
 let g:ale_python_isort_options = '-l 88'
 let g:ale_python_mypy_options = '--ignore-missing-imports'
 
