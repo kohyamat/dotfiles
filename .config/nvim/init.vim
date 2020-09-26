@@ -92,8 +92,8 @@ set cindent
 set showmatch
 
 " Tabs and indents ---------------------------------
-set shiftwidth=4
-set tabstop=4
+set shiftwidth=2
+set tabstop=2
 set softtabstop=0
 set expandtab
 set smarttab
@@ -102,7 +102,6 @@ set smartindent
 set shiftround
 "set nowrap
 set textwidth=0
-autocmd FileType r setlocal ts=2 sts=2 sw=2
 
 " Folds --------------------------------------------
 set foldenable
@@ -624,7 +623,7 @@ inoremap <expr> , smartchr#one_of(', ', ',')
 
 augroup MyAutoCmd
   " Smart =.
-  autocmd FileType python,r,swift inoremap <expr> =
+  autocmd FileType python,r,swift,javascript inoremap <expr> =
         \ search('\(&\<bar><bar>\<bar>+\<bar>-\<bar>/\<bar>>\<bar><\) \%#', 'bcn')? '<bs>= '
         \ : search('\(*\<bar>!\)\%#', 'bcn') ? '= '
         \ : smartchr#one_of(' = ', '=', ' == ')
@@ -697,6 +696,11 @@ augroup END
 augroup r_file
   autocmd!
   autocmd FileType r nnoremap <silent> <Leader>r :AsyncRun Rscript "%"<CR>
+augroup END
+
+augroup javascript_file
+  autocmd!
+  autocmd FileType javascript nnoremap <silent> <Leader>r :AsyncRun  node "%"<CR>
 augroup END
 
 augroup swift_file
@@ -796,7 +800,7 @@ function! s:on_lsp_buffer_enabled() abort
   inoremap <expr> <cr> pumvisible() ? "\<c-y>\<cr>" : "\<cr>"
 endfunction
   
-autocmd Filetype * if &ft!="python"|nmap <buffer> df <plug>(lsp-document-format)|endif
+" autocmd Filetype * if &ft!="python"|nmap <buffer> df <plug>(lsp-document-format)|endif
 
 augroup lsp_install
   au!
@@ -887,8 +891,9 @@ au User asyncomplete_setup call asyncomplete#register_source(asyncomplete#source
 
 
 " ALE ----------------------------------------------
-autocmd FileType python
-      \ nmap <buffer> df <plug>(ale_fix)
+" autocmd FileType python
+"      \ nmap <buffer> df <plug>(ale_fix)
+nmap <buffer> df <plug>(ale_fix)
 
 let g:ale_linters = {
       \    'python': ['mypy'],
@@ -897,6 +902,11 @@ let g:ale_linters = {
 let g:ale_fixers = {
       \    '*': ['remove_trailing_lines', 'trim_whitespace'],
       \    'python': ['black', 'isort'],
+      \    'css': ['prettier'],
+      \    'html': ['prettier'],
+      \    'javascript': ['prettier'],
+      \    'markdown': ['prettier'],
+      \    'r': ['styler'],
       \}
 
 let g:ale_python_black_options = '-l 88'
