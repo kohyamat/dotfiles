@@ -124,10 +124,6 @@ set foldcolumn=2
 " vv select to end line
 vnoremap v $h
 
-" Jumping to matchpair
-" nnoremap <Tab> %
-" vnoremap <Tab> %
-
 " Window
 nnoremap s <Nop>
 nnoremap ss :split<CR>
@@ -204,25 +200,20 @@ Plug 'junegunn/vim-plug', {'dir': '~/.config/nvim/plugged/vim-plug/autoload'}
 " Completion & Language Server Protocol
 Plug 'prabirshrestha/vim-lsp'
 Plug 'mattn/vim-lsp-settings'
+Plug 'mattn/vim-lsp-icons'
 Plug 'prabirshrestha/async.vim'
 Plug 'prabirshrestha/asyncomplete.vim'
 Plug 'prabirshrestha/asyncomplete-lsp.vim'
 Plug 'prabirshrestha/asyncomplete-buffer.vim'
 Plug 'prabirshrestha/asyncomplete-file.vim'
-Plug 'Shougo/neoinclude.vim'
-Plug 'kyouryuukunn/asyncomplete-neoinclude.vim'
-Plug 'Shougo/neco-syntax'
-Plug 'prabirshrestha/asyncomplete-necosyntax.vim'
-Plug 'Shougo/neco-vim'
-Plug 'prabirshrestha/asyncomplete-necovim.vim'
+Plug 'dense-analysis/ale'
 Plug 'hrsh7th/vim-vsnip'
 Plug 'hrsh7th/vim-vsnip-integ'
-Plug 'mattn/vim-lsp-icons'
 Plug 'microsoft/vscode-python'
 Plug 'Ikuyadeu/vscode-R'
-Plug 'dense-analysis/ale'
+Plug 'xabikos/vscode-javascript'
 
-" Language specific syntax
+" Syntax
 Plug 'Vimjas/vim-python-pep8-indent', { 'for': 'python' }
 Plug 'vim-ruby/vim-ruby', { 'for': 'ruby' }
 Plug 'keith/swift.vim', { 'for': 'swift' }
@@ -235,7 +226,6 @@ Plug 'mdlerch/mc-stan.vim', { 'for': 'stan' }
 
 " Runner
 Plug 'skywind3000/asyncrun.vim'
-" Plug 'thinca/vim-quickrun'
 
 " Python
 Plug 'tmhedberg/simpylfold', { 'for': 'python' }
@@ -247,7 +237,6 @@ endif
 
 " R
 Plug 'jalvesaq/Nvim-R', { 'for' : 'r' }
-" Plug 'chrisbra/csv.vim'
 
 " Markdown
 Plug 'plasticboy/vim-markdown', { 'for': 'markdown' }
@@ -270,9 +259,8 @@ Plug 'vim-airline/vim-airline-themes'
 Plug 'tpope/vim-surround'
 Plug 'easymotion/vim-easymotion'
 Plug 'rhysd/accelerated-jk'
-Plug 'tyru/caw.vim'
+Plug 'tpope/vim-commentary'
 Plug 'kana/vim-smartchr'
-Plug 'junegunn/vim-easy-align'
 Plug 'Shougo/context_filetype.vim'
 Plug 'osyo-manga/vim-precious'
 Plug 'alvan/vim-closetag'
@@ -298,7 +286,6 @@ else
 endif
 Plug 'Shougo/neomru.vim'
 Plug 'Shougo/vimproc.vim', {'do': 'make'}
-" Plug 'nixprime/cpsm', {'do': './install.sh'}
 Plug 'mechatroner/rainbow_csv'
 
 call plug#end()
@@ -307,7 +294,6 @@ call plug#end()
 if empty(globpath(&rtp, 'autoload/lsp.vim'))
   echo 'Installing plugins...'
   :PlugInstall4
-  " source ~/.config/nvim/init.vim
 endif
 
 " ==================================================
@@ -485,9 +471,6 @@ call denite#custom#option('default', {
       \ 'winrow': float2nr((&lines - (&lines * s:denite_win_height_percent)) / 2),
       \ })
 
-" cpsm ---------------------------------------------
-" let g:ctrlp_match_func = {'match': 'cpsm#CtrlPMatch'}
-
 " Defx ---------------------------------------------
 call defx#custom#column('icon', {
       \ 'directory_icon': '▸',
@@ -606,60 +589,23 @@ let g:EasyMotion_verbose = 0
 nmap <silent>j <Plug>(accelerated_jk_gj)
 nmap <silent>k <Plug>(accelerated_jk_gk)
 
-" Caw ----------------------------------------------
-nmap <Leader>c <Plug>(caw:hatpos:toggle)
-vmap <Leader>c <Plug>(caw:hatpos:toggle)
-nmap <Leader># <Plug>(caw:zeropos:toggle)
-vmap <Leader># <Plug>(caw:zeropos:toggle)
-
-" vim-easyalign ------------------------------------
-"Start interactive EasyAlign in visual mode (e.g. vipga)
-xmap ga <Plug>(EasyAlign)
-" Start interactive EasyAlign for a motion/text object (e.g. gaip)
-nmap ga <Plug>(EasyAlign)
-
 " smartchr -----------------------------------------
 inoremap <expr> , smartchr#one_of(', ', ',')
 
 augroup MyAutoCmd
-  " Smart =.
-  autocmd FileType python,r,swift,javascript inoremap <expr> =
-        \ search('\(&\<bar><bar>\<bar>+\<bar>-\<bar>/\<bar>>\<bar><\) \%#', 'bcn')? '<bs>= '
-        \ : search('\(*\<bar>!\)\%#', 'bcn') ? '= '
-        \ : smartchr#one_of(' = ', '=', ' == ')
-  " Substitute .. into -> .
-  autocmd FileType c,cpp inoremap <buffer> <expr> .
-        \ smartchr#loop('.', '->', '...')
-  autocmd FileType perl,php inoremap <buffer> <expr> .
-        \ smartchr#loop(' . ', '->', '.')
-  autocmd FileType perl,php inoremap <buffer> <expr> -
-        \ smartchr#loop('-', '->')
-  autocmd FileType vim inoremap <buffer> <expr> .
-        \ smartchr#loop('.', ' . ', '..', '...')
-  autocmd FileType lisp,scheme,clojure inoremap <buffer> <expr> = =
-  autocmd FileType haskell,int-ghci
-        \ inoremap <buffer> <expr> + smartchr#loop('+', ' ++ ')
-        \| inoremap <buffer> <expr> - smartchr#loop('-', ' -> ', ' <- ')
-        \| inoremap <buffer> <expr> $ smartchr#loop(' $ ', '$')
-        \| inoremap <buffer> <expr> \ smartchr#loop('\ ', '\')
-        \| inoremap <buffer> <expr> : smartchr#loop(':', ' :: ', ' : ')
-        \| inoremap <buffer> <expr> . smartchr#loop('.', ' . ', '..')
-  autocmd FileType scala
-        \ inoremap <buffer> <expr> - smartchr#loop('-', ' -> ', ' <- ')
-        \| inoremap <buffer> <expr> = smartchr#loop(' = ', '=', ' => ')
-        \| inoremap <buffer> <expr> : smartchr#loop(': ', ':', ' :: ')
-        \| inoremap <buffer> <expr> . smartchr#loop('.', ' => ')
-  autocmd FileType eruby
-        \ inoremap <buffer> <expr> > smartchr#loop('>', '%>')
-        \| inoremap <buffer> <expr> < smartchr#loop('<', '<%', '<%=')
+  autocmd FileType python inoremap <expr> =
+        \ smartchr#one_of(' = ', '=', ' == ')
+  autocmd FileType javascript inoremap <buffer> <expr> =
+        \ smartchr#loop(' = ', '=', ' == ', ' => ')
   autocmd FileType r
         \ inoremap <buffer> <expr> _ smartchr#loop('_', ' <- ', ' -> ')
-        " \| inoremap <buffer> <expr> + smartchr#loop(' + ', '+')
-        " \| inoremap <buffer> <expr> - smartchr#loop(' - ', '-')
-        " \| inoremap <buffer> <expr> < smartchr#loop(' < ', ' <= ', '<')
-        " \| inoremap <buffer> <expr> > smartchr#loop(' > ', ' >= ', '>')
         \| inoremap <buffer> <expr> ! smartchr#loop('!', ' != ')
 augroup END
+
+" delimitMate --------------------------------------
+" make compatible with vim-closetag
+autocmd FileType html
+      \ let b:delimitMate_matchpairs = "(:),[:],{:}"
 
 " context_filetype ---------------------------------
 if !exists('g:context_filetype#filetypes')
@@ -799,8 +745,6 @@ function! s:on_lsp_buffer_enabled() abort
   nmap <buffer> <f2> <plug>(lsp-rename)
   inoremap <expr> <cr> pumvisible() ? "\<c-y>\<cr>" : "\<cr>"
 endfunction
-  
-" autocmd Filetype * if &ft!="python"|nmap <buffer> df <plug>(lsp-document-format)|endif
 
 augroup lsp_install
   au!
@@ -830,7 +774,7 @@ let g:lsp_settings = {
   \   }
   \ },
   \}
- 
+
 " Folding
 " set foldmethod=expr
 "       \ foldexpr=lsp#ui#vim#folding#foldexpr()
@@ -844,15 +788,11 @@ inoremap <expr> <cr> pumvisible() ? "\<C-y>" : "\<cr>"
 
 set completeopt-=preview
 
-" Debug
-" let g:asyncomplete_log_file = expand('~/asyncomplete.log')
-
 " Sources
 " Buffer
 call asyncomplete#register_source(asyncomplete#sources#buffer#get_source_options({
       \ 'name': 'buffer',
       \ 'whitelist': ['*'],
-      \ 'blacklist': ['go'],
       \ 'completor': function('asyncomplete#sources#buffer#completor'),
       \ 'config': {
       \    'max_buffer_size': 5000000,
@@ -866,33 +806,10 @@ au User asyncomplete_setup call asyncomplete#register_source(asyncomplete#source
       \ 'completor': function('asyncomplete#sources#file#completor')
       \ }))
 
-" Syntax
-" au User asyncomplete_setup call asyncomplete#register_source(asyncomplete#sources#necosyntax#get_source_options({
-"       \ 'name': 'necosyntax',
-"       \ 'whitelist': ['*'],
-"       \ 'completor': function('asyncomplete#sources#necosyntax#completor'),
-"       \ }))
-
-" Include
-au User asyncomplete_setup call asyncomplete#register_source(asyncomplete#sources#neoinclude#get_source_options({
-      \ 'name': 'neoinclude',
-      \ 'whitelist': ['cpp'],
-      \ 'refresh_pattern': '\(<\|"\|/\)$',
-      \ 'completor': function('asyncomplete#sources#neoinclude#completor'),
-      \ }))
-
-" Vim
-au User asyncomplete_setup call asyncomplete#register_source(asyncomplete#sources#necovim#get_source_options({
-      \ 'name': 'necovim',
-      \ 'whitelist': ['vim'],
-      \ 'completor': function('asyncomplete#sources#necovim#completor'),
-      \ }))
-
-
+" Debug
+command! AscDebug let g:asyncomplete_log_file = expand('~/asyncomplete.log')
 
 " ALE ----------------------------------------------
-" autocmd FileType python
-"      \ nmap <buffer> df <plug>(ale_fix)
 nmap <buffer> df <plug>(ale_fix)
 
 let g:ale_linters = {
@@ -914,7 +831,6 @@ let g:ale_python_isort_options = '-l 88'
 let g:ale_python_mypy_options = '--ignore-missing-imports'
 
 " vim-vsnip ----------------------------------------
-imap <expr> <C-j> vsnip#available(1) ? '<Plug>(vsnip-expand)' : '<C-j>'
-smap <expr> <C-j> vsnip#expandable() ? '<Plug>(vsnip-expand)' : '<C-j>'
-imap <expr> <C-l> vsnip#available(1) ? '<Plug>(vsnip-expand-or-jump)' : '<C-l>'
-smap <expr> <C-l> vsnip#available(1) ? '<Plug>(vsnip-expand-or-jump)' : '<C-l>'
+imap <expr> <C-j>   vsnip#available(1)  ? '<Plug>(vsnip-expand)'         : '<C-j>'
+imap <expr> <C-l>   vsnip#available(1)  ? '<Plug>(vsnip-expand-or-jump)' : '<C-l>'
+smap <expr> <C-l>   vsnip#available(1)  ? '<Plug>(vsnip-expand-or-jump)' : '<C-l>'
