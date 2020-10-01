@@ -88,7 +88,6 @@ set ignorecase
 set smartcase
 set wrapscan
 set hlsearch
-set cindent
 set showmatch
 
 " Tabs and indents ---------------------------------
@@ -99,6 +98,7 @@ set expandtab
 set smarttab
 set autoindent
 set smartindent
+" set cindent
 set shiftround
 "set nowrap
 set textwidth=0
@@ -214,15 +214,17 @@ Plug 'Ikuyadeu/vscode-R'
 Plug 'xabikos/vscode-javascript'
 
 " Syntax
-Plug 'Vimjas/vim-python-pep8-indent', { 'for': 'python' }
-Plug 'vim-ruby/vim-ruby', { 'for': 'ruby' }
-Plug 'keith/swift.vim', { 'for': 'swift' }
-Plug 'dag/vim-fish', { 'for': 'fish' }
-Plug 'cespare/vim-toml', { 'for': 'toml' }
-Plug 'hail2u/vim-css3-syntax', { 'for': 'css' }
-Plug 'elzr/vim-json', { 'for': 'json' }
-Plug 'lindemann09/jags.vim', { 'for': 'jags' }
-Plug 'mdlerch/mc-stan.vim', { 'for': 'stan' }
+Plug 'Vimjas/vim-python-pep8-indent'
+Plug 'vim-ruby/vim-ruby'
+Plug 'keith/swift.vim'
+Plug 'dag/vim-fish'
+Plug 'cespare/vim-toml'
+Plug 'hail2u/vim-css3-syntax'
+Plug 'elzr/vim-json'
+Plug 'lindemann09/jags.vim'
+Plug 'mdlerch/mc-stan.vim'
+Plug 'dart-lang/dart-vim-plugin'
+Plug 'thosakwe/vim-flutter'
 
 " Runner
 Plug 'skywind3000/asyncrun.vim'
@@ -259,10 +261,10 @@ Plug 'vim-airline/vim-airline-themes'
 Plug 'tpope/vim-surround'
 Plug 'easymotion/vim-easymotion'
 Plug 'rhysd/accelerated-jk'
-Plug 'tpope/vim-commentary'
+Plug 'tyru/caw.vim'
 Plug 'kana/vim-smartchr'
 Plug 'Shougo/context_filetype.vim'
-Plug 'osyo-manga/vim-precious'
+" Plug 'osyo-manga/vim-precious'
 Plug 'alvan/vim-closetag'
 Plug 'Konfekt/FastFold'
 Plug 'dhruvasagar/vim-table-mode'
@@ -603,6 +605,12 @@ augroup MyAutoCmd
 augroup END
 
 " delimitMate --------------------------------------
+let g:delimitMate_autoclose = 1
+let g:delimitMate_matchpairs = "(:),[:],{:},<:>"
+let g:delimitMate_jump_expansion = 1
+let g:delimitMate_expand_space = 1
+let g:delimitMate_expand_cr = 1
+let g:delimitMate_expand_inside_quotes = 1
 " make compatible with vim-closetag
 autocmd FileType html
       \ let b:delimitMate_matchpairs = "(:),[:],{:}"
@@ -646,7 +654,12 @@ augroup END
 
 augroup javascript_file
   autocmd!
-  autocmd FileType javascript nnoremap <silent> <Leader>r :AsyncRun  node "%"<CR>
+  autocmd FileType javascript nnoremap <silent> <Leader>r :AsyncRun node "%"<CR>
+augroup END
+
+augroup dart_file
+  autocmd!
+  autocmd FileType dart nnoremap <silent> <Leader>r :AsyncRun dart "%"<CR>
 augroup END
 
 augroup swift_file
@@ -784,7 +797,7 @@ let g:lsp_settings = {
 " Tab completion
 inoremap <expr> <Tab> pumvisible() ? "\<C-n>" : "\<Tab>"
 inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
-inoremap <expr> <cr> pumvisible() ? "\<C-y>" : "\<cr>"
+" inoremap <expr> <CR> pumvisible() ? "\<C-y>" : "\<CR>"
 
 set completeopt-=preview
 
@@ -797,14 +810,14 @@ call asyncomplete#register_source(asyncomplete#sources#buffer#get_source_options
       \ 'config': {
       \    'max_buffer_size': 5000000,
       \  },
-      \ }))
+      \}))
 
 " Files and directories
 au User asyncomplete_setup call asyncomplete#register_source(asyncomplete#sources#file#get_source_options({
       \ 'name': 'file',
       \ 'whitelist': ['*'],
       \ 'completor': function('asyncomplete#sources#file#completor')
-      \ }))
+      \}))
 
 " Debug
 command! AscDebug let g:asyncomplete_log_file = expand('~/asyncomplete.log')
@@ -813,17 +826,18 @@ command! AscDebug let g:asyncomplete_log_file = expand('~/asyncomplete.log')
 nmap <buffer> df <plug>(ale_fix)
 
 let g:ale_linters = {
-      \    'python': ['mypy'],
+      \ 'python': ['mypy'],
       \}
 
 let g:ale_fixers = {
-      \    '*': ['remove_trailing_lines', 'trim_whitespace'],
-      \    'python': ['black', 'isort'],
-      \    'css': ['prettier'],
-      \    'html': ['prettier'],
-      \    'javascript': ['prettier'],
-      \    'markdown': ['prettier'],
-      \    'r': ['styler'],
+      \ '*': ['remove_trailing_lines', 'trim_whitespace'],
+      \ 'python': ['black', 'isort'],
+      \ 'css': ['prettier'],
+      \ 'html': ['prettier'],
+      \ 'javascript': ['prettier'],
+      \ 'markdown': ['prettier'],
+      \ 'dart': ['dartfmt'],
+      \ 'r': ['styler'],
       \}
 
 let g:ale_python_black_options = '-l 88'
@@ -834,3 +848,7 @@ let g:ale_python_mypy_options = '--ignore-missing-imports'
 imap <expr> <C-j>   vsnip#available(1)  ? '<Plug>(vsnip-expand)'         : '<C-j>'
 imap <expr> <C-l>   vsnip#available(1)  ? '<Plug>(vsnip-expand-or-jump)' : '<C-l>'
 smap <expr> <C-l>   vsnip#available(1)  ? '<Plug>(vsnip-expand-or-jump)' : '<C-l>'
+
+" dart-vim-plugin ----------------------------------
+let g:dart_style_guide = 1
+let dart_html_in_string = v:true
