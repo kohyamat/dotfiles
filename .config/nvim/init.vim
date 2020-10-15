@@ -835,6 +835,7 @@ let g:ale_fixers = {
       \ 'css': ['prettier'],
       \ 'html': ['prettier'],
       \ 'javascript': ['prettier'],
+      \ 'json': ['prettier'],
       \ 'markdown': ['prettier'],
       \ 'dart': ['dartfmt'],
       \ 'r': ['styler'],
