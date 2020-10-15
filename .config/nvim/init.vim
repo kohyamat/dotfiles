@@ -7,7 +7,7 @@ let maplocalleader = ","
 set mouse=a
 set noerrorbells
 set backspace=indent,eol,start
-"set clipboard=unnamed
+set clipboard+=unnamedplus
 set pastetoggle=<F12>
 set nrformats-=octal
 set timeout ttimeout
