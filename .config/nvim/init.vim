@@ -389,7 +389,7 @@ endfunction
 
 " Change file/rec command.
 if executable('rg')
-  call denite#custom#var('file_rec', 'command',
+  call denite#custom#var('file/rec', 'command',
         \ ['rg', '--files', '--glob', '!.git'])
   call denite#custom#var('grep', 'command', ['rg', '--threads', '1'])
   call denite#custom#var('grep', 'recursive_opts', [])
@@ -398,7 +398,7 @@ if executable('rg')
   call denite#custom#var('grep', 'default_opts',
         \ ['--vimgrep', '--no-heading'])
 else
-  call denite#custom#var('file_rec', 'command',
+  call denite#custom#var('file/rec', 'command',
         \ ['ag', '--follow', '--nocolor', '--nogroup', '-g', ''])
 endif
 
@@ -450,7 +450,11 @@ call denite#custom#var('file/rec/py', 'command',
 " Change ignore_globs
 call denite#custom#filter('matcher/ignore_globs', 'ignore_globs',
       \ [ '.git/', '.ropeproject/', '__pycache__/',
-      \   'venv/', 'images/', '*.min.*', 'img/', 'fonts/'])
+      \   'venv/', 'images/', '*.min.*', 'img/', 'fonts/',
+      \   '.mypy_cache/'])
+
+call denite#custom#var(
+     \ 'buffer', 'exclude_filetypes', ['denite', 'nvim-ipy'])
 
 " Custom action
 " Note: lambda function is not supported in Vim8.
@@ -692,15 +696,17 @@ function! StartIPython()
   call IPyConnect("--no-window")
   " vertical ball
   vertical rightbelow 80split [jupyter]
+  setfiletype nvim-ipy
   wincmd h
 endfunction
 
 function! QuitIPython()
   let s:bufNr = bufnr("$")
   while s:bufNr > 0
-    if (matchstr(bufname(s:bufNr), "^\[jupyter") ==  "[jupyter")
+    if (matchstr(bufname(s:bufNr), "^\[jupyter") ==  "[jupyter") && buflisted(s:bufNr)
+      call setbufvar(s:bufNr, "&bl", 0)
       call IPyTerminate()
-      execute "q! ".s:bufNr
+      execute "bd! ".s:bufNr
     endif
     let s:bufNr = s:bufNr - 1
   endwhile
@@ -823,7 +829,7 @@ au User asyncomplete_setup call asyncomplete#register_source(asyncomplete#source
 command! AscDebug let g:asyncomplete_log_file = expand('~/asyncomplete.log')
 
 " ALE ----------------------------------------------
-nmap <buffer> df <plug>(ale_fix)
+nmap <silent> <Leader>f <plug>(ale_fix)
 
 let g:ale_linters = {
       \ 'python': ['mypy'],
