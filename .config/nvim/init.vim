@@ -166,8 +166,8 @@ nnoremap g# g#zz
 nnoremap <silent> <Esc><Esc> :nohlsearch<CR>
 
 " Get away from inside [], (), {}, «», '', "", **
-inoremap <c-g> <esc>/[)}*"»'`\]*]<cr>:nohl<cr>a
-nnoremap <c-g> /[)}*"»'`\]*]<cr>:nohl<cr>a
+" inoremap <c-g> <esc>/[)}*"»'`\]*]<cr>:nohl<cr>a
+" nnoremap <c-g> /[)}*"»'`\]*]<cr>:nohl<cr>a
 
 " Terminal mode
 if has('nvim')
@@ -225,6 +225,7 @@ Plug 'lindemann09/jags.vim'
 Plug 'mdlerch/mc-stan.vim'
 Plug 'dart-lang/dart-vim-plugin'
 Plug 'thosakwe/vim-flutter'
+Plug 'posva/vim-vue'
 
 " Runner
 Plug 'skywind3000/asyncrun.vim'
@@ -614,9 +615,9 @@ let g:delimitMate_matchpairs = "(:),[:],{:},<:>"
 let g:delimitMate_jump_expansion = 1
 let g:delimitMate_expand_space = 1
 let g:delimitMate_expand_cr = 1
-let g:delimitMate_expand_inside_quotes = 1
+let g:delimitMate_expand_inside_quotes = 0
 " make compatible with vim-closetag
-autocmd FileType html
+autocmd FileType html,vue
       \ let b:delimitMate_matchpairs = "(:),[:],{:}"
 
 " context_filetype ---------------------------------
@@ -842,6 +843,7 @@ let g:ale_fixers = {
       \ 'html': ['prettier'],
       \ 'javascript': ['prettier'],
       \ 'json': ['prettier'],
+      \ 'vue': ['prettier'],
       \ 'markdown': ['prettier'],
       \ 'dart': ['dartfmt'],
       \ 'r': ['styler'],
