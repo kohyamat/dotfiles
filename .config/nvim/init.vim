@@ -21,7 +21,7 @@ endif
 set shortmess+=c
 
 " Python PATH
-if !isdirectory(expand('~/.pyenv'))
+if isdirectory(expand('~/.pyenv'))
   let g:python3_host_prog = $PYENV_ROOT . '/shims/python3'
 endif
 
