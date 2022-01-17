@@ -662,6 +662,11 @@ augroup javascript_file
   autocmd FileType javascript nnoremap <silent> <Leader>r :AsyncRun node "%"<CR>
 augroup END
 
+augroup typescript_file
+  autocmd!
+  autocmd FileType typescript nnoremap <silent> <Leader>r :AsyncRun tsc "%"<CR>
+augroup END
+
 augroup dart_file
   autocmd!
   autocmd FileType dart nnoremap <silent> <Leader>r :AsyncRun dart "%"<CR>
@@ -782,13 +787,17 @@ let g:lsp_text_edit_enabled = 1
 let g:lsp_virtual_text_enabled = 0
 
 let g:lsp_settings = {
-  \ 'pyls': {
+  \ 'pylsp': {
   \   'workspace_config': {
-  \     'pyls': {
+  \     'pylsp': {
   \       'configurationSources': ['flake8'],
   \       'plugins': {
-  \         'pydocstyle': {'enabled': v:true},
-  \         'yapf': {'enabled': v:false},
+  \         'flake8': {'enabled': 1},
+  \         'mccabe': {'enabled': 0},
+  \         'pycodestyle': {'enabled': 0},
+  \         'pydocstyle': {'enabled': 1},
+  \         'pyflakes': {'enabled': 0},
+  \         'yapf': {'enabled': 0},
   \       }
   \     }
   \   }
@@ -842,6 +851,7 @@ let g:ale_fixers = {
       \ 'css': ['prettier'],
       \ 'html': ['prettier'],
       \ 'javascript': ['prettier'],
+      \ 'typescript': ['prettier'],
       \ 'json': ['prettier'],
       \ 'vue': ['prettier'],
       \ 'markdown': ['prettier'],
