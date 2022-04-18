@@ -23,19 +23,228 @@ return require("packer").startup(function(use)
   use("hrsh7th/vim-vsnip")
   use("hrsh7th/cmp-buffer")
   use("hrsh7th/cmp-path")
+  use("hrsh7th/cmp-cmdline")
   use("hrsh7th/cmp-nvim-lsp-signature-help")
+  use("hrsh7th/cmp-nvim-lsp-document-symbol")
+  use("hrsh7th/cmp-omni")
+  use("onsails/lspkind-nvim")
+  use("ray-x/cmp-treesitter")
+  use("folke/lsp-colors.nvim")
 
   -- Fuzzy finder
   use({
     "nvim-telescope/telescope.nvim",
     requires = { { "nvim-lua/plenary.nvim" } },
+    config = function()
+      require("telescope").setup({
+        pickers = {
+          find_files = {
+            theme = "dropdown",
+          },
+        },
+      })
+    end,
   })
   use({ "nvim-telescope/telescope-fzf-native.nvim", run = "make" })
+
+  -- Filer
+  use({
+    "nvim-neo-tree/neo-tree.nvim",
+    branch = "v2.x",
+    requires = {
+      "nvim-lua/plenary.nvim",
+      "kyazdani42/nvim-web-devicons", -- not strictly required, but recommended
+      "MunifTanjim/nui.nvim",
+      {
+        -- only needed if you want to use the "open_window_picker" command
+        "s1n7ax/nvim-window-picker",
+        tag = "1.*",
+        config = function()
+          require("window-picker").setup({
+            autoselect_one = true,
+            include_current = false,
+            filter_rules = {
+              -- filter using buffer options
+              bo = {
+                -- if the file type is one of following, the window will be ignored
+                filetype = { "neo-tree", "neo-tree-popup", "notify", "quickfix" },
+
+                -- if the buffer type is one of following, the window will be ignored
+                buftype = { "terminal" },
+              },
+            },
+            other_win_hl_color = "#e35e4f",
+          })
+        end,
+      },
+    },
+    config = function()
+      -- Unless you are still migrating, remove the deprecated commands from v1.x
+      vim.cmd([[ let g:neo_tree_remove_legacy_commands = 1 ]])
+
+      -- If you want icons for diagnostic errors, you'll need to define them somewhere:
+      vim.fn.sign_define("DiagnosticSignError", { text = " ", texthl = "DiagnosticSignError" })
+      vim.fn.sign_define("DiagnosticSignWarn", { text = " ", texthl = "DiagnosticSignWarn" })
+      vim.fn.sign_define("DiagnosticSignInfo", { text = " ", texthl = "DiagnosticSignInfo" })
+      vim.fn.sign_define("DiagnosticSignHint", { text = "", texthl = "DiagnosticSignHint" })
+      -- NOTE: this is changed from v1.x, which used the old style of highlight groups
+      -- in the form "LspDiagnosticsSignWarning"
+
+      require("neo-tree").setup({
+        close_if_last_window = false, -- Close Neo-tree if it is the last window left in the tab
+        popup_border_style = "rounded",
+        enable_git_status = true,
+        enable_diagnostics = true,
+        default_component_configs = {
+          indent = {
+            indent_size = 2,
+            padding = 1, -- extra padding on left hand side
+            -- indent guides
+            with_markers = true,
+            indent_marker = "│",
+            last_indent_marker = "└",
+            highlight = "NeoTreeIndentMarker",
+            -- expander config, needed for nesting files
+            with_expanders = nil, -- if nil and file nesting is enabled, will enable expanders
+            expander_collapsed = "",
+            expander_expanded = "",
+            expander_highlight = "NeoTreeExpander",
+          },
+          icon = {
+            folder_closed = "",
+            folder_open = "",
+            folder_empty = "ﰊ",
+            default = "*",
+          },
+          modified = {
+            symbol = "[+]",
+            highlight = "NeoTreeModified",
+          },
+          name = {
+            trailing_slash = false,
+            use_git_status_colors = true,
+          },
+          git_status = {
+            symbols = {
+              -- Change type
+              added = "", -- or "✚", but this is redundant info if you use git_status_colors on the name
+              modified = "", -- or "", but this is redundant info if you use git_status_colors on the name
+              deleted = "✖", -- this can only be used in the git_status source
+              renamed = "", -- this can only be used in the git_status source
+              -- Status type
+              untracked = "",
+              ignored = "",
+              unstaged = "",
+              staged = "",
+              conflict = "",
+            },
+          },
+        },
+        window = {
+          position = "left",
+          width = 40,
+          mapping_options = {
+            noremap = true,
+            nowait = true,
+          },
+          mappings = {
+            ["<space>"] = {
+              "toggle_node",
+              nowait = false, -- disable `nowait` if you have existing combos starting with this char that you want to use
+            },
+            ["<2-LeftMouse>"] = "open",
+            ["<cr>"] = "open",
+            ["S"] = "open_split",
+            ["s"] = "open_vsplit",
+            ["t"] = "open_tabnew",
+            ["w"] = "open_with_window_picker",
+            ["C"] = "close_node",
+            ["a"] = "add",
+            ["A"] = "add_directory",
+            ["d"] = "delete",
+            ["r"] = "rename",
+            ["y"] = "copy_to_clipboard",
+            ["x"] = "cut_to_clipboard",
+            ["p"] = "paste_from_clipboard",
+            ["c"] = "copy", -- takes text input for destination
+            ["m"] = "move", -- takes text input for destination
+            ["q"] = "close_window",
+            ["R"] = "refresh",
+          },
+        },
+        nesting_rules = {},
+        filesystem = {
+          filtered_items = {
+            visible = false, -- when true, they will just be displayed differently than normal items
+            hide_dotfiles = true,
+            hide_gitignored = true,
+            hide_by_name = {
+              ".DS_Store",
+              "thumbs.db",
+              --"node_modules"
+            },
+            hide_by_pattern = { -- uses glob style patterns
+              --"*.meta"
+            },
+            never_show = { -- remains hidden even if visible is toggled to true
+              --".DS_Store",
+              --"thumbs.db"
+            },
+          },
+          follow_current_file = true, -- This will find and focus the file in the active buffer every
+          -- time the current file is changed while the tree is open.
+          hijack_netrw_behavior = "open_default", -- netrw disabled, opening a directory opens neo-tree
+          -- in whatever position is specified in window.position
+          -- "open_current",  -- netrw disabled, opening a directory opens within the
+          -- window like netrw would, regardless of window.position
+          -- "disabled",    -- netrw left alone, neo-tree does not handle opening dirs
+          use_libuv_file_watcher = false, -- This will use the OS level file watchers to detect changes
+          -- instead of relying on nvim autocmd events.
+          window = {
+            mappings = {
+              ["<bs>"] = "navigate_up",
+              ["."] = "set_root",
+              ["H"] = "toggle_hidden",
+              ["/"] = "fuzzy_finder",
+              ["f"] = "filter_on_submit",
+              ["<c-x>"] = "clear_filter",
+            },
+          },
+        },
+        buffers = {
+          show_unloaded = true,
+          window = {
+            mappings = {
+              ["bd"] = "buffer_delete",
+              ["<bs>"] = "navigate_up",
+              ["."] = "set_root",
+            },
+          },
+        },
+        git_status = {
+          window = {
+            position = "float",
+            mappings = {
+              ["A"] = "git_add_all",
+              ["gu"] = "git_unstage_file",
+              ["ga"] = "git_add_file",
+              ["gr"] = "git_revert_file",
+              ["gc"] = "git_commit",
+              ["gp"] = "git_push",
+              ["gg"] = "git_commit_and_push",
+            },
+          },
+        },
+      })
+
+      vim.cmd([[nnoremap \ :Neotree reveal<cr>]])
+    end,
+  })
 
   -- Colorscheme
   use({
     "cocopon/iceberg.vim",
-    -- opt = true,
+    opt = false,
     config = function()
       vim.cmd("colorscheme iceberg")
       vim.cmd("hi Normal ctermbg=None guibg=None")
@@ -73,9 +282,14 @@ return require("packer").startup(function(use)
       vim.g.neoterm_autoscroll = 1
       vim.g.neoterm_default_mod = "botright"
       vim.g.neoterm_size = 16
-      vim.api.nvim_set_keymap("v", "<LocalLeader><Space>", ":TREPLSendSelection<CR>", { silent = true, noremap = true })
-      vim.api.nvim_set_keymap("n", "<LocalLeader><Space>", ":TREPLSendLine<CR>", { silent = true, noremap = true })
-      vim.api.nvim_set_keymap("n", "<LocalLeader>q", ":Tclose!<CR>", { silent = true, noremap = true })
+      vim.api.nvim_set_keymap(
+        "v",
+        "<LocalLeader><Space>",
+        "<cmd>TREPLSendSelection<CR>",
+        { silent = true, noremap = true }
+      )
+      vim.api.nvim_set_keymap("n", "<LocalLeader><Space>", "<cmd>TREPLSendLine<CR>", { silent = true, noremap = true })
+      vim.api.nvim_set_keymap("n", "<LocalLeader>q", "<cmd>Tclose!<CR>", { silent = true, noremap = true })
     end,
   })
   use({
@@ -125,9 +339,10 @@ return require("packer").startup(function(use)
       require("lualine").setup({
         options = {
           theme = "iceberg_dark",
-          icons_enabled = false,
-          section_separators = "",
-          component_separators = "",
+          -- If not use Nerd Fonts
+          -- icons_enabled = false,
+          -- section_separators = "",
+          -- component_separators = "",
         },
       })
     end,
@@ -139,7 +354,65 @@ return require("packer").startup(function(use)
       require("pretty-fold.preview").setup()
     end,
   })
-
+  use({
+    "tami5/lspsaga.nvim",
+    config = function()
+      require("lspsaga").setup({
+        debug = false,
+        use_saga_diagnostic_sign = true,
+        -- diagnostic sign
+        error_sign = "",
+        warn_sign = "",
+        hint_sign = "",
+        infor_sign = "",
+        diagnostic_header_icon = "   ",
+        -- code action title icon
+        code_action_icon = " ",
+        code_action_prompt = {
+          enable = true,
+          sign = true,
+          sign_priority = 40,
+          virtual_text = true,
+        },
+        finder_definition_icon = "  ",
+        finder_reference_icon = "  ",
+        max_preview_lines = 10,
+        finder_action_keys = {
+          open = "o",
+          vsplit = "s",
+          split = "i",
+          quit = "q",
+          scroll_down = "<C-f>",
+          scroll_up = "<C-b>",
+        },
+        code_action_keys = {
+          quit = "q",
+          exec = "<CR>",
+        },
+        rename_action_keys = {
+          quit = "<C-c>",
+          exec = "<CR>",
+        },
+        definition_preview_icon = "  ",
+        border_style = "single",
+        rename_prompt_prefix = "➤",
+        rename_output_qflist = {
+          enable = false,
+          auto_open_qflist = false,
+        },
+        server_filetype_map = {},
+        diagnostic_prefix_format = "%d. ",
+        diagnostic_message_format = "%m %c",
+        highlight_prefix = false,
+      })
+    end,
+  })
+  use({
+    "iamcco/markdown-preview.nvim",
+    config = { "vim.cmd[[doautocmd BufEnter]]", "vim.cmd[[MarkdownPreview]]" },
+    run = "cd app && yarn install",
+    cmd = "MarkdownPreview",
+  })
   -- Automatically set up your configuration after cloning packer.nvim
   -- Put this at the end after all plugins
   if packer_bootstrap then
