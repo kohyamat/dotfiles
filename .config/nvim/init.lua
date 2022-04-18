@@ -85,9 +85,9 @@ if has('nvim')
 endif
 ]])
 
-
 -- Plugins ---------------------------------------
 require("plugins")
+vim.cmd([[autocmd BufWritePost plugins.lua PackerCompile]])
 
 -- LSP
 local on_attach = function(client, bufnr)
@@ -99,7 +99,7 @@ local on_attach = function(client, bufnr)
   vim.api.nvim_buf_set_option(bufnr, "omnifunc", "v:lua.vim.lsp.omnifunc")
 
   -- Disable document formatting
-  client.resolved_capabilities.document_formatting = false
+  -- client.resolved_capabilities.document_formatting = false
 
   -- Mappings.
   -- See `:help vim.lsp.*` for documentation on any of the below functions
@@ -124,6 +124,33 @@ lsp_installer.on_server_ready(function(server)
   local opts = {}
   opts.on_attach = on_attach
   opts.capabilities = require("cmp_nvim_lsp").update_capabilities(vim.lsp.protocol.make_client_capabilities())
+
+  if server.name == "sumneko_lua" then
+    opts.settings = {
+      Lua = {
+        runtime = {
+          -- Tell the language server which version of Lua you're using (most likely LuaJIT in the case of Neovim)
+          version = "LuaJIT",
+          -- Setup your lua path
+          -- path = runtime_path,
+        },
+        diagnostics = {
+          -- Get the language server to recognize the `vim` global
+          globals = { "vim" },
+        },
+        workspace = {
+          -- Make the server aware of Neovim runtime files
+          library = vim.api.nvim_get_runtime_file("", true),
+          checkThirdParty = false,
+        },
+        -- Do not send telemetry data containing a randomized but unique identifier
+        telemetry = {
+          enable = false,
+        },
+      },
+    }
+  end
+
   server:setup(opts)
 end)
 
@@ -134,6 +161,7 @@ vim.opt.completeopt = "menu,menuone,noselect"
 vim.opt.shortmess = vim.opt.shortmess + { c = true }
 
 local cmp = require("cmp")
+local lspkind = require("lspkind")
 cmp.setup({
   snippet = {
     expand = function(args)
@@ -143,14 +171,13 @@ cmp.setup({
   mapping = {
     ["<C-d>"] = cmp.mapping(cmp.mapping.scroll_docs(-4), { "i", "c" }),
     ["<C-f>"] = cmp.mapping(cmp.mapping.scroll_docs(4), { "i", "c" }),
-    ["<C-Space>"] = cmp.mapping(cmp.mapping.complete(), { "i", "c" }),
+    ["<C-t>"] = cmp.mapping(cmp.mapping.complete(), { "i", "c" }),
     ["<C-y>"] = cmp.config.disable,
     ["<C-e>"] = cmp.mapping({
       i = cmp.mapping.abort(),
       c = cmp.mapping.close(),
     }),
     ["<CR>"] = cmp.mapping.confirm({ select = false }),
-    -- Tab Completion.
     ["<Tab>"] = cmp.mapping(cmp.mapping.select_next_item(), { "i", "s" }),
     ["<S-Tab>"] = cmp.mapping(cmp.mapping.select_prev_item(), { "i", "s" }),
   },
@@ -159,9 +186,39 @@ cmp.setup({
     { name = "vsnip" },
     { name = "path" },
     { name = "nvim_lsp_signature_help" },
+    { name = "nvim_lsp_document_symbol" },
+    { name = "omni" },
     { name = "treesitter" },
   }, {
     { name = "buffer" },
+  }),
+  formatting = {
+    format = lspkind.cmp_format({
+      mode = "symbol_text",
+      -- maxwidth = 50,
+
+      before = function(entry, vim_item)
+        return vim_item
+      end,
+    }),
+  },
+})
+
+-- Use buffer source for `/` (if you enabled `native_menu`, this won't work anymore).
+cmp.setup.cmdline("/", {
+  mapping = cmp.mapping.preset.cmdline(),
+  sources = {
+    { name = "buffer" },
+  },
+})
+
+-- Use cmdline & path source for ':' (if you enabled `native_menu`, this won't work anymore).
+cmp.setup.cmdline(":", {
+  mapping = cmp.mapping.preset.cmdline(),
+  sources = cmp.config.sources({
+    { name = "path" },
+  }, {
+    { name = "cmdline" },
   }),
 })
 
@@ -179,28 +236,28 @@ local api = vim.api
 vim.g.mapleader = ";"
 vim.g.maplocalleader = ","
 
-api.nvim_set_keymap("n", "ss", ":split<CR>", { noremap = true })
-api.nvim_set_keymap("n", "sv", ":vsplit<CR>", { noremap = true })
-api.nvim_set_keymap("n", "tt", ":tabnew<CR>", { noremap = true })
-api.nvim_set_keymap("n", "tl", ":tabnext<CR>", { noremap = true })
-api.nvim_set_keymap("n", "th", ":tabprevious<CR>", { noremap = true })
-api.nvim_set_keymap("n", "tw", ":tabclose<CR>", { noremap = true })
--- api.nvim_set_keymap('n', '<Tab>', ':bnext<CR>', { noremap = true, silent = true })
--- api.nvim_set_keymap('n', '<S-Tab>', ':bprevious<CR>', { noremap = true, silent = true })
+api.nvim_set_keymap("n", "ss", "<cmd>split<CR>", { noremap = true })
+api.nvim_set_keymap("n", "sv", "<cmd>vsplit<CR>", { noremap = true })
+api.nvim_set_keymap("n", "tt", "<cmd>tabnew<CR>", { noremap = true })
+api.nvim_set_keymap("n", "tl", "<cmd>tabnext<CR>", { noremap = true })
+api.nvim_set_keymap("n", "th", "<cmd>tabprevious<CR>", { noremap = true })
+api.nvim_set_keymap("n", "tw", "<cmd>tabclose<CR>", { noremap = true })
+api.nvim_set_keymap("n", "]b", "<cmd>bnext<CR>", { noremap = true, silent = true })
+api.nvim_set_keymap("n", "[b", "<cmd>bprevious<CR>", { noremap = true, silent = true })
 
--- cursor move
+-- Cursor move
 api.nvim_set_keymap("n", "<S-j>", "5j", { noremap = true })
 api.nvim_set_keymap("n", "<S-k>", "5k", { noremap = true })
 api.nvim_set_keymap("v", "<S-j>", "5j", { noremap = true })
 api.nvim_set_keymap("v", "<S-k>", "5k", { noremap = true })
 
--- window move
+-- Window move
 api.nvim_set_keymap("n", "<C-h>", "<C-w>h", { noremap = true })
 api.nvim_set_keymap("n", "<C-j>", "<C-w>j", { noremap = true })
 api.nvim_set_keymap("n", "<C-k>", "<C-w>k", { noremap = true })
 api.nvim_set_keymap("n", "<C-l>", "<C-w>l", { noremap = true })
 
--- window size
+-- Window size
 api.nvim_set_keymap("n", "sh", "<C-w><", { noremap = true })
 api.nvim_set_keymap("n", "sj", "<C-w>-", { noremap = true })
 api.nvim_set_keymap("n", "sk", "<C-w>+", { noremap = true })
@@ -211,7 +268,6 @@ api.nvim_set_keymap("n", "sK", "<C-w>K", { noremap = true })
 api.nvim_set_keymap("n", "sL", "<C-w>L", { noremap = true })
 
 -- Search
--- Whin jump to search term,the term set center of displaj
 api.nvim_set_keymap("n", "n", "nzz", { noremap = true })
 api.nvim_set_keymap("n", "N", "Nzz", { noremap = true })
 api.nvim_set_keymap("n", "*", "*zz", { noremap = true })
@@ -220,7 +276,7 @@ api.nvim_set_keymap("n", "g*", "g*zz", { noremap = true })
 api.nvim_set_keymap("n", "g#", "g#zz", { noremap = true })
 
 -- Stop highlight
-api.nvim_set_keymap("n", "<esc><esc>", ":nohlsearch<CR>", { noremap = true, silent = true })
+api.nvim_set_keymap("n", "<esc><esc>", "<cmd>nohlsearch<CR>", { noremap = true, silent = true })
 
 -- Terminal mode
 api.nvim_set_keymap("t", "<C-n>", "<C-\\><C-n>", { noremap = true })
@@ -230,11 +286,11 @@ api.nvim_set_keymap("t", "<C-k>", "<C-\\><C-n><C-w>k", { noremap = true })
 api.nvim_set_keymap("t", "<C-l>", "<C-\\><C-n><C-w>l", { noremap = true })
 
 -- Telescope
-api.nvim_set_keymap("n", "<leader>ff", ":Telescope find_files<CR>", { noremap = true })
-api.nvim_set_keymap("n", "<localleader>ff", ":Telescope find_files hidden=true<CR>", { noremap = true })
-api.nvim_set_keymap("n", "<leader>fg", ":Telescope live_grep<CR>", { noremap = true })
-api.nvim_set_keymap("n", "<leader>fb", ":Telescope buffers<CR>", { noremap = true })
-api.nvim_set_keymap("n", "<leader>fh", ":Telescope help_tags<CR>", { noremap = true })
+api.nvim_set_keymap("n", "<leader>ff", "<cmd>Telescope find_files<CR>", { noremap = true })
+api.nvim_set_keymap("n", "<localleader>ff", "<cmd>Telescope find_files hidden=true<CR>", { noremap = true })
+api.nvim_set_keymap("n", "<leader>fg", "<cmd>Telescope live_grep<CR>", { noremap = true })
+api.nvim_set_keymap("n", "<leader>fb", "<cmd>Telescope buffers<CR>", { noremap = true })
+api.nvim_set_keymap("n", "<leader>fh", "<cmd>Telescope help_tags<CR>", { noremap = true })
 
 -- Hop
 vim.api.nvim_set_keymap(
@@ -261,3 +317,11 @@ vim.api.nvim_set_keymap(
   '<cmd>lua require"hop".hint_lines({ direction = require"hop.hint".HintDirection.BEFORE_CURSOR })<cr>',
   {}
 )
+
+-- Trouble
+vim.api.nvim_set_keymap("n", "<leader>xx", "<cmd>Trouble<cr>", { silent = true, noremap = true })
+vim.api.nvim_set_keymap("n", "<leader>xw", "<cmd>Trouble workspace_diagnostics<cr>", { silent = true, noremap = true })
+vim.api.nvim_set_keymap("n", "<leader>xd", "<cmd>Trouble document_diagnostics<cr>", { silent = true, noremap = true })
+vim.api.nvim_set_keymap("n", "<leader>xl", "<cmd>Trouble loclist<cr>", { silent = true, noremap = true })
+vim.api.nvim_set_keymap("n", "<leader>xq", "<cmd>Trouble quickfix<cr>", { silent = true, noremap = true })
+vim.api.nvim_set_keymap("n", "gR", "<cmd>Trouble lsp_references<cr>", { silent = true, noremap = true })
