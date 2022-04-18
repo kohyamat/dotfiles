@@ -1,7 +1,9 @@
 .netrwhist
-.config/nvim/plugged
+.vim/plugged
+.config/nvim/plugin
 __pycache__/
 .DS_Store
 *~
 .R/library/*
 !.gitkeep
+
