@@ -1,5 +1,5 @@
 # CRAN mirror --------------------------------------
-options(repos = "http://cloud.r-project.org/")
+options(repos = c("https://cran.ism.ac.jp/", "http://cloud.r-project.org/"))
 
 # Nvim-R -------------------------------------------
 if (interactive() &&
