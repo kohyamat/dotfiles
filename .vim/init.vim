@@ -184,16 +184,16 @@ endif
 " Vim-plug
 if has('vim_starting')
   set rtp+=~/.config/nvim/plugged/vim-plug
-  if !isdirectory(expand('~/.config/nvim/plugged/vim-plug'))
+  if !isdirectory(expand('~/.vim/plugged/vim-plug'))
     echo 'Installing vim-plug...'
-    call system('mkdir -p ~/.config/nvim/plugged/vim-plug')
+    call system('mkdir -p ~/.vim/plugged/vim-plug')
     call system('git clone https://github.com/junegunn/vim-plug.git
           \ ~/.config/nvim/plugged/vim-plug/autoload')
     echo 'Done.'
   end
 endif
 
-call plug#begin('~/.config/nvim/plugged')
+call plug#begin('~/.vim/plugged')
 
 Plug 'junegunn/vim-plug', {'dir': '~/.config/nvim/plugged/vim-plug/autoload'}
 
