@@ -254,7 +254,24 @@ return require("packer").startup(function(use)
     end,
   })
 
+  -- Code runner
+  use({
+    "michaelb/sniprun",
+    run = "bash ./install.sh",
+    config = function()
+      require("sniprun").setup({
+        display = {
+          "TempFloatingWindow",
+        },
+      })
+      vim.api.nvim_set_keymap("n", "<leader>r", "<Plug>SnipRun<CR>", { silent = true, noremap = true })
+      vim.api.nvim_set_keymap("n", "<leader>rf", "<Plug>SnipRunOperator<CR>", { silent = true, noremap = true })
+      vim.api.nvim_set_keymap("v", "<leader>r", "<Plug>SnipRun<CR>", { silent = true, noremap = true })
+    end,
+  })
+
   -- Utility
+  use({ "nvim-treesitter/nvim-treesitter", run = ":TSUpdate" })
   use({
     "phaazon/hop.nvim",
     branch = "v1",
@@ -262,7 +279,6 @@ return require("packer").startup(function(use)
       require("hop").setup()
     end,
   })
-  use({ "nvim-treesitter/nvim-treesitter", run = ":TSUpdate" })
   use({
     "windwp/nvim-autopairs",
     config = function()
@@ -273,23 +289,6 @@ return require("packer").startup(function(use)
     "terrortylor/nvim-comment",
     config = function()
       require("nvim_comment").setup()
-    end,
-  })
-  use({
-    "kassio/neoterm",
-    config = function()
-      vim.g.neoterm_autoinsert = 1
-      vim.g.neoterm_autoscroll = 1
-      vim.g.neoterm_default_mod = "botright"
-      vim.g.neoterm_size = 16
-      vim.api.nvim_set_keymap(
-        "v",
-        "<LocalLeader><Space>",
-        "<cmd>TREPLSendSelection<CR>",
-        { silent = true, noremap = true }
-      )
-      vim.api.nvim_set_keymap("n", "<LocalLeader><Space>", "<cmd>TREPLSendLine<CR>", { silent = true, noremap = true })
-      vim.api.nvim_set_keymap("n", "<LocalLeader>q", "<cmd>Tclose!<CR>", { silent = true, noremap = true })
     end,
   })
   use({
