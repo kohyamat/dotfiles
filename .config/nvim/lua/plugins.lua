@@ -20,7 +20,16 @@ return require("packer").startup(function(use)
   use("hrsh7th/nvim-cmp")
   use("hrsh7th/cmp-nvim-lsp")
   use("hrsh7th/cmp-vsnip")
-  use("hrsh7th/vim-vsnip")
+  use({
+    "hrsh7th/vim-vsnip",
+    config = function()
+      local api = vim.api
+      api.nvim_set_keymap("i", "<C-n>", "vsnip#jumpable(1) ? '<Plug>(vsnip-jump-next)' : '<Tab>'", { expr = true })
+      api.nvim_set_keymap("s", "<C-n>", "vsnip#jumpable(1) ? '<Plug>(vsnip-jump-next)' : '<Tab>'", { expr = true })
+      api.nvim_set_keymap("i", "<C-p>", "vsnip#jumpable(1) ? '<Plug>(vsnip-jump-prev)' : '<S-Tab>'", { expr = true })
+      api.nvim_set_keymap("s", "<C-p>", "vsnip#jumpable(1) ? '<Plug>(vsnip-jump-prev)' : '<S-Tab>'", { expr = true })
+    end,
+  })
   use("hrsh7th/cmp-buffer")
   use("hrsh7th/cmp-path")
   use("hrsh7th/cmp-cmdline")
@@ -42,10 +51,44 @@ return require("packer").startup(function(use)
             theme = "dropdown",
           },
         },
+        extensions = {
+          fzf = {
+            fuzzy = true, -- false will only do exact matching
+            override_generic_sorter = true, -- override the generic sorter
+            override_file_sorter = true, -- override the file sorter
+            case_mode = "smart_case", -- or "ignore_case" or "respect_case"
+            -- the default case_mode is "smart_case"
+          },
+        },
       })
+      local api = vim.api
+      api.nvim_set_keymap("n", "<leader>ff", "<cmd>Telescope find_files<CR>", { noremap = true })
+      api.nvim_set_keymap("n", "<localleader>ff", "<cmd>Telescope find_files hidden=true<CR>", { noremap = true })
+      api.nvim_set_keymap("n", "<leader>fg", "<cmd>Telescope live_grep<CR>", { noremap = true })
+      api.nvim_set_keymap("n", "<leader>fb", "<cmd>Telescope buffers<CR>", { noremap = true })
+      api.nvim_set_keymap("n", "<leader>fh", "<cmd>Telescope help_tags<CR>", { noremap = true })
     end,
   })
-  use({ "nvim-telescope/telescope-fzf-native.nvim", run = "make" })
+  use({
+    "nvim-telescope/telescope-fzf-native.nvim",
+    run = "make",
+    config = function()
+      require("telescope").load_extension("fzf")
+    end,
+  })
+  use({
+    "nvim-telescope/telescope-frecency.nvim",
+    config = function()
+      require("telescope").load_extension("frecency")
+      vim.api.nvim_set_keymap(
+        "n",
+        "<leader><leader>",
+        "<Cmd>lua require('telescope').extensions.frecency.frecency()<CR>",
+        { noremap = true, silent = true }
+      )
+    end,
+    requires = { "tami5/sqlite.lua" },
+  })
 
   -- Filer
   use({
@@ -247,10 +290,10 @@ return require("packer").startup(function(use)
     opt = false,
     config = function()
       vim.cmd("colorscheme iceberg")
-      vim.cmd("hi Normal ctermbg=None guibg=None")
-      vim.cmd("hi EndOfBuffer ctermbg=None guibg=None")
-      vim.cmd("hi NonText ctermbg=None guibg=None")
-      vim.cmd("hi Pmenu ctermbg=235 ctermfg=245 guibg=#1e2132 guifg=#686f9a")
+      -- vim.cmd("hi Normal ctermbg=None guibg=None")
+      -- vim.cmd("hi EndOfBuffer ctermbg=None guibg=None")
+      -- vim.cmd("hi NonText ctermbg=None guibg=None")
+      -- vim.cmd("hi Pmenu ctermbg=235 ctermfg=245 guibg=#1e2132 guifg=#686f9a")
     end,
   })
 
@@ -261,12 +304,23 @@ return require("packer").startup(function(use)
     config = function()
       require("sniprun").setup({
         display = {
-          "TempFloatingWindow",
+          "TempFloatingWindow", --# display results in a floating window
+          -- "Classic",                 --# display results in the command-line  area
+          -- "VirtualTextOk",           --# display ok results as virtual text (multiline is shortened)
+          -- "VirtualTextErr",          --# display error results as virtual text
+          -- "LongTempFloatingWindow",  --# same as above, but only long results. To use with VirtualText__
+          -- "Terminal",                --# display results in a vertical split
+          -- "TerminalWithCode",        --# display results and code history in a vertical split
+          -- "NvimNotify",              --# display with the nvim-notify plugin
+          -- "Api"                      --# return output to a programming interface
         },
+        borders = "single",
       })
-      vim.api.nvim_set_keymap("n", "<leader>r", "<Plug>SnipRun<CR>", { silent = true, noremap = true })
-      vim.api.nvim_set_keymap("n", "<leader>rf", "<Plug>SnipRunOperator<CR>", { silent = true, noremap = true })
-      vim.api.nvim_set_keymap("v", "<leader>r", "<Plug>SnipRun<CR>", { silent = true, noremap = true })
+      local api = vim.api
+      api.nvim_set_keymap("n", "<leader>r", "<Plug>SnipRun<CR>", { silent = true, noremap = true })
+      api.nvim_set_keymap("n", "<leader>rf", "<Plug>SnipRunOperator<CR>", { silent = true, noremap = true })
+      api.nvim_set_keymap("v", "<leader>r", "<Plug>SnipRun<CR>", { silent = true, noremap = true })
+      api.nvim_set_keymap("n", "<leader>rq", "<Plug>SnipClose<CR>", { silent = true, noremap = true })
     end,
   })
 
@@ -277,6 +331,31 @@ return require("packer").startup(function(use)
     branch = "v1",
     config = function()
       require("hop").setup()
+      local api = vim.api
+      api.nvim_set_keymap(
+        "n",
+        "<leader>l",
+        '<cmd>lua require"hop".hint_words({ direction = require"hop.hint".HintDirection.AFTER_CURSOR, current_line_only = true })<cr>',
+        {}
+      )
+      api.nvim_set_keymap(
+        "n",
+        "<leader>h",
+        '<cmd>lua require"hop".hint_words({ direction = require"hop.hint".HintDirection.BEFORE_CURSOR, current_line_only = true })<cr>',
+        {}
+      )
+      api.nvim_set_keymap(
+        "n",
+        "<leader>j",
+        '<cmd>lua require"hop".hint_lines({ direction = require"hop.hint".HintDirection.AFTER_CURSOR })<cr>',
+        {}
+      )
+      api.nvim_set_keymap(
+        "n",
+        "<leader>k",
+        '<cmd>lua require"hop".hint_lines({ direction = require"hop.hint".HintDirection.BEFORE_CURSOR })<cr>',
+        {}
+      )
     end,
   })
   use({
@@ -324,6 +403,18 @@ return require("packer").startup(function(use)
     requires = "kyazdani42/nvim-web-devicons",
     config = function()
       require("trouble").setup({})
+      local api = vim.api
+      api.nvim_set_keymap("n", "<leader>xx", "<cmd>Trouble<cr>", { silent = true, noremap = true })
+      api.nvim_set_keymap(
+        "n",
+        "<leader>xw",
+        "<cmd>Trouble workspace_diagnostics<cr>",
+        { silent = true, noremap = true }
+      )
+      api.nvim_set_keymap("n", "<leader>xd", "<cmd>Trouble document_diagnostics<cr>", { silent = true, noremap = true })
+      api.nvim_set_keymap("n", "<leader>xl", "<cmd>Trouble loclist<cr>", { silent = true, noremap = true })
+      api.nvim_set_keymap("n", "<leader>xq", "<cmd>Trouble quickfix<cr>", { silent = true, noremap = true })
+      api.nvim_set_keymap("n", "gR", "<cmd>Trouble lsp_references<cr>", { silent = true, noremap = true })
     end,
   })
   use({
@@ -412,6 +503,25 @@ return require("packer").startup(function(use)
     config = { "vim.cmd[[doautocmd BufEnter]]", "vim.cmd[[MarkdownPreview]]" },
     run = "cd app && yarn install",
     cmd = "MarkdownPreview",
+  })
+  use({
+    "xiyaowong/nvim-transparent",
+    config = function()
+      require("transparent").setup({
+        enable = true, -- boolean: enable transparent
+        extra_groups = { -- table/string: additional groups that should be cleared
+          -- In particular, when you set it to 'all', that means all available groups
+          -- example of akinsho/nvim-bufferline.lua
+          "BufferLineTabClose",
+          "BufferlineBufferSelected",
+          "BufferLineFill",
+          "BufferLineBackground",
+          "BufferLineSeparator",
+          "BufferLineIndicatorSelected",
+        },
+        exclude = {}, -- table: groups you don't want to clear
+      })
+    end,
   })
 
   -- Automatically set up your configuration after cloning packer.nvim
