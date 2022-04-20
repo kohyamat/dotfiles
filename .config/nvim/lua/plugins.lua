@@ -297,25 +297,26 @@ return require("packer").startup(function(use)
       vim.api.nvim_set_keymap("n", "<Leader>f", ":ALEFix<CR>", { silent = true })
       vim.g.ale_linters = { python = { "mypy" } }
       vim.cmd([[
-        let g:ale_fixers = {
-          \ '*': ['remove_trailing_lines', 'trim_whitespace'],
-          \ 'python': ['black', 'isort'],
-          \ 'css': ['prettier'],
-          \ 'html': ['prettier'],
-          \ 'javascript': ['prettier'],
-          \ 'typescript': ['prettier'],
-          \ 'json': ['prettier'],
-          \ 'vue': ['prettier'],
-          \ 'markdown': ['prettier'],
-          \ 'dart': ['dartfmt'],
-          \ 'r': ['styler'],
-          \ 'lua': ['stylua'],
-          \}
-      ]])
+      let g:ale_fixers = {
+        \ '*': ['remove_trailing_lines', 'trim_whitespace'],
+        \ 'python': ['black', 'isort'],
+        \ 'css': ['prettier'],
+        \ 'html': ['prettier'],
+        \ 'javascript': ['prettier'],
+        \ 'typescript': ['prettier'],
+        \ 'json': ['prettier'],
+        \ 'vue': ['prettier'],
+        \ 'markdown': ['prettier'],
+        \ 'dart': ['dartfmt'],
+        \ 'r': ['styler'],
+        \ 'lua': ['stylua'],
+        \}
+        ]])
       vim.g.ale_python_black_options = "-l 88"
       vim.g.ale_python_isort_options = "-l 88"
       vim.g.ale_python_mypy_options = "--ignore-missing-imports"
       vim.g.ale_python_mypy_options = "--ignore-missing-imports"
+      vim.g.ale_lua_stylua_options = "--indent-type 'Spaces' --indent-width 2"
     end,
   })
   use({
@@ -412,6 +413,7 @@ return require("packer").startup(function(use)
     run = "cd app && yarn install",
     cmd = "MarkdownPreview",
   })
+
   -- Automatically set up your configuration after cloning packer.nvim
   -- Put this at the end after all plugins
   if packer_bootstrap then
