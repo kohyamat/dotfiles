@@ -40,10 +40,10 @@ vim.wo.cursorcolumn = true
 vim.wo.list = true
 vim.wo.listchars = "tab:▸ ,trail:_,extends:»,precedes:«,nbsp:%"
 vim.wo.foldenable = true
-vim.wo.foldminlines = 4
+vim.wo.foldminlines = 5
 vim.wo.foldmethod = "expr"
 vim.wo.foldexpr = "nvim_treesitter#foldexpr()"
-vim.wo.foldcolumn = "auto"
+vim.wo.foldcolumn = "2"
 vim.wo.foldnestmax = 3
 
 vim.bo.shiftwidth = 2
@@ -94,6 +94,8 @@ local on_attach = function(client, bufnr)
   local function buf_set_keymap(...)
     vim.api.nvim_buf_set_keymap(bufnr, ...)
   end
+  local capabilities = vim.lsp.protocol.make_client_capabilities()
+  capabilities.textDocument.completion.completionItem.snippetSupport = true
 
   -- Enable completion triggered by <c-x><c-o>
   vim.api.nvim_buf_set_option(bufnr, "omnifunc", "v:lua.vim.lsp.omnifunc")
@@ -325,3 +327,9 @@ vim.api.nvim_set_keymap("n", "<leader>xd", "<cmd>Trouble document_diagnostics<cr
 vim.api.nvim_set_keymap("n", "<leader>xl", "<cmd>Trouble loclist<cr>", { silent = true, noremap = true })
 vim.api.nvim_set_keymap("n", "<leader>xq", "<cmd>Trouble quickfix<cr>", { silent = true, noremap = true })
 vim.api.nvim_set_keymap("n", "gR", "<cmd>Trouble lsp_references<cr>", { silent = true, noremap = true })
+
+-- vim-vsnip
+vim.api.nvim_set_keymap("i", "<C-n>", "vsnip#jumpable(1) ? '<Plug>(vsnip-jump-next)' : '<Tab>'", { expr = true })
+vim.api.nvim_set_keymap("s", "<C-n>", "vsnip#jumpable(1) ? '<Plug>(vsnip-jump-next)' : '<Tab>'", { expr = true })
+vim.api.nvim_set_keymap("i", "<C-p>", "vsnip#jumpable(1) ? '<Plug>(vsnip-jump-prev)' : '<S-Tab>'", { expr = true })
+vim.api.nvim_set_keymap("s", "<C-p>", "vsnip#jumpable(1) ? '<Plug>(vsnip-jump-prev)' : '<S-Tab>'", { expr = true })
