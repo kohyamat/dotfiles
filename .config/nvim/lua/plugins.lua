@@ -440,6 +440,7 @@ return require("packer").startup(function(use)
   })
   use({
     "anuvyklack/pretty-fold.nvim",
+    requires = "anuvyklack/nvim-keymap-amend", -- only for preview
     config = function()
       require("pretty-fold").setup()
       require("pretty-fold.preview").setup()
@@ -521,6 +522,24 @@ return require("packer").startup(function(use)
         },
         exclude = {}, -- table: groups you don't want to clear
       })
+    end,
+  })
+  use({
+    "jalvesaq/Nvim-R",
+    config = function()
+      local api = vim.api
+      api.nvim_set_keymap("v", "<localleader><Space>", "<Plug>RDSendSelection", { silent = true })
+      api.nvim_set_keymap("n", "<localleader><Space>", "<Plug>RDSendLine", { silent = true })
+      vim.cmd([[
+      let R_assign = 0
+      " let R_vsplit = 1
+      " let R_rconsole_height = 25
+      let R_objbr_place = "console,above"
+      let R_nvimpager = 'tab'
+      let R_show_args_help = 0
+      let R_wait_reply = 1
+      let R_csv_delim = ','
+      ]])
     end,
   })
 

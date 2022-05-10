@@ -74,7 +74,7 @@ for s:color in [
 endfor
 
 " Use cursor shape feature
-let $NVIM_TUI_ENABLE_CURSOR_SHAPE = 1
+set guicursor=
 
 " Use true color feature
 if exists('+termguicolors')
