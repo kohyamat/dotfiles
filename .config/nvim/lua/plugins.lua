@@ -303,6 +303,8 @@ return require("packer").startup(function(use)
     run = "bash ./install.sh",
     config = function()
       require("sniprun").setup({
+        selected_interpreters = { "Python3_fifo" },
+        repl_enable = { "Python3_fifo" },
         display = {
           "TempFloatingWindow", --# display results in a floating window
           -- "Classic",                 --# display results in the command-line  area
@@ -374,7 +376,7 @@ return require("packer").startup(function(use)
     "dense-analysis/ale",
     config = function()
       vim.api.nvim_set_keymap("n", "<Leader>f", ":ALEFix<CR>", { silent = true })
-      vim.g.ale_linters = { python = { "mypy" } }
+      -- vim.g.ale_linters = { python = { "mypy" } }
       vim.cmd([[
       let g:ale_fixers = {
         \ '*': ['remove_trailing_lines', 'trim_whitespace'],
@@ -393,8 +395,8 @@ return require("packer").startup(function(use)
         ]])
       vim.g.ale_python_black_options = "-l 88"
       vim.g.ale_python_isort_options = "-l 88"
-      vim.g.ale_python_mypy_options = "--ignore-missing-imports"
-      vim.g.ale_python_mypy_options = "--ignore-missing-imports"
+      -- vim.g.ale_python_mypy_options = "--ignore-missing-imports"
+      -- vim.g.ale_python_mypy_options = "--ignore-missing-imports"
       vim.g.ale_lua_stylua_options = "--indent-type 'Spaces' --indent-width 2"
     end,
   })
