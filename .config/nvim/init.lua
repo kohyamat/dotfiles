@@ -16,7 +16,7 @@ local on_attach = function(client, bufnr)
   vim.api.nvim_buf_set_option(bufnr, "omnifunc", "v:lua.vim.lsp.omnifunc")
 
   -- Disable document formatting
-  -- client.resolved_capabilities.document_formatting = false
+  client.server_capabilities.document_formatting = false
 
   -- Mappings.
   -- See `:help vim.lsp.*` for documentation on any of the below functions
@@ -33,7 +33,7 @@ local on_attach = function(client, bufnr)
   buf_set_keymap("n", "<space>rn", "<cmd>lua vim.lsp.buf.rename()<CR>", opts)
   buf_set_keymap("n", "<space>ca", "<cmd>lua vim.lsp.buf.code_action()<CR>", opts)
   buf_set_keymap("n", "gr", "<cmd>lua vim.lsp.buf.references()<CR>", opts)
-  buf_set_keymap("n", "<space>f", "<cmd>lua vim.lsp.buf.formatting()<CR>", opts)
+  buf_set_keymap("n", "<Leader>f", "<cmd>lua vim.lsp.buf.format { async = ture }<CR>", opts)
 end
 
 local lsp_installer = require("nvim-lsp-installer")
@@ -62,6 +62,9 @@ lsp_installer.on_server_ready(function(server)
         },
         -- Do not send telemetry data containing a randomized but unique identifier
         telemetry = {
+          enable = false,
+        },
+        format = {
           enable = false,
         },
       },
