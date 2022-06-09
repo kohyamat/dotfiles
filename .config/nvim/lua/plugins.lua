@@ -14,7 +14,7 @@ end
 return require("packer").startup(function(use)
   use("wbthomason/packer.nvim")
 
-  -- LSP and completion
+  -- LSP and completio
   use("neovim/nvim-lspconfig")
   use("williamboman/nvim-lsp-installer")
   use("hrsh7th/nvim-cmp")
@@ -373,31 +373,45 @@ return require("packer").startup(function(use)
     end,
   })
   use({
-    "dense-analysis/ale",
+    "jose-elias-alvarez/null-ls.nvim",
+    requires = { "nvim-lua/plenary.nvim" },
     config = function()
-      vim.api.nvim_set_keymap("n", "<Leader>f", ":ALEFix<CR>", { silent = true })
-      -- vim.g.ale_linters = { python = { "mypy" } }
-      vim.cmd([[
-      let g:ale_fixers = {
-        \ '*': ['remove_trailing_lines', 'trim_whitespace'],
-        \ 'python': ['black', 'isort'],
-        \ 'css': ['prettier'],
-        \ 'html': ['prettier'],
-        \ 'javascript': ['prettier'],
-        \ 'typescript': ['prettier'],
-        \ 'json': ['prettier'],
-        \ 'vue': ['prettier'],
-        \ 'markdown': ['prettier'],
-        \ 'dart': ['dartfmt'],
-        \ 'r': ['styler'],
-        \ 'lua': ['stylua'],
-        \}
-        ]])
-      vim.g.ale_python_black_options = "-l 88"
-      vim.g.ale_python_isort_options = "-l 88"
-      -- vim.g.ale_python_mypy_options = "--ignore-missing-imports"
-      -- vim.g.ale_python_mypy_options = "--ignore-missing-imports"
-      vim.g.ale_lua_stylua_options = "--indent-type 'Spaces' --indent-width 2"
+      local null_ls = require("null-ls")
+      null_ls.setup({
+        -- debug = true,
+        sources = {
+          null_ls.builtins.formatting.stylua.with({
+            -- prefer_local = "~/.cargo/bin",
+            extra_args = { "--indent-type", "Spaces", "--indent-width", "2" },
+          }),
+          null_ls.builtins.formatting.prettier.with({
+            -- prefer_local = "~/.node_modules/bin",
+            filetypes = {
+              "javascript",
+              "typescript",
+              "css",
+              "scss",
+              "html",
+              "vue",
+              "json",
+              "yaml",
+              "markdown",
+              "graphql",
+              "md",
+              "txt",
+            },
+          }),
+          null_ls.builtins.formatting.black.with({
+            -- prefer_local = "~/.pyenv/shims",
+            extra_args = { "-l", "88" },
+          }),
+          null_ls.builtins.formatting.isort.with({
+            -- prefer_local = "~/.pyenv/shims",
+            extra_args = { "-l", "88" },
+          }),
+          null_ls.builtins.formatting.styler,
+        },
+      })
     end,
   })
   use({
@@ -438,14 +452,6 @@ return require("packer").startup(function(use)
           -- component_separators = "",
         },
       })
-    end,
-  })
-  use({
-    "anuvyklack/pretty-fold.nvim",
-    requires = "anuvyklack/nvim-keymap-amend", -- only for preview
-    config = function()
-      require("pretty-fold").setup()
-      require("pretty-fold.preview").setup()
     end,
   })
   use({
