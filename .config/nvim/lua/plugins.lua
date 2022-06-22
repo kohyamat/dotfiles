@@ -298,31 +298,95 @@ return require("packer").startup(function(use)
   })
 
   -- Code runner
+  -- use({
+  --   "michaelb/sniprun",
+  --   run = "bash ./install.sh",
+  --   config = function()
+  --     require("sniprun").setup({
+  --       selected_interpreters = { "Python3_fifo" },
+  --       repl_enable = { "Python3_fifo" },
+  --       display = {
+  --         -- "TempFloatingWindow",      --# display results in a floating window
+  --         -- "Classic",                 --# display results in the command-line  area
+  --         -- "VirtualTextOk",           --# display ok results as virtual text (multiline is shortened)
+  --         -- "VirtualTextErr",          --# display error results as virtual text
+  --         -- "LongTempFloatingWindow",  --# same as above, but only long results. To use with VirtualText__
+  --         "Terminal", --# display results in a vertical split
+  --         -- "TerminalWithCode",        --# display results and code history in a vertical split
+  --         -- "NvimNotify",              --# display with the nvim-notify plugin
+  --         -- "Api"                      --# return output to a programming interface
+  --       },
+  --       display_options = {
+  --         terminal_width = 60, -- change the terminal display option width
+  --       },
+  --       borders = "single",
+  --     })
+  --     local api = vim.api
+  --     api.nvim_set_keymap("n", "<leader>r", "<Plug>SnipRun<CR>", { silent = true, noremap = true })
+  --     api.nvim_set_keymap("n", "<leader>rf", "<Plug>SnipRunOperator<CR>", { silent = true, noremap = true })
+  --     api.nvim_set_keymap("v", "<leader>r", "<Plug>SnipRun<CR>", { silent = true, noremap = true })
+  --     api.nvim_set_keymap("n", "<leader>rq", "<Plug>SnipClose<CR>", { silent = true, noremap = true })
+  --   end,
+  -- })
   use({
-    "michaelb/sniprun",
-    run = "bash ./install.sh",
+    "jalvesaq/vimcmdline",
     config = function()
-      require("sniprun").setup({
-        selected_interpreters = { "Python3_fifo" },
-        repl_enable = { "Python3_fifo" },
-        display = {
-          "TempFloatingWindow", --# display results in a floating window
-          -- "Classic",                 --# display results in the command-line  area
-          -- "VirtualTextOk",           --# display ok results as virtual text (multiline is shortened)
-          -- "VirtualTextErr",          --# display error results as virtual text
-          -- "LongTempFloatingWindow",  --# same as above, but only long results. To use with VirtualText__
-          -- "Terminal",                --# display results in a vertical split
-          -- "TerminalWithCode",        --# display results and code history in a vertical split
-          -- "NvimNotify",              --# display with the nvim-notify plugin
-          -- "Api"                      --# return output to a programming interface
-        },
-        borders = "single",
-      })
       local api = vim.api
-      api.nvim_set_keymap("n", "<leader>r", "<Plug>SnipRun<CR>", { silent = true, noremap = true })
-      api.nvim_set_keymap("n", "<leader>rf", "<Plug>SnipRunOperator<CR>", { silent = true, noremap = true })
-      api.nvim_set_keymap("v", "<leader>r", "<Plug>SnipRun<CR>", { silent = true, noremap = true })
-      api.nvim_set_keymap("n", "<leader>rq", "<Plug>SnipClose<CR>", { silent = true, noremap = true })
+      api.nvim_set_keymap("v", "<localleader><Space>", "<Plug>RDSendSelection", { silent = true })
+      api.nvim_set_keymap("n", "<localleader><Space>", "<Plug>RDSendLine", { silent = true })
+      vim.cmd([[
+      " vimcmdline mappings
+      let cmdline_map_start          = '<LocalLeader>s'
+      let cmdline_map_send           = '<Space>'
+      let cmdline_map_send_and_stay  = '<LocalLeader><Space>'
+      let cmdline_map_source_fun     = '<LocalLeader>f'
+      let cmdline_map_send_paragraph = '<LocalLeader>p'
+      let cmdline_map_send_block     = '<LocalLeader>b'
+      let cmdline_map_send_motion    = '<LocalLeader>m'
+      let cmdline_map_quit           = '<LocalLeader>q'
+      let cmdline_vsplit = 1
+      let cmdline_term_width = 80
+
+      if has('gui_running') || &termguicolors
+        let cmdline_color_input    = '#c6c8d1'
+        let cmdline_color_normal   = '#84a0c6'
+        let cmdline_color_number   = '#89b8c2'
+        let cmdline_color_integer  = '#89b8c2'
+        let cmdline_color_float    = '#89b8c2'
+        let cmdline_color_complex  = '#89b8c2'
+        let cmdline_color_negnum   = '#a093c7'
+        let cmdline_color_negfloat = '#a093c7'
+        let cmdline_color_date     = '#b4be82'
+        let cmdline_color_true     = '#b4be82'
+        let cmdline_color_false    = '#e27878'
+        let cmdline_color_inf      = '#89b8c2'
+        let cmdline_color_constant = '#84a0c6'
+        let cmdline_color_string   = '#89b8c2'
+        let cmdline_color_stderr   = '#84a0c6'
+        let cmdline_color_error    = '#e27878'
+        let cmdline_color_warn     = '#e2a478'
+        let cmdline_color_index    = '#b4be82'
+      elseif &t_Co == 256
+        let cmdline_color_input    = 252
+        let cmdline_color_normal   = 110
+        let cmdline_color_number   = 109
+        let cmdline_color_integer  = 109
+        let cmdline_color_float    = 109
+        let cmdline_color_complex  = 109
+        let cmdline_color_negnum   = 140
+        let cmdline_color_negfloat = 140
+        let cmdline_color_date     = 150
+        let cmdline_color_true     = 150
+        let cmdline_color_false    = 203
+        let cmdline_color_inf      = 109
+        let cmdline_color_constant = 110
+        let cmdline_color_string   = 109
+        let cmdline_color_stderr   = 110
+        let cmdline_color_error    = 203
+        let cmdline_color_warn     = 216
+        let cmdline_color_index    = 150
+      endif
+      ]])
     end,
   })
 
@@ -364,6 +428,9 @@ return require("packer").startup(function(use)
     "windwp/nvim-autopairs",
     config = function()
       require("nvim-autopairs").setup({})
+      local cmp_autopairs = require("nvim-autopairs.completion.cmp")
+      local cmp = require("cmp")
+      cmp.event:on("confirm_done", cmp_autopairs.on_confirm_done())
     end,
   })
   use({

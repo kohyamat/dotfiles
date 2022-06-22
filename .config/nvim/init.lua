@@ -33,7 +33,7 @@ local on_attach = function(client, bufnr)
   buf_set_keymap("n", "<space>rn", "<cmd>lua vim.lsp.buf.rename()<CR>", opts)
   buf_set_keymap("n", "<space>ca", "<cmd>lua vim.lsp.buf.code_action()<CR>", opts)
   buf_set_keymap("n", "gr", "<cmd>lua vim.lsp.buf.references()<CR>", opts)
-  buf_set_keymap("n", "<Leader>f", "<cmd>lua vim.lsp.buf.format { async = ture }<CR>", opts)
+  buf_set_keymap("n", "<Leader>f", "<cmd>lua vim.lsp.buf.format { async = ture, timeout_ms = 2000 }<CR>", opts)
 end
 
 local lsp_installer = require("nvim-lsp-installer")
@@ -138,10 +138,3 @@ cmp.setup.cmdline(":", {
     { name = "cmdline" },
   }),
 })
-
--- auto-pairs
-local npairs = require("nvim-autopairs")
-local cmp_autopairs = require("nvim-autopairs.completion.cmp")
-cmp.event:on("confirm_done", cmp_autopairs.on_confirm_done({ map_char = { tex = "" } }))
-cmp_autopairs.lisp[#cmp_autopairs.lisp + 1] = "racket"
-npairs.setup({ map_cr = true })
