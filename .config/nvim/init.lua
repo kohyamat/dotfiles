@@ -10,7 +10,7 @@ local nvim_lsp = require("lspconfig")
 local capabilities = require("cmp_nvim_lsp").default_capabilities(vim.lsp.protocol.make_client_capabilities())
 local mason_lspconfig = require("mason-lspconfig")
 mason_lspconfig.setup({
-  ensure_installed = { "sumneko_lua", "pyright", "r_language_server", "tsserver" },
+  ensure_installed = { "lua_ls", "pyright", "r_language_server", "tsserver" },
 })
 mason_lspconfig.setup_handlers({
   function(server_name)
@@ -28,7 +28,7 @@ mason_lspconfig.setup_handlers({
       end, bufopts)
     end
     opts.capabilities = capabilities
-    if server_name == "sumneko_lua" then
+    if server_name == "lua_ls" then
       opts.settings = {
         Lua = {
           diagnostics = {
