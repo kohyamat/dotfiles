@@ -42,7 +42,7 @@ return require("packer").startup(function(use)
   use("hrsh7th/cmp-cmdline")
   use("hrsh7th/cmp-nvim-lsp-signature-help")
   use("hrsh7th/cmp-nvim-lsp-document-symbol")
-  use("hrsh7th/cmp-omni")
+  -- use("hrsh7th/cmp-omni")
   use("onsails/lspkind-nvim")
   use("ray-x/cmp-treesitter")
   use("folke/lsp-colors.nvim")
@@ -305,36 +305,6 @@ return require("packer").startup(function(use)
   })
 
   -- Code runner
-  -- use({
-  --   "michaelb/sniprun",
-  --   run = "bash ./install.sh",
-  --   config = function()
-  --     require("sniprun").setup({
-  --       selected_interpreters = { "Python3_fifo" },
-  --       repl_enable = { "Python3_fifo" },
-  --       display = {
-  --         -- "TempFloatingWindow",      --# display results in a floating window
-  --         -- "Classic",                 --# display results in the command-line  area
-  --         -- "VirtualTextOk",           --# display ok results as virtual text (multiline is shortened)
-  --         -- "VirtualTextErr",          --# display error results as virtual text
-  --         -- "LongTempFloatingWindow",  --# same as above, but only long results. To use with VirtualText__
-  --         "Terminal", --# display results in a vertical split
-  --         -- "TerminalWithCode",        --# display results and code history in a vertical split
-  --         -- "NvimNotify",              --# display with the nvim-notify plugin
-  --         -- "Api"                      --# return output to a programming interface
-  --       },
-  --       display_options = {
-  --         terminal_width = 60, -- change the terminal display option width
-  --       },
-  --       borders = "single",
-  --     })
-  --     local api = vim.api
-  --     api.nvim_set_keymap("n", "<leader>r", "<Plug>SnipRun<CR>", { silent = true, noremap = true })
-  --     api.nvim_set_keymap("n", "<leader>rf", "<Plug>SnipRunOperator<CR>", { silent = true, noremap = true })
-  --     api.nvim_set_keymap("v", "<leader>r", "<Plug>SnipRun<CR>", { silent = true, noremap = true })
-  --     api.nvim_set_keymap("n", "<leader>rq", "<Plug>SnipClose<CR>", { silent = true, noremap = true })
-  --   end,
-  -- })
   use({
     "jalvesaq/vimcmdline",
     config = function()
@@ -624,6 +594,7 @@ return require("packer").startup(function(use)
       ]])
     end,
   })
+  use({ "jalvesaq/cmp-nvim-r" })
 
   -- Automatically set up your configuration after cloning packer.nvim
   -- Put this at the end after all plugins

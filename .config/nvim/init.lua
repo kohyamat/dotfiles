@@ -69,10 +69,11 @@ cmp.setup({
   sources = cmp.config.sources({
     { name = "nvim_lsp" },
     { name = "vsnip" },
+    { name = "cmp_nvim_r" },
     { name = "path" },
     { name = "nvim_lsp_signature_help" },
     { name = "nvim_lsp_document_symbol" },
-    { name = "omni" },
+    -- { name = "omni" },
     { name = "treesitter" },
   }, {
     { name = "buffer" },
@@ -80,7 +81,8 @@ cmp.setup({
   formatting = {
     format = lspkind.cmp_format({
       mode = "symbol_text",
-      -- maxwidth = 50,
+      maxwidth = 50,
+      ellipsis_char = '...',
 
       before = function(entry, vim_item)
         return vim_item
