@@ -2,7 +2,6 @@ vim.o.mouse = "a"
 vim.o.errorbells = false
 vim.o.backspace = "indent,eol,start"
 vim.o.clipboard = "unnamedplus"
-vim.o.pastetoggle = "<F12>"
 vim.o.nrformats = "hex"
 vim.o.timeout = true
 vim.o.ttimeout = true
