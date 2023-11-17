@@ -1,9 +1,8 @@
 .netrwhist
 .vim/plugged
-.config/nvim/plugin
+.config/nvim/lazy-lock.json
 __pycache__/
 .DS_Store
 *~
 .R/library/*
 !.gitkeep
-

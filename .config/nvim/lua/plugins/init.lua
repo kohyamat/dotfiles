@@ -1,102 +1,93 @@
-local ensure_packer = function()
-  local fn = vim.fn
-  local install_path = fn.stdpath("data") .. "/site/pack/packer/start/packer.nvim"
-  if fn.empty(fn.glob(install_path)) > 0 then
-    fn.system({ "git", "clone", "--depth", "1", "https://github.com/wbthomason/packer.nvim", install_path })
-    vim.cmd([[packadd packer.nvim]])
-    return true
-  end
-  return false
-end
-
-local packer_bootstrap = ensure_packer()
-
-return require("packer").startup(function(use)
-  use("wbthomason/packer.nvim")
-
-  -- LSP
-  use("williamboman/mason.nvim")
-  use("williamboman/mason-lspconfig.nvim")
-  use("neovim/nvim-lspconfig")
-  use({
-    "nvimtools/none-ls.nvim",
-    requires = { "nvim-lua/plenary.nvim" },
-  })
-
-  -- Completion
-  use("hrsh7th/cmp-nvim-lsp")
-  use("hrsh7th/cmp-buffer")
-  use("hrsh7th/cmp-path")
-  use("hrsh7th/cmp-cmdline")
-  use("hrsh7th/nvim-cmp")
-  use("L3MON4D3/LuaSnip")
-  use("saadparwaiz1/cmp_luasnip")
-
-  -- Filer
-  use({
-    "nvim-tree/nvim-tree.lua",
-    requires = {
-      "nvim-tree/nvim-web-devicons",
-    },
-    config = function()
-      require("nvim-tree").setup({})
-      vim.keymap.set("n", "\\", vim.cmd.NvimTreeFocus, {})
-      vim.keymap.set("n", "|", vim.cmd.NvimTreeToggle, {})
-    end,
-  })
-
-  use({
-    "nvim-telescope/telescope.nvim",
-    tag = "0.1.4",
-    requires = { { "nvim-lua/plenary.nvim" } },
-  })
-
+return({
   -- Colorscheme
-  use({
+  {
     "folke/tokyonight.nvim",
+    lazy = false,    -- make sure we load this during startup if it is your main colorscheme
+    priority = 1000, -- make sure to load this before all the other start plugins
     config = function()
-      vim.cmd("colorscheme tokyonight")
+      require("tokyonight").setup({
+        transparent = true,
+        styles = {
+          sidebars = "transparent",
+          floats = "transparent",
+        },
+      })
+      vim.cmd("colorscheme tokyonight-night")
     end,
-  })
+  },
+
+  {
+    "catppuccin/nvim",
+    lazy = true,
+    name = "catppuccin",
+  },
 
   -- Status line
-  use({
+  {
     "nvim-lualine/lualine.nvim",
-    requires = { "nvim-tree/nvim-web-devicons", opt = true },
     config = function()
       require("lualine").setup({
         options = {
           theme = "tokyonight",
+          globalstatus = true,
         },
       })
     end,
-  })
+    dependencies = { "nvim-tree/nvim-web-devicons", lazy = true },
+  },
 
-  -- Markdown preview
-  use({
-    "iamcco/markdown-preview.nvim",
-    config = { "vim.cmd[[doautocmd BufEnter]]", "vim.cmd[[MarkdownPreview]]" },
-    run = "cd app && yarn install",
-    cmd = "MarkdownPreview",
-  })
-
-  -- Utility
-  use({ "nvim-treesitter/nvim-treesitter", run = ":TSUpdate" })
-
-  use({
-    "folke/trouble.nvim",
-    requires = {
+  -- Nvim-tree
+  {
+    "nvim-tree/nvim-tree.lua",
+    config = function()
+      require("nvim-tree").setup({})
+      vim.keymap.set("n", "\\", vim.cmd.NvimTreeFocus)
+      vim.keymap.set("n", "|", vim.cmd.NvimTreeToggle)
+    end,
+    dependencies = {
       "nvim-tree/nvim-web-devicons",
     },
-  })
+  },
 
-  use({
+  -- Treesitter
+  { "nvim-treesitter/nvim-treesitter", build = ":TSUpdate" },
+
+  -- Gitsigns
+  {
+    "lewis6991/gitsigns.nvim",
+    config = function()
+      require("gitsigns").setup()
+    end,
+  },
+
+  -- Trouble
+  {
+    "folke/trouble.nvim",
+    dependencies = {
+      "nvim-tree/nvim-web-devicons",
+    },
+  },
+
+  -- Markdown preview
+  {
+    "iamcco/markdown-preview.nvim",
+    cmd = { "MarkdownPreviewToggle", "MarkdownPreview", "MarkdownPreviewStop" },
+    build = "cd app && yarn install",
+    init = function()
+      vim.g.mkdp_filetypes = { "markdown" }
+    end,
+    ft = { "markdown" },
+  },
+
+  -- Hop
+  {
     "phaazon/hop.nvim",
     branch = "v2",
     config = function()
       require("hop").setup()
       local hop = require("hop")
       local directions = require("hop.hint").HintDirection
+
       vim.keymap.set("n", "<leader>l", function()
         hop.hint_words({ direction = directions.AFTER_CURSOR, current_line_only = true })
       end, {})
@@ -104,33 +95,40 @@ return require("packer").startup(function(use)
         hop.hint_words({ direction = directions.BEFORE_CURSOR, current_line_only = true })
       end, {})
       vim.keymap.set("n", "<leader>j", function()
-        hop.hint_lines({ direction = directions.AFTER_CURSOR })
+        hop.hint_vertical({ direction = directions.AFTER_CURSOR })
       end, {})
       vim.keymap.set("n", "<leader>k", function()
-        hop.hint_lines({ direction = directions.BEFORE_CURSOR })
+        hop.hint_vertical({ direction = directions.BEFORE_CURSOR })
       end, {})
     end,
-  })
+  },
 
-  use({
+  -- Autopairs
+  {
     "windwp/nvim-autopairs",
     config = function()
-      require("nvim-autopairs").setup({})
+      require("nvim-autopairs").setup()
+      local cmp = require("cmp")
+      local cmp_autopairs = require("nvim-autopairs.completion.cmp")
+      cmp.event:on("confirm_done", cmp_autopairs.on_confirm_done())
     end,
-  })
+    dependencies = { "hrsh7th/nvim-cmp" },
+  },
 
-  use({
+  -- Comment
+  {
     "numToStr/Comment.nvim",
     config = function()
       require("Comment").setup()
     end,
-  })
+  },
 
-  use({
+  -- Vimcmdline
+  {
     "jalvesaq/vimcmdline",
     config = function()
-      vim.keymap.set("v", "<localleader><Space>", vim.cmd.RDSendSelection, { silent = true })
-      vim.keymap.set("n", "<localleader><Space>", vim.cmd.RDSendLine, { silent = true })
+      vim.keymap.set("v", "<localleader><Space>", vim.cmd.RDSendSelection)
+      vim.keymap.set("n", "<localleader><Space>", vim.cmd.RDSendLine)
       vim.cmd([[
       " vimcmdline mappings
       let cmdline_map_start          = '<LocalLeader>s'
@@ -185,13 +183,14 @@ return require("packer").startup(function(use)
       endif
       ]])
     end,
-  })
+  },
 
-  use({
+  -- Nvim-R
+  {
     "jalvesaq/Nvim-R",
     config = function()
-      vim.keymap.set("v", "<localleader><Space>", vim.cmd.RDSendSelection, { silent = true })
-      vim.keymap.set("n", "<localleader><Space>", vim.cmd.RDSendLine, { silent = true })
+      vim.keymap.set("v", "<localleader><Space>", vim.cmd.RDSendSelection)
+      vim.keymap.set("n", "<localleader><Space>", vim.cmd.RDSendLine)
       vim.cmd([[
       let R_assign = 0
       " let R_vsplit = 1
@@ -203,8 +202,5 @@ return require("packer").startup(function(use)
       let R_csv_delim = ','
       ]])
     end,
-  })
-  if packer_bootstrap then
-    require("packer").sync()
-  end
-end)
+  },
+})
