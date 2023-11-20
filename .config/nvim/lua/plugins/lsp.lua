@@ -2,12 +2,8 @@ return {
   {
     "williamboman/mason.nvim",
     config = function()
-      require("mason").setup()
-      local mason_lspconfig = require("mason-lspconfig")
-      local lspconfig = require("lspconfig")
-      local capabilities = require("cmp_nvim_lsp").default_capabilities()
-
-      mason_lspconfig.setup_handlers({
+      require("mason").setup({})
+      local handlers = {
         function(server_name)
           local opts = {}
           opts.on_attach = function(_, bufnr)
@@ -22,7 +18,7 @@ return {
               vim.lsp.buf.format({ async = true })
             end, bufopts)
           end
-          opts.capabilities = capabilities
+          opts.capabilities = require("cmp_nvim_lsp").default_capabilities()
           if server_name == "lua_ls" then
             opts.settings = {
               Lua = {
@@ -33,27 +29,19 @@ return {
             }
           elseif server_name == "pyright" then
             opts.settings = {
-              single_file_support = true,
-              settings = {
-                pyright = {
-                  disableLanguageServices = false,
-                  disableOrganizeImports = false,
-                },
-                python = {
-                  analysis = {
-                    autoImportCompletions = true,
-                    autoSearchPaths = true,
-                    diagnosticMode = "workspace", -- openFilesOnly, workspace
-                    typeCheckingMode = "basic", -- off, basic, strict
-                    useLibraryCodeForTypes = true,
-                  },
+              python = {
+                analysis = {
+                  autoSearchPaths = true,
+                  useLibraryCodeForTypes = true,
+                  diagnosticMode = "openFilesOnly",
                 },
               },
             }
           end
-          lspconfig[server_name].setup(opts)
+          require("lspconfig")[server_name].setup(opts)
         end,
-      })
+      }
+      require("mason-lspconfig").setup_handlers(handlers)
     end,
     dependencies = {
       "williamboman/mason-lspconfig.nvim",
