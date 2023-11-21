@@ -1,8 +1,8 @@
-return({
+return {
   -- Colorscheme
   {
     "folke/tokyonight.nvim",
-    lazy = false,    -- make sure we load this during startup if it is your main colorscheme
+    lazy = false, -- make sure we load this during startup if it is your main colorscheme
     priority = 1000, -- make sure to load this before all the other start plugins
     config = function()
       require("tokyonight").setup({
@@ -30,6 +30,10 @@ return({
         options = {
           theme = "tokyonight",
           globalstatus = true,
+        },
+        tabline = {
+          lualine_a = { "buffers" },
+          lualine_c = { "navic" },
         },
       })
     end,
@@ -66,6 +70,25 @@ return({
     dependencies = {
       "nvim-tree/nvim-web-devicons",
     },
+    config = function()
+      require("trouble").setup({
+        use_diagnostic_signs = true,
+      })
+    end,
+  },
+
+  -- Nvim-navic
+  {
+    "SmiteshP/nvim-navic",
+    config = function()
+      require("nvim-navic").setup({
+        lsp = {
+          auto_attach = true,
+        },
+        highlight = true,
+      })
+    end,
+    dependencies = { "neovim/nvim-lspconfig" },
   },
 
   -- Markdown preview
@@ -122,4 +145,4 @@ return({
       require("Comment").setup()
     end,
   },
-})
+}

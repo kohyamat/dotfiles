@@ -14,9 +14,9 @@ return {
             vim.keymap.set("n", "gr", vim.lsp.buf.references, bufopts)
             vim.keymap.set("n", "gh", vim.lsp.buf.signature_help, bufopts)
             vim.keymap.set("n", "gk", vim.lsp.buf.signature_help, bufopts)
-            vim.keymap.set("n", "<leader>f", function()
-              vim.lsp.buf.format({ async = true })
-            end, bufopts)
+            -- vim.keymap.set("n", "<leader>f", function()
+            --   vim.lsp.buf.format({ async = true })
+            -- end, bufopts)
           end
           opts.capabilities = require("cmp_nvim_lsp").default_capabilities()
           if server_name == "lua_ls" then
@@ -24,6 +24,40 @@ return {
               Lua = {
                 diagnostics = {
                   globals = { "vim" },
+                },
+              },
+            }
+          elseif server_name == "pylsp" then
+            opts.settings = {
+              pylsp = {
+                configurationSources = { "flake8" },
+                plugins = {
+                  flake8 = {
+                    enabled = true,
+                    maxLineLength = 88,
+                  },
+                  pycodestyle = {
+                    enabled = false,
+                  },
+                  mccabe = {
+                    enabled = false,
+                  },
+                  pyflakes = {
+                    enabled = false,
+                  },
+                  yapf = {
+                    enabled = false,
+                  },
+                  autopep8 = {
+                    enabled = false,
+                  },
+                  pylsp_mypy = {
+                    enabled = true,
+                  },
+                  ruff = {
+                    enabled = true,
+                    extendSelect = { "I" },
+                  },
                 },
               },
             }
