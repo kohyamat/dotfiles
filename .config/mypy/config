@@ -1,0 +1,6 @@
+# Global options:
+
+[mypy]
+cache_dir=~/.cache/mypy
+
+# Per-module options:
