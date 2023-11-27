@@ -4,13 +4,21 @@ return {
   config = function()
     local cmp = require("cmp")
     local luasnip = require("luasnip")
+    local lspkind = require("lspkind")
 
-    -- local has_words_before = function()
-    --   local line, col = table.unpack(vim.api.nvim_win_get_cursor(0))
-    --   return col ~= 0 and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match("%s") == nil
-    -- end
+    table.unpack = table.unpack or unpack
+
+    local has_words_before = function()
+      local line, col = table.unpack(vim.api.nvim_win_get_cursor(0))
+      return col ~= 0 and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match("%s") == nil
+    end
 
     cmp.setup({
+      formatting = {
+        format = lspkind.cmp_format({
+          mode = "symbol_text",
+        }),
+      },
       snippet = {
         expand = function(args)
           require("luasnip").lsp_expand(args.body) -- For `luasnip` users.
@@ -22,17 +30,13 @@ return {
         ["<C-l>"] = cmp.mapping.complete(),
         ["<C-e>"] = cmp.mapping.abort(),
         ["<CR>"] = cmp.mapping.confirm({ select = false }),
-        -- ["<Tab>"] = cmp.mapping.select_next_item(),
-        -- ["<S-Tab>"] = cmp.mapping.select_prev_item(),
         ["<Tab>"] = cmp.mapping(function(fallback)
           if cmp.visible() then
             cmp.select_next_item()
-            -- You could replace the expand_or_jumpable() calls with expand_or_locally_jumpable()
-            -- they way you will only jump inside the snippet region
           elseif luasnip.expand_or_jumpable() then
             luasnip.expand_or_jump()
-          -- elseif has_words_before() then
-          --   cmp.complete()
+          elseif has_words_before() then
+            cmp.complete()
           else
             fallback()
           end
@@ -90,5 +94,6 @@ return {
     { "L3MON4D3/LuaSnip", version = "v2.*", build = "make install_jsregexp" },
     "saadparwaiz1/cmp_luasnip",
     "rafamadriz/friendly-snippets",
+    "onsails/lspkind.nvim",
   },
 }

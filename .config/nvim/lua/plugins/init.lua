@@ -54,13 +54,41 @@ return {
   },
 
   -- Treesitter
-  { "nvim-treesitter/nvim-treesitter", build = ":TSUpdate" },
+  {
+    "nvim-treesitter/nvim-treesitter",
+    build = ":TSUpdate",
+    config = function()
+      require("nvim-treesitter.configs").setup({
+        ensured_installed = {
+          "bash",
+          "comment",
+          "css",
+          "html",
+          "javascript",
+          "jsdoc",
+          "jsonc",
+          "lua",
+          "markdown",
+          "python",
+          "r",
+          "regex",
+          "scss",
+          "toml",
+          "typescript",
+          "yaml",
+        },
+      })
+    end,
+  },
 
   -- Gitsigns
   {
     "lewis6991/gitsigns.nvim",
     config = function()
-      require("gitsigns").setup()
+      require("gitsigns").setup({
+        signcolumn = false,
+        numhl = true,
+      })
     end,
   },
 
@@ -71,9 +99,7 @@ return {
       "nvim-tree/nvim-web-devicons",
     },
     config = function()
-      require("trouble").setup({
-        use_diagnostic_signs = true,
-      })
+      require("trouble").setup()
     end,
   },
 
@@ -144,5 +170,12 @@ return {
     config = function()
       require("Comment").setup()
     end,
+  },
+
+  -- Indent-blankline
+  {
+    "lukas-reineke/indent-blankline.nvim",
+    main = "ibl",
+    opts = {},
   },
 }
