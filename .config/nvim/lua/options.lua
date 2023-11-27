@@ -41,13 +41,28 @@ vim.opt.number = true
 vim.opt.cursorline = true
 vim.opt.cursorcolumn = true
 vim.opt.list = true
+vim.opt.signcolumn = "number"
 vim.opt.listchars = "tab:▸ ,trail:_,extends:»,precedes:«,nbsp:%"
+vim.opt.fillchars = [[eob: ,fold:·,foldopen:,foldsep: ,foldclose:]]
 vim.opt.foldenable = true
-vim.opt.foldminlines = 5
+vim.opt.foldcolumn = "0"
+vim.opt.foldminlines = 3
+vim.opt.foldnestmax = 2
 vim.opt.foldmethod = "expr"
-vim.opt.foldexpr = "nvim_treesitter#foldexpr()"
-vim.opt.foldcolumn = "2"
-vim.opt.foldnestmax = 3
+vim.opt.foldexpr = "v:lua.vim.treesitter.foldexpr()"
+if vim.fn.has("nvim-10") then
+  function MyFoldtext()
+    local text = vim.treesitter.foldtext()
+    local n_lines = vim.v.foldend - vim.v.foldstart
+    local text_lines = " lines"
+    if n_lines == 1 then
+      text_lines = " line"
+    end
+    table.insert(text, { "···[" .. n_lines .. text_lines .. "]", { "Folded" } })
+    return text
+  end
+  vim.opt.foldtext = "v:lua.MyFoldtext()"
+end
 
 -- Buffer
 vim.opt.shiftwidth = 2
