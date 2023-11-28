@@ -1,53 +1,46 @@
 return {
-  "stevearc/conform.nvim",
-  event = { "BufWritePre" },
-  cmd = { "ConformInfo" },
-  keys = {
-    {
-      -- Customize or remove this keymap to your liking
-      "<leader>f",
-      function()
-        require("conform").format({ async = true, lsp_fallback = true })
-      end,
-      mode = "",
-      desc = "Format buffer",
-    },
-  },
-  -- Everything in opts will be passed to setup()
-  opts = {
-    -- Define your formatters
-    formatters_by_ft = {
-      lua = { "stylua" },
-      python = { "isort", "black" },
-      javascript = { "prettier" },
-      typescript = { "prettier" },
-      css = { "prettier" },
-      html = { "prettier" },
-      json = { "prettier" },
-      yaml = { "prettier" },
-      markdown = { "prettier" },
-      r = { "styler" },
-    },
-    -- Set up format-on-save
-    -- format_on_save = { timeout_ms = 500, lsp_fallback = true },
-    -- Customize formatters
-    formatters = {
-      shfmt = {
-        prepend_args = { "-i", "2" },
+  "nvimtools/none-ls.nvim",
+  config = function()
+    local null_ls = require("null-ls")
+
+    null_ls.setup({
+      -- debug = true,
+      sources = {
+        null_ls.builtins.formatting.stylua.with({
+          -- prefer_local = "~/.cargo/bin",
+          extra_args = { "--indent-type", "Spaces", "--indent-width", "2" },
+        }),
+        -- null_ls.builtins.formatting.prettier,
+        null_ls.builtins.formatting.prettier.with({
+          -- prefer_local = "~/.node_modules/bin",
+          filetypes = {
+            "javascript",
+            "typescript",
+            "css",
+            "scss",
+            "html",
+            "vue",
+            "json",
+            "yaml",
+            "markdown",
+            "graphql",
+            "md",
+            "txt",
+          },
+        }),
+        null_ls.builtins.diagnostics.eslint,
+        null_ls.builtins.formatting.black.with({
+          -- prefer_local = "~/.pyenv/shims",
+          extra_args = { "-l", "88" },
+        }),
+        null_ls.builtins.formatting.isort.with({
+          -- prefer_local = "~/.pyenv/shims",
+          extra_args = { "-l", "88" },
+        }),
+        null_ls.builtins.formatting.styler,
+        null_ls.builtins.formatting.beautysh,
       },
-      stylua = {
-        prepend_args = { "--indent-type", "Spaces", "--indent-width", "2" },
-      },
-      isort = {
-        prepend_args = { "-l", "88" },
-      },
-      black = {
-        prepend_args = { "-l", "88" },
-      },
-    },
-  },
-  init = function()
-    -- If you want the formatexpr, here is the place to set it
-    vim.o.formatexpr = "v:lua.require'conform'.formatexpr()"
+    })
   end,
+  dependencies = { "nvim-lua/plenary.nvim" },
 }

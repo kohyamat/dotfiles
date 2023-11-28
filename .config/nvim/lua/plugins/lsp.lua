@@ -14,9 +14,9 @@ return {
             vim.keymap.set("n", "gr", vim.lsp.buf.references, bufopts)
             vim.keymap.set("n", "gh", vim.lsp.buf.signature_help, bufopts)
             vim.keymap.set("n", "gk", vim.lsp.buf.signature_help, bufopts)
-            -- vim.keymap.set("n", "<leader>f", function()
-            --   vim.lsp.buf.format({ async = true })
-            -- end, bufopts)
+            vim.keymap.set("n", "<leader>f", function()
+              vim.lsp.buf.format({ async = true })
+            end, bufopts)
           end
           opts.capabilities = require("cmp_nvim_lsp").default_capabilities()
           if server_name == "lua_ls" then
