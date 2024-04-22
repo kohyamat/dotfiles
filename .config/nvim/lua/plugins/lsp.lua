@@ -71,6 +71,23 @@ return {
                 },
               },
             }
+          elseif server_name == "tsserver" then
+            opts.settings = {
+              init_options = {
+                plugins = {
+                  {
+                    name = "@vue/typescript-plugin",
+                    location = "/usr/local/lib/node_modules/@vue/typescript-plugin",
+                    languages = { "javascript", "typescript", "vue" },
+                  },
+                },
+              },
+              filetypes = {
+                "javascript",
+                "typescript",
+                "vue",
+              },
+            }
           end
           require("lspconfig")[server_name].setup(opts)
         end,

@@ -28,7 +28,6 @@ return {
             "txt",
           },
         }),
-        null_ls.builtins.diagnostics.eslint,
         null_ls.builtins.formatting.black.with({
           -- prefer_local = "~/.pyenv/shims",
           extra_args = { "-l", "88" },
@@ -38,7 +37,6 @@ return {
           extra_args = { "-l", "88" },
         }),
         null_ls.builtins.formatting.styler,
-        null_ls.builtins.formatting.beautysh,
       },
     })
   end,
