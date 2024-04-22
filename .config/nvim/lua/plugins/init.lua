@@ -178,4 +178,16 @@ return {
     main = "ibl",
     opts = {},
   },
+
+  -- fidget.nvim
+  {
+    "j-hui/fidget.nvim",
+    opts = {
+      notification = {
+        window = {
+          winblend = 0,
+        },
+      },
+    },
+  },
 }
