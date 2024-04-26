@@ -53,8 +53,9 @@ return {
         end, { "i", "s" }),
       }),
       sources = cmp.config.sources({
+        { name = "copilot" },
         { name = "nvim_lsp" },
-        { name = "luasnip" }, -- For luasnip users.
+        { name = "luasnip" },
         -- { name = "path" },
         { name = "async_path" },
       }, {
@@ -98,5 +99,11 @@ return {
     "saadparwaiz1/cmp_luasnip",
     "rafamadriz/friendly-snippets",
     "onsails/lspkind.nvim",
+    {
+      "zbirenbaum/copilot-cmp",
+      config = function()
+        require("copilot_cmp").setup()
+      end,
+    },
   },
 }
