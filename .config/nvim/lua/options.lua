@@ -50,19 +50,19 @@ vim.opt.foldminlines = 3
 vim.opt.foldnestmax = 2
 vim.opt.foldmethod = "expr"
 vim.opt.foldexpr = "v:lua.vim.treesitter.foldexpr()"
-if vim.fn.has("nvim-10") then
-  function MyFoldtext()
-    local text = vim.treesitter.foldtext()
-    local n_lines = vim.v.foldend - vim.v.foldstart
-    local text_lines = " lines"
-    if n_lines == 1 then
-      text_lines = " line"
-    end
-    table.insert(text, { "···[" .. n_lines .. text_lines .. "]", { "Folded" } })
-    return text
-  end
-  vim.opt.foldtext = "v:lua.MyFoldtext()"
-end
+-- if vim.fn.has("nvim-10") then
+--   function MyFoldtext()
+--     local text = vim.treesitter.foldtext()
+--     local n_lines = vim.v.foldend - vim.v.foldstart
+--     local text_lines = " lines"
+--     if n_lines == 1 then
+--       text_lines = " line"
+--     end
+--     table.insert(text, { "···[" .. n_lines .. text_lines .. "]", { "Folded" } })
+--     return text
+--   end
+--   vim.opt.foldtext = "v:lua.MyFoldtext()"
+-- end
 
 -- Buffer
 vim.opt.shiftwidth = 2
