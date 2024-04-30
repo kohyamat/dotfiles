@@ -7,7 +7,6 @@ return {
     local lspkind = require("lspkind")
 
     table.unpack = table.unpack or unpack
-
     local has_words_before = function()
       local line, col = table.unpack(vim.api.nvim_win_get_cursor(0))
       return col ~= 0 and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match("%s") == nil
@@ -16,7 +15,11 @@ return {
     cmp.setup({
       formatting = {
         format = lspkind.cmp_format({
-          mode = "symbol_text",
+          mode = "symbol",
+          max_width = 50,
+          symbol_map = {
+            Copilot = ""
+          }
         }),
       },
       snippet = {
@@ -89,6 +92,7 @@ return {
       },
     })
   end,
+  
   dependencies = {
     "hrsh7th/cmp-nvim-lsp",
     "hrsh7th/cmp-buffer",
