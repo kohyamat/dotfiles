@@ -10,6 +10,7 @@ return {
           -- prefer_local = "~/.cargo/bin",
           extra_args = { "--indent-type", "Spaces", "--indent-width", "2" },
         }),
+        null_ls.builtins.formatting.clang_format,
         -- null_ls.builtins.formatting.prettier,
         null_ls.builtins.formatting.prettier.with({
           -- prefer_local = "~/.node_modules/bin",
