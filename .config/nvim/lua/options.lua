@@ -71,9 +71,19 @@ vim.opt.softtabstop = 0
 vim.opt.expandtab = true
 vim.opt.autoindent = true
 vim.opt.smartindent = true
+vim.opt.cindent = true
 vim.opt.textwidth = 0
 
+-- Use pyenv python3 if available
 local pyenv_root = os.getenv("PYENV_ROOT")
 if pyenv_root then
   vim.g.python3_host_prog = pyenv_root .. "/shims"
 end
+
+-- Disable auto-comment
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = "*",
+  callback = function()
+    vim.opt_local.formatoptions:remove({ 'r', 'o' })
+  end,
+})
