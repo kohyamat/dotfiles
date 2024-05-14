@@ -52,4 +52,5 @@ vim.keymap.set("t", "<C-l>", "<C-\\><C-n><C-w>l")
 
 
 -- Make
-vim.keymap.set("n", "<leader>m", ":!g++ -Wall % && ./a.out<cr>")
+-- vim.keymap.set("n", "<leader>m", ":!g++ -Wall % && ./a.out<cr>")
+vim.keymap.set("n", "<leader>m", ":!g++ -Wall %")

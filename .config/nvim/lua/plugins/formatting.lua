@@ -1,45 +1,37 @@
 return {
-  "nvimtools/none-ls.nvim",
+  "jay-babu/mason-null-ls.nvim",
+  event = { "BufReadPre", "BufNewFile" },
+  dependencies = {
+    "nvim-lua/plenary.nvim",
+    "williamboman/mason.nvim",
+    "nvimtools/none-ls.nvim",
+  },
   config = function()
-    local null_ls = require("null-ls")
+    require("mason-null-ls").setup({
+      ensure_installed = {
+        "stylua",
+        "clang_format",
+        "prettier",
+        "black",
+        "isort",
+        "styler",
+      },
+      handlers = {},
+    })
 
+    local null_ls = require("null-ls")
     null_ls.setup({
-      -- debug = true,
       sources = {
         null_ls.builtins.formatting.stylua.with({
-          -- prefer_local = "~/.cargo/bin",
           extra_args = { "--indent-type", "Spaces", "--indent-width", "2" },
         }),
-        null_ls.builtins.formatting.clang_format,
-        -- null_ls.builtins.formatting.prettier,
-        null_ls.builtins.formatting.prettier.with({
-          -- prefer_local = "~/.node_modules/bin",
-          filetypes = {
-            "javascript",
-            "typescript",
-            "css",
-            "scss",
-            "html",
-            "vue",
-            "json",
-            "yaml",
-            "markdown",
-            "graphql",
-            "md",
-            "txt",
-          },
-        }),
         null_ls.builtins.formatting.black.with({
-          -- prefer_local = "~/.pyenv/shims",
-          extra_args = { "-l", "88" },
+          extra_args = { "-l", "120" },
         }),
         null_ls.builtins.formatting.isort.with({
-          -- prefer_local = "~/.pyenv/shims",
-          extra_args = { "-l", "88" },
+          extra_args = { "-l", "120" },
         }),
-        null_ls.builtins.formatting.styler,
       },
     })
   end,
-  dependencies = { "nvim-lua/plenary.nvim" },
 }

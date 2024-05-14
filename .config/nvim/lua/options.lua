@@ -77,7 +77,7 @@ vim.opt.textwidth = 0
 -- Use pyenv python3 if available
 local pyenv_root = os.getenv("PYENV_ROOT")
 if pyenv_root then
-  vim.g.python3_host_prog = pyenv_root .. "/shims"
+  vim.g.python3_host_prog = pyenv_root .. "/shims/python3"
 end
 
 -- Disable auto-comment
