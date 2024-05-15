@@ -5,37 +5,8 @@ return {
       "williamboman/mason-lspconfig.nvim",
       "neovim/nvim-lspconfig",
       "hrsh7th/cmp-nvim-lsp",
+      -- { "simrat39/rust-tools.nvim", ft = "rust" },
     },
-    init = function(_)
-      local pylsp = require("mason-registry").get_package("python-lsp-server")
-      pylsp:on("install:success", function()
-        local function mason_package_path(package)
-          local path = vim.fn.resolve(vim.fn.stdpath("data") .. "/mason/packages/" .. package)
-          return path
-        end
-
-        local path = mason_package_path("python-lsp-server")
-        local command = path .. "/venv/bin/pip"
-        local args = {
-          "install",
-          "-U",
-          "pylsp-rope",
-          "python-lsp-black",
-          "python-lsp-isort",
-          "python-lsp-ruff",
-          "pyls-memestra",
-          "pylsp-mypy",
-        }
-
-        require("plenary.job")
-          :new({
-            command = command,
-            args = args,
-            cwd = path,
-          })
-          :start()
-      end)
-    end,
     config = function()
       require("mason").setup()
       require("mason-lspconfig").setup({
@@ -131,6 +102,10 @@ return {
           end
           require("lspconfig")[server_name].setup(opts)
         end,
+
+        -- ["rust_analyzer"] = function()
+        --   require("rust-tools").setup()
+        -- end,
       }
       require("mason-lspconfig").setup_handlers(handlers)
     end,
