@@ -104,18 +104,18 @@ return {
   },
 
   -- Nvim-navic
-  {
-    "SmiteshP/nvim-navic",
-    config = function()
-      require("nvim-navic").setup({
-        lsp = {
-          auto_attach = true,
-        },
-        highlight = true,
-      })
-    end,
-    dependencies = { "neovim/nvim-lspconfig" },
-  },
+  -- {
+  --   "SmiteshP/nvim-navic",
+  --   config = function()
+  --     require("nvim-navic").setup({
+  --       lsp = {
+  --         auto_attach = false,
+  --       },
+  --       highlight = true,
+  --     })
+  --   end,
+  --   dependencies = { "neovim/nvim-lspconfig" },
+  -- },
 
   -- Markdown preview
   {

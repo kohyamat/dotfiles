@@ -84,6 +84,40 @@ end
 vim.api.nvim_create_autocmd("FileType", {
   pattern = "*",
   callback = function()
-    vim.opt_local.formatoptions:remove({ 'r', 'o' })
+    vim.opt_local.formatoptions:remove({ "r", "o" })
   end,
 })
+
+-- WSL clipboard integration
+if vim.fn.has("wsl") == 1 then
+  if vim.fn.executable("xsel") == 0 then
+    print("xsel is not installed, clipboard integration is disabled.")
+    -- vim.g.clipboard = {
+    --   name = "WslClipboard",
+    --   copy = {
+    --     ["+"] = "clip.exe",
+    --     ["*"] = "clip.exe",
+    --   },
+    --   paste = {
+    --     ["+"] = 'powershell.exe -c [Console]::Out.Write($(Get-Clipboard -Raw).tostring().replace("`r", ""))',
+    --     ["*"] = 'powershell.exe -c [Console]::Out.Write($(Get-Clipboard -Raw).tostring().replace("`r", ""))',
+    --   },
+    --   cache_enabled = 1,
+    -- }
+  else
+    vim.g.clipboard = {
+      name = "WslClipboard",
+      copy = {
+        ["+"] = "xsel -bi",
+        ["*"] = "xsel -bi",
+      },
+      paste = {
+        ["+"] = "xsel -bo",
+        ["*"] = function()
+          return vim.fn.systemlist('xsel -bo | tr -d "\r"')
+        end,
+      },
+      cache_enabled = 1,
+    }
+  end
+end
