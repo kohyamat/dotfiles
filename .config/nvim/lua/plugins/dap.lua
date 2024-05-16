@@ -1,9 +1,15 @@
 return {
   "mfussenegger/nvim-dap",
+  dependencies = {
+    "williamboman/mason.nvim",
+    "rcarriga/nvim-dap-ui",
+    "nvim-neotest/nvim-nio",
+    "jay-babu/mason-nvim-dap.nvim",
+  },
   config = function()
     -- mason-nvim-dap
     require("mason-nvim-dap").setup({
-      ensure_installed = {},
+      ensure_installed = { "codelldb", "debugpy" },
       handlers = {},
     })
 
@@ -51,7 +57,7 @@ return {
       dapui.open()
     end
 
-    -- setup c++/c/rust debugging with codelldb
+    -- setup c++ debugging with codelldb
     dap.adapters.codelldb = {
       type = "server",
       port = "${port}",
@@ -63,7 +69,6 @@ return {
         -- detached = false,
       },
     }
-
     dap.configurations.cpp = {
       {
         name = "Launch file",
@@ -76,8 +81,6 @@ return {
         stopOnEntry = false,
       },
     }
-    dap.configurations.c = dap.configurations.cpp
-    dap.configurations.rust = dap.configurations.cpp
 
     -- setup python debugging with debugpy
     dap.adapters.python = function(cb, config)
@@ -128,10 +131,4 @@ return {
       },
     }
   end,
-  dependencies = {
-    "williamboman/mason.nvim",
-    "rcarriga/nvim-dap-ui",
-    "nvim-neotest/nvim-nio",
-    "jay-babu/mason-nvim-dap.nvim",
-  },
 }
