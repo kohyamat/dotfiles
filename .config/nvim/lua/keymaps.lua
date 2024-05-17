@@ -11,10 +11,10 @@ vim.keymap.set("n", "]b", ":bnext<CR>")
 vim.keymap.set("n", "[b", ":bprevious<CR>")
 
 -- Cursor move
-vim.keymap.set("n", "<S-j>", "5j")
-vim.keymap.set("n", "<S-k>", "5k")
-vim.keymap.set("v", "<S-j>", "5j")
-vim.keymap.set("v", "<S-k>", "5k")
+-- vim.keymap.set("n", "<S-j>", "5j")
+-- vim.keymap.set("n", "<S-k>", "5k")
+-- vim.keymap.set("v", "<S-j>", "5j")
+-- vim.keymap.set("v", "<S-k>", "5k")
 
 -- Window move
 -- vim.keymap.set("n", "<C-h>", "<C-w>h")
@@ -50,7 +50,5 @@ vim.keymap.set("t", "<C-j>", "<C-\\><C-n><C-w>j")
 vim.keymap.set("t", "<C-k>", "<C-\\><C-n><C-w>k")
 vim.keymap.set("t", "<C-l>", "<C-\\><C-n><C-w>l")
 
-
--- Make
--- vim.keymap.set("n", "<leader>m", ":!g++ -Wall % && ./a.out<cr>")
-vim.keymap.set("n", "<leader>m", ":!g++ -Wall %")
+-- Build and run c++ code
+vim.keymap.set("n", "<leader>m", ":!g++ -Wall % && ./a.out<cr>")

@@ -13,8 +13,6 @@ return {
       handlers = {},
     })
 
-    local dap = require("dap")
-
     -- keymaps
     vim.api.nvim_set_keymap("n", "<F5>", ":DapContinue<CR>", { silent = true })
     vim.api.nvim_set_keymap("n", "<F10>", ":DapStepOver<CR>", { silent = true })
@@ -23,31 +21,13 @@ return {
     vim.api.nvim_set_keymap("n", "<leader>b", ":DapToggleBreakpoint<CR>", { silent = true })
 
     -- setup dapui
+    local dap = require("dap")
     local dapui = require("dapui")
-    dapui.setup({
-      icons = { expanded = "", collapsed = "" },
-      layouts = {
-        {
-          elements = {
-            { id = "repl", size = 0.15 },
-            { id = "stacks", size = 0.2 },
-            { id = "watches", size = 0.2 },
-            { id = "scopes", size = 0.35 },
-            { id = "breakpoints", size = 0.1 },
-          },
-          size = 0.4,
-          position = "left",
-        },
+    dapui.setup()
 
-        {
-          elements = { "console" },
-          size = 0.25,
-          position = "bottom",
-        },
-      },
-    })
-
-    vim.api.nvim_set_keymap("n", "<leader>d", ':lua require("dapui").toggle()<CR>', {})
+    vim.api.nvim_set_keymap("n", "<leader>do", ':lua require("dapui").open()<CR>', {})
+    vim.api.nvim_set_keymap("n", "<leader>dc", ':lua require("dapui").close()<CR>', {})
+    vim.api.nvim_set_keymap("n", "<leader>D", ':lua require("dapui").toggle()<CR>', {})
     vim.api.nvim_set_keymap("n", "<leader>de", ':lua require("dapui").eval()<CR>', {})
 
     dap.listeners.before.attach.dapui_config = function()

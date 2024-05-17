@@ -2,9 +2,9 @@ return {
   "jay-babu/mason-null-ls.nvim",
   event = { "BufReadPre", "BufNewFile" },
   dependencies = {
-    "nvim-lua/plenary.nvim",
     "williamboman/mason.nvim",
     "nvimtools/none-ls.nvim",
+    "nvim-lua/plenary.nvim",
   },
   config = function()
     require("mason-null-ls").setup({
@@ -15,6 +15,7 @@ return {
         "black",
         "isort",
         "styler",
+        "shfmt",
       },
       handlers = {},
     })
