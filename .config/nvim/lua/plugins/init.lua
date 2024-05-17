@@ -1,9 +1,21 @@
 return {
   -- Colorscheme
   {
+    "bluz71/vim-nightfly-guicolors",
+    name = "nightfly",
+    lazy = false,
+    priority = 1000,
+    config = function()
+      vim.g.nightflyNormalFloat = true
+      vim.g.nightflyTransparent = true
+      vim.cmd("colorscheme nightfly")
+    end,
+  },
+
+  {
     "folke/tokyonight.nvim",
-    lazy = false,    -- make sure we load this during startup if it is your main colorscheme
-    priority = 1000, -- make sure to load this before all the other start plugins
+    lazy = true,
+    priority = 1000,
     config = function()
       require("tokyonight").setup({
         transparent = true,
@@ -12,7 +24,7 @@ return {
           floats = "transparent",
         },
       })
-      vim.cmd("colorscheme tokyonight-night")
+      -- vim.cmd("colorscheme tokyonight-night")
     end,
   },
 
@@ -28,7 +40,7 @@ return {
     config = function()
       require("lualine").setup({
         options = {
-          theme = "tokyonight",
+          theme = "nightfly",
           globalstatus = true,
         },
         tabline = {
@@ -103,20 +115,6 @@ return {
     end,
   },
 
-  -- Nvim-navic
-  -- {
-  --   "SmiteshP/nvim-navic",
-  --   config = function()
-  --     require("nvim-navic").setup({
-  --       lsp = {
-  --         auto_attach = false,
-  --       },
-  --       highlight = true,
-  --     })
-  --   end,
-  --   dependencies = { "neovim/nvim-lspconfig" },
-  -- },
-
   -- Markdown preview
   {
     "iamcco/markdown-preview.nvim",
@@ -149,6 +147,14 @@ return {
       vim.keymap.set("n", "<leader>k", function()
         hop.hint_vertical({ direction = directions.BEFORE_CURSOR })
       end, {})
+    end,
+  },
+
+  -- neoscroll
+  {
+    "karb94/neoscroll.nvim",
+    config = function()
+      require("neoscroll").setup()
     end,
   },
 

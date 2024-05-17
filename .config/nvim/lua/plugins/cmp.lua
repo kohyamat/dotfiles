@@ -1,6 +1,23 @@
 return {
   -- nvim-cmp
   "hrsh7th/nvim-cmp",
+  dependencies = {
+    "hrsh7th/cmp-nvim-lsp",
+    "hrsh7th/cmp-buffer",
+    -- "hrsh7th/cmp-path",
+    "FelipeLema/cmp-async-path",
+    "hrsh7th/cmp-cmdline",
+    { "L3MON4D3/LuaSnip", version = "v2.*", build = "make install_jsregexp" },
+    "saadparwaiz1/cmp_luasnip",
+    "rafamadriz/friendly-snippets",
+    "onsails/lspkind.nvim",
+    {
+      "zbirenbaum/copilot-cmp",
+      config = function()
+        require("copilot_cmp").setup()
+      end,
+    },
+  },
   config = function()
     local cmp = require("cmp")
     local luasnip = require("luasnip")
@@ -84,29 +101,23 @@ return {
       }),
     })
 
+    -- Snnipets source
     require("luasnip.loaders.from_vscode").lazy_load({
       paths = {
         vim.fn.stdpath("data") .. "/lazy/friendly-snippets",
         "./snippets",
       },
     })
-  end,
 
-  dependencies = {
-    "hrsh7th/cmp-nvim-lsp",
-    "hrsh7th/cmp-buffer",
-    -- "hrsh7th/cmp-path",
-    "FelipeLema/cmp-async-path",
-    "hrsh7th/cmp-cmdline",
-    { "L3MON4D3/LuaSnip", version = "v2.*", build = "make install_jsregexp" },
-    "saadparwaiz1/cmp_luasnip",
-    "rafamadriz/friendly-snippets",
-    "onsails/lspkind.nvim",
-    {
-      "zbirenbaum/copilot-cmp",
-      config = function()
-        require("copilot_cmp").setup()
-      end,
-    },
-  },
+    -- Colorscheme the completion window
+    local winhighlight = {
+      winhighlight = "Normal:NormalFloat,FloatBorder:FloatBorder,CursorLine:PmenuSel",
+    }
+    require("cmp").setup({
+      window = {
+        completion = cmp.config.window.bordered(winhighlight),
+        documentation = cmp.config.window.bordered(winhighlight),
+      },
+    })
+  end,
 }
