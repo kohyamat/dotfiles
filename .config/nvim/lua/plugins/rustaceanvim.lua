@@ -39,7 +39,17 @@ return {
     vim.g.rustaceanvim = {
       tools = {
         hover_actions = {
-          auto_focus = true,
+          border = {
+            { "╭", "FloatBorder" },
+            { "─", "FloatBorder" },
+            { "╮", "FloatBorder" },
+            { "│", "FloatBorder" },
+            { "╯", "FloatBorder" },
+            { "─", "FloatBorder" },
+            { "╰", "FloatBorder" },
+            { "│", "FloatBorder" },
+          },
+          auto_focus = false,
         },
       },
       server = {

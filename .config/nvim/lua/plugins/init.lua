@@ -3,12 +3,12 @@ return {
   {
     "bluz71/vim-nightfly-guicolors",
     name = "nightfly",
-    lazy = false,
+    lazy = true,
     priority = 1000,
     config = function()
-      vim.g.nightflyNormalFloat = true
-      vim.g.nightflyTransparent = true
-      vim.cmd("colorscheme nightfly")
+      -- vim.g.nightflyNormalFloat = true
+      -- vim.g.nightflyTransparent = true
+      -- vim.cmd("colorscheme nightfly")
     end,
   },
 
@@ -17,21 +17,43 @@ return {
     lazy = true,
     priority = 1000,
     config = function()
-      require("tokyonight").setup({
-        transparent = true,
-        styles = {
-          sidebars = "transparent",
-          floats = "transparent",
-        },
-      })
+      -- require("tokyonight").setup({
+      --   transparent = true,
+      --   styles = {
+      --     sidebars = "transparent",
+      --     floats = "transparent",
+      --   },
+      -- })
       -- vim.cmd("colorscheme tokyonight-night")
     end,
   },
 
   {
     "catppuccin/nvim",
-    lazy = true,
+    lazy = false,
+    priority = 1000,
     name = "catppuccin",
+    config = function()
+      require("catppuccin").setup({
+        transparent_background = true,
+        integrations = {
+          cmp = true,
+          gitsigns = true,
+          neotree = true,
+          treesitter = true,
+          notify = false,
+          fidget = true,
+          hop = true,
+          mason = true,
+          lsp_trouble = true,
+          navic = {
+            enabled = true,
+            custom_bg = "NONE", -- "lualine" will set background to mantle
+          },
+        },
+      })
+      vim.cmd("colorscheme catppuccin")
+    end,
   },
 
   -- Status line
@@ -40,7 +62,7 @@ return {
     config = function()
       require("lualine").setup({
         options = {
-          theme = "nightfly",
+          theme = "catppuccin",
           globalstatus = true,
         },
         tabline = {
@@ -183,6 +205,17 @@ return {
     "lukas-reineke/indent-blankline.nvim",
     main = "ibl",
     opts = {},
+  },
+
+  -- nvim-navic
+  {
+    "SmiteshP/nvim-navic",
+    dependencies = { "neovim/nvim-lspconfig" },
+    config = function()
+      require("nvim-navic").setup({
+        highlight = true,
+      })
+    end,
   },
 
   -- fidget.nvim
