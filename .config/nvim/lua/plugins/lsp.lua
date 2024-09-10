@@ -11,12 +11,13 @@ return {
       require("mason").setup()
       require("mason-lspconfig").setup({
         ensure_installed = {
-          "tsserver",
+          "ts_ls",
           "lua_ls",
           "pylsp",
           "clangd",
           "r_language_server",
           "rust_analyzer",
+          "volar",
         },
       })
 
@@ -89,7 +90,7 @@ return {
         },
       })
 
-      lspconfig.tsserver.setup({
+      lspconfig.ts_ls.setup({
         on_attach = on_attach,
         capabilities = capabilities,
         settings = {
@@ -116,6 +117,11 @@ return {
       })
 
       lspconfig.r_language_server.setup({
+        on_attach = on_attach,
+        capabilities = capabilities,
+      })
+
+      lspconfig.volar.setup({
         on_attach = on_attach,
         capabilities = capabilities,
       })
