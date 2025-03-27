@@ -61,7 +61,7 @@ return {
               flake8 = {
                 enabled = true,
                 maxLineLength = 120,
-                -- extendIgnore = { "E203" },
+                extendIgnore = { "E203" },
               },
               pycodestyle = {
                 enabled = false,
