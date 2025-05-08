@@ -3,8 +3,9 @@ return {
   lazy = false,
   dependencies = { "neovim/nvim-lspconfig" },
   config = function()
-    local mason_registry = require("mason-registry")
-    local codelldb_root = mason_registry.get_package("codelldb"):get_install_path() .. "/extension/"
+    -- local mason_registry = require("mason-registry")
+    -- local codelldb_root = mason_registry.get_package("codelldb"):get_install_path() .. "/extension/"
+    local codelldb_root = "~/.local/share/nvim/mason/packages/codelldb/extension"
     local codelldb_path = codelldb_root .. "adapter/codelldb"
     local liblldb_path = codelldb_root .. "lldb/lib/liblldb.so"
 
