@@ -8,20 +8,21 @@ return {
       "SmiteshP/nvim-navic",
     },
     config = function()
+      local enable_servers = {
+        "lua_ls",
+        "ts_ls",
+        "pylsp",
+        "clangd",
+        "r_language_server",
+        "rust_analyzer",
+        "volar",
+      }
+
       require("mason").setup()
       require("mason-lspconfig").setup({
-        ensure_installed = {
-          "ts_ls",
-          "lua_ls",
-          "pylsp",
-          "clangd",
-          "r_language_server",
-          "rust_analyzer",
-          "volar",
-        },
+        ensure_installed = enable_servers,
       })
 
-      local lspconfig = require("lspconfig")
       local navic = require("nvim-navic")
       local on_attach = function(client, bufnr)
         if client.server_capabilities.documentSymbolProvider then
@@ -39,92 +40,19 @@ return {
       end
       local capabilities = require("cmp_nvim_lsp").default_capabilities()
 
-      lspconfig.lua_ls.setup({
-        on_attach = on_attach,
-        capabilities = capabilities,
-        settings = {
-          Lua = {
-            diagnostics = {
-              globals = { "vim", "use" },
-            },
-          },
-        },
-      })
-
-      lspconfig.pylsp.setup({
-        on_attach = on_attach,
-        capabilities = capabilities,
-        settings = {
-          pylsp = {
-            configurationSources = { "flake8" },
-            plugins = {
-              flake8 = {
-                enabled = true,
-                maxLineLength = 120,
-                extendIgnore = { "E203" },
-              },
-              pycodestyle = {
-                enabled = false,
-              },
-              mccabe = {
-                enabled = false,
-              },
-              pyflakes = {
-                enabled = false,
-              },
-              yapf = {
-                enabled = false,
-              },
-              autopep8 = {
-                enabled = false,
-              },
-              pylsp_mypy = {
-                enabled = true,
-              },
-              ruff = {
-                enabled = false,
-                -- extendSelect = { "I" },
-              },
-            },
-          },
-        },
-      })
-
-      lspconfig.ts_ls.setup({
-        on_attach = on_attach,
-        capabilities = capabilities,
-        settings = {
-          init_options = {
-            plugins = {
-              {
-                name = "@vue/typescript-plugin",
-                location = "/usr/local/lib/node_modules/@vue/typescript-plugin",
-                languages = { "javascript", "typescript", "vue" },
-              },
-            },
-          },
-          filetypes = {
-            "javascript",
-            "typescript",
-            "vue",
-          },
-        },
-      })
-
-      lspconfig.clangd.setup({
+      vim.lsp.config("*", {
         on_attach = on_attach,
         capabilities = capabilities,
       })
 
-      lspconfig.r_language_server.setup({
-        on_attach = on_attach,
-        capabilities = capabilities,
-      })
-
-      lspconfig.volar.setup({
-        on_attach = on_attach,
-        capabilities = capabilities,
-      })
+      -- enable servers
+      vim.lsp.enable("lua_ls")
+      vim.lsp.enable("ts_ls")
+      vim.lsp.enable("pylsp")
+      vim.lsp.enable("clangd")
+      vim.lsp.enable("r_language_server")
+      vim.lsp.enable("rust_analyzer")
+      vim.lsp.enable("volar")
 
       vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, {
         border = "single",
