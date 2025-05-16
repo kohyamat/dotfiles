@@ -115,6 +115,36 @@ return {
     end,
   },
 
+  {
+    "nvim-treesitter/nvim-treesitter-context",
+    event = { "BufNewFile", "BufReadPre" },
+    config = function()
+      require("treesitter-context").setup({
+        enable = true,
+        multiwindow = false,
+        max_lines = 0,
+        min_window_height = 0,
+        line_numbers = true,
+        multiline_threshold = 20,
+        trim_scope = "outer",
+        mode = "cursor",
+        separator = nil,
+        zindex = 20,
+        on_attach = nil,
+      })
+    end,
+  },
+
+  {
+    "MeanderingProgrammer/render-markdown.nvim",
+    -- dependencies = { 'nvim-treesitter/nvim-treesitter', 'echasnovski/mini.nvim' }, -- if you use the mini.nvim suite
+    -- dependencies = { 'nvim-treesitter/nvim-treesitter', 'echasnovski/mini.icons' }, -- if you use standalone mini plugins
+    dependencies = { "nvim-treesitter/nvim-treesitter", "nvim-tree/nvim-web-devicons" }, -- if you prefer nvim-web-devicons
+    ---@module 'render-markdown'
+    ---@type render.md.UserConfig
+    opts = {},
+  },
+
   -- Gitsigns
   {
     "lewis6991/gitsigns.nvim",
