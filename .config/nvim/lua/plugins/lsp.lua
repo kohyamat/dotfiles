@@ -6,6 +6,7 @@ return {
       "neovim/nvim-lspconfig",
       "hrsh7th/cmp-nvim-lsp",
       "SmiteshP/nvim-navic",
+      "saghen/blink.cmp"
     },
     config = function()
       local enable_servers = {
@@ -15,7 +16,7 @@ return {
         "clangd",
         "r_language_server",
         "rust_analyzer",
-        "volar",
+        "vue_ls",
       }
 
       require("mason").setup()
@@ -38,7 +39,8 @@ return {
         --   vim.lsp.buf.format({ async = true })
         -- end, bufopts)
       end
-      local capabilities = require("cmp_nvim_lsp").default_capabilities()
+      -- local capabilities = require("cmp_nvim_lsp").default_capabilities()
+      local capabilities = require("blink.cmp").get_lsp_capabilities()
 
       vim.lsp.config("*", {
         on_attach = on_attach,
@@ -52,7 +54,7 @@ return {
       vim.lsp.enable("clangd")
       vim.lsp.enable("r_language_server")
       vim.lsp.enable("rust_analyzer")
-      vim.lsp.enable("volar")
+      vim.lsp.enable("vue_ls")
 
       vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, {
         border = "single",

@@ -1,123 +1,72 @@
 return {
-  -- nvim-cmp
-  "hrsh7th/nvim-cmp",
+  "saghen/blink.cmp",
+  version = "1.*",
   dependencies = {
-    "hrsh7th/cmp-nvim-lsp",
-    "hrsh7th/cmp-buffer",
-    -- "hrsh7th/cmp-path",
-    "FelipeLema/cmp-async-path",
-    "hrsh7th/cmp-cmdline",
-    { "L3MON4D3/LuaSnip", version = "v2.*", build = "make install_jsregexp" },
-    "saadparwaiz1/cmp_luasnip",
-    "rafamadriz/friendly-snippets",
-    "onsails/lspkind.nvim",
-    {
-      "zbirenbaum/copilot-cmp",
-      config = function()
-        require("copilot_cmp").setup()
-      end,
-    },
+    "L3MON4D3/LuaSnip",
+    "giuxtaposition/blink-cmp-copilot",
   },
-  config = function()
-    local cmp = require("cmp")
-    local luasnip = require("luasnip")
-    local lspkind = require("lspkind")
+  opts = {
+    keymap = {
+      preset = "none",
+      ["<CR>"] = { "accept", "fallback" },
+      ["<Tab>"] = { "select_next", "snippet_forward", "fallback" },
+      ["<S-Tab>"] = { "select_prev", "snippet_backward", "fallback" },
+      ["<C-e>"] = { "hide" },
+      ["<C-n>"] = { "select_next", "fallback" },
+      ["<C-p>"] = { "select_prev", "fallback" },
+      ["<Up>"] = { "select_prev", "fallback" },
+      ["<Down>"] = { "select_next", "fallback" },
+      ["<C-u>"] = { "scroll_documentation_up", "fallback" },
+      ["<C-d>"] = { "scroll_documentation_down", "fallback" },
+      ["<F5>"] = { "show", "show_documentation", "hide_documentation" },
+    },
 
-    table.unpack = table.unpack or unpack
-    local has_words_before = function()
-      local line, col = table.unpack(vim.api.nvim_win_get_cursor(0))
-      return col ~= 0 and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match("%s") == nil
-    end
+    appearance = {
+      nerd_font_variant = "mono",
+    },
 
-    cmp.setup({
-      formatting = {
-        format = lspkind.cmp_format({
-          mode = "symbol",
-          symbol_map = {
-            Copilot = "",
+    completion = {
+      list = { selection = { preselect = false, auto_insert = true } },
+      documentation = { auto_show = true },
+      menu = {
+        draw = {
+          columns = { { "label", "label_description", gap = 1 }, { "kind_icon", "kind" }  },
+          padding = { 0, 1 }, -- padding only on right side
+          components = {
+            kind_icon = {
+              text = function(ctx)
+                return " " .. ctx.kind_icon .. ctx.icon_gap .. " "
+              end,
+            },
           },
-        }),
+        },
       },
-      snippet = {
-        expand = function(args)
-          require("luasnip").lsp_expand(args.body) -- For `luasnip` users.
-        end,
+    },
+
+    snippets = { preset = "luasnip" },
+
+    sources = {
+      default = { "lsp", "path", "snippets", "buffer", "copilot" },
+      providers = {
+        copilot = {
+          name = "copilot",
+          module = "blink-cmp-copilot",
+          score_offset = 100,
+          async = true,
+          transform_items = function(_, items)
+            for _, item in ipairs(items) do
+              item.kind_name = "Copilot"
+              item.kind_icon = ""
+            end
+            return items
+          end,
+        },
       },
-      mapping = cmp.mapping.preset.insert({
-        ["<C-b>"] = cmp.mapping.scroll_docs(-4),
-        ["<C-f>"] = cmp.mapping.scroll_docs(4),
-        ["<C-l>"] = cmp.mapping.complete(),
-        ["<C-e>"] = cmp.mapping.abort(),
-        ["<CR>"] = cmp.mapping.confirm({ select = false }),
-        ["<Tab>"] = cmp.mapping(function(fallback)
-          if cmp.visible() then
-            cmp.select_next_item()
-          elseif luasnip.expand_or_jumpable() then
-            luasnip.expand_or_jump()
-          elseif has_words_before() then
-            cmp.complete()
-          else
-            fallback()
-          end
-        end, { "i", "s" }),
+    },
 
-        ["<S-Tab>"] = cmp.mapping(function(fallback)
-          if cmp.visible() then
-            cmp.select_prev_item()
-          elseif luasnip.jumpable(-1) then
-            luasnip.jump(-1)
-          else
-            fallback()
-          end
-        end, { "i", "s" }),
-      }),
-      sources = cmp.config.sources({
-        { name = "copilot" },
-        { name = "nvim_lsp" },
-        { name = "luasnip" },
-        -- { name = "path" },
-        { name = "async_path" },
-      }, {
-        { name = "buffer" },
-      }),
-    })
+    fuzzy = { implementation = "prefer_rust_with_warning" },
 
-    -- Use buffer source for `/` and `?` (if you enabled `native_menu`, this won't work anymore).
-    cmp.setup.cmdline({ "/", "?" }, {
-      mapping = cmp.mapping.preset.cmdline(),
-      sources = {
-        { name = "buffer" },
-      },
-    })
-
-    -- Use cmdline & path source for ':' (if you enabled `native_menu`, this won't work anymore).
-    cmp.setup.cmdline(":", {
-      mapping = cmp.mapping.preset.cmdline(),
-      sources = cmp.config.sources({
-        -- { name = "path" },
-        { name = "async_path" },
-      }, {
-        { name = "cmdline" },
-      }),
-    })
-
-    -- Snnipets source
-    require("luasnip.loaders.from_vscode").lazy_load({
-      paths = {
-        vim.fn.stdpath("data") .. "/lazy/friendly-snippets",
-        "./snippets",
-      },
-    })
-
-    -- Colorscheme the completion window
-    local winhighlight = {
-      winhighlight = "Normal:NormalFloat,FloatBorder:FloatBorder,CursorLine:PmenuSel",
-    }
-    require("cmp").setup({
-      window = {
-        completion = cmp.config.window.bordered(winhighlight),
-        documentation = cmp.config.window.bordered(winhighlight),
-      },
-    })
-  end,
+    signature = { enabled = true },
+  },
+  opts_extend = { "sources.default" },
 }
