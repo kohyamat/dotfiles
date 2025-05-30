@@ -51,4 +51,4 @@ vim.keymap.set("t", "<C-k>", "<C-\\><C-n><C-w>k")
 vim.keymap.set("t", "<C-l>", "<C-\\><C-n><C-w>l")
 
 -- Build and run c++ code
-vim.keymap.set("n", "<leader>m", ":!g++ -Wall % && ./a.out<cr>")
+vim.keymap.set("n", "<leader>r", ":!g++ -g -O0 % && ./a.out<cr>")

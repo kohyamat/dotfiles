@@ -6,6 +6,12 @@ return {
     require("copilot").setup({
       suggestion = { enabled = false },
       panel = { enabled = false },
+      filetypes = {
+        markdown = true,
+        cvs = false,
+        ["."] = false,
+        ["*"] = true,
+      },
     })
   end,
 }
