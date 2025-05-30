@@ -61,7 +61,7 @@ return {
         prepend_args = { "-l", "120" },
       },
       styler = {
-        args = { "-s", "-e", "styler::style_file(commandArgs(TRUE))",  "--args", "$FILENAME" },
+        args = { "-s", "-e", "styler::style_file(commandArgs(TRUE))", "--args", "$FILENAME" },
         stdin = false,
       },
     },

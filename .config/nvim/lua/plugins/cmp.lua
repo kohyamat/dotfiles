@@ -3,7 +3,9 @@ return {
   version = "1.*",
   dependencies = {
     "L3MON4D3/LuaSnip",
-    "giuxtaposition/blink-cmp-copilot",
+    "nvim-tree/nvim-web-devicons",
+    "onsails/lspkind.nvim",
+    "fang2hou/blink-copilot",
   },
   opts = {
     keymap = {
@@ -30,12 +32,38 @@ return {
       documentation = { auto_show = true },
       menu = {
         draw = {
-          columns = { { "label", "label_description", gap = 1 }, { "kind_icon", "kind" }  },
-          padding = { 0, 1 }, -- padding only on right side
           components = {
             kind_icon = {
               text = function(ctx)
-                return " " .. ctx.kind_icon .. ctx.icon_gap .. " "
+                local lspkind = require("lspkind")
+                lspkind.init({
+                  symbol_map = {
+                    Copilot = "",
+                  },
+                })
+                local icon = ctx.kind_icon
+                if vim.tbl_contains({ "Path" }, ctx.source_name) then
+                  local dev_icon, _ = require("nvim-web-devicons").get_icon(ctx.label)
+                  if dev_icon then
+                    icon = dev_icon
+                  end
+                else
+                  icon = lspkind.symbolic(ctx.kind, {
+                    mode = "symbol",
+                  })
+                end
+                return icon .. ctx.icon_gap
+              end,
+
+              highlight = function(ctx)
+                local hl = ctx.kind_hl
+                if vim.tbl_contains({ "Path" }, ctx.source_name) then
+                  local dev_icon, dev_hl = require("nvim-web-devicons").get_icon(ctx.label)
+                  if dev_icon then
+                    hl = dev_hl
+                  end
+                end
+                return hl
               end,
             },
           },
@@ -50,16 +78,9 @@ return {
       providers = {
         copilot = {
           name = "copilot",
-          module = "blink-cmp-copilot",
+          module = "blink-copilot",
           score_offset = 100,
           async = true,
-          transform_items = function(_, items)
-            for _, item in ipairs(items) do
-              item.kind_name = "Copilot"
-              item.kind_icon = ""
-            end
-            return items
-          end,
         },
       },
     },
@@ -67,6 +88,14 @@ return {
     fuzzy = { implementation = "prefer_rust_with_warning" },
 
     signature = { enabled = true },
+
+    cmdline = {
+      keymap = { preset = "inherit" },
+      completion = {
+        list = { selection = { preselect = false, auto_insert = true } },
+        menu = { auto_show = true },
+      },
+    },
   },
   opts_extend = { "sources.default" },
 }

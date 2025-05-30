@@ -4,7 +4,6 @@ return {
     dependencies = {
       "williamboman/mason-lspconfig.nvim",
       "neovim/nvim-lspconfig",
-      "hrsh7th/cmp-nvim-lsp",
       "SmiteshP/nvim-navic",
       "saghen/blink.cmp"
     },
@@ -39,7 +38,7 @@ return {
         --   vim.lsp.buf.format({ async = true })
         -- end, bufopts)
       end
-      -- local capabilities = require("cmp_nvim_lsp").default_capabilities()
+
       local capabilities = require("blink.cmp").get_lsp_capabilities()
 
       vim.lsp.config("*", {
