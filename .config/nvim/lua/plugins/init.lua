@@ -116,26 +116,6 @@ return {
   },
 
   {
-    "nvim-treesitter/nvim-treesitter-context",
-    event = { "BufNewFile", "BufReadPre" },
-    config = function()
-      require("treesitter-context").setup({
-        enable = true,
-        multiwindow = false,
-        max_lines = 0,
-        min_window_height = 0,
-        line_numbers = true,
-        multiline_threshold = 20,
-        trim_scope = "outer",
-        mode = "cursor",
-        separator = nil,
-        zindex = 20,
-        on_attach = nil,
-      })
-    end,
-  },
-
-  {
     "MeanderingProgrammer/render-markdown.nvim",
     -- dependencies = { 'nvim-treesitter/nvim-treesitter', 'echasnovski/mini.nvim' }, -- if you use the mini.nvim suite
     -- dependencies = { 'nvim-treesitter/nvim-treesitter', 'echasnovski/mini.icons' }, -- if you use standalone mini plugins
@@ -244,13 +224,8 @@ return {
   -- Autopairs
   {
     "windwp/nvim-autopairs",
-    config = function()
-      require("nvim-autopairs").setup()
-      local cmp = require("cmp")
-      local cmp_autopairs = require("nvim-autopairs.completion.cmp")
-      cmp.event:on("confirm_done", cmp_autopairs.on_confirm_done())
-    end,
-    dependencies = { "hrsh7th/nvim-cmp" },
+    event = "InsertEnter",
+    config = true,
   },
 
   -- Comment
@@ -260,13 +235,6 @@ return {
       require("Comment").setup()
     end,
   },
-
-  -- Indent-blankline
-  -- {
-  --   "lukas-reineke/indent-blankline.nvim",
-  --   main = "ibl",
-  --   opts = {},
-  -- },
 
   -- nvim-navic
   {
@@ -291,6 +259,7 @@ return {
     },
   },
 
+  -- hlchunk.nvim
   {
     "shellRaining/hlchunk.nvim",
     event = { "BufReadPre", "BufNewFile" },
@@ -312,5 +281,48 @@ return {
         },
       })
     end,
+  },
+
+
+  -- noice.nvim
+  {
+    "folke/noice.nvim",
+    opts = {
+      lsp = {
+        -- override markdown rendering so that **cmp** and other plugins use **Treesitter**
+        override = {
+          ["vim.lsp.util.convert_input_to_markdown_lines"] = true,
+          ["vim.lsp.util.stylize_markdown"] = true,
+          ["cmp.entry.get_documentation"] = true, -- requires hrsh7th/nvim-cmp
+        },
+      },
+      -- you can enable a preset for easier configuration
+      presets = {
+        bottom_search = true, -- use a classic bottom cmdline for search
+        -- command_palette = true, -- position the cmdline and popupmenu together
+        long_message_to_split = true, -- long messages will be sent to a split
+        inc_rename = false, -- enables an input dialog for inc-rename.nvim
+        lsp_doc_border = false, -- add a border to hover docs and signature help
+      },
+    },
+    dependencies = {
+      "MunifTanjim/nui.nvim",
+      {
+        "rcarriga/nvim-notify",
+        config = function()
+          require("notify").setup({
+            background_colour = "#000000",
+            -- stages = "fade_in_slide_out",
+            -- timeout = 3000,
+            max_height = function()
+              return math.floor(vim.o.lines * 0.8)
+            end,
+            max_width = function()
+              return math.floor(vim.o.columns * 0.8)
+            end,
+          })
+        end,
+      },
+    },
   },
 }
