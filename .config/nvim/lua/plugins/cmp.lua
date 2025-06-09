@@ -29,9 +29,10 @@ return {
 
     completion = {
       list = { selection = { preselect = false, auto_insert = true } },
-      documentation = { auto_show = true },
+      documentation = { auto_show = false },
       menu = {
         draw = {
+          treesitter = { "lsp" },
           components = {
             kind_icon = {
               text = function(ctx)
@@ -74,7 +75,7 @@ return {
     snippets = { preset = "luasnip" },
 
     sources = {
-      default = { "lsp", "path", "snippets", "buffer", "copilot" },
+      default = { "lsp", "path", "snippets", "buffer", "copilot", "cmdline" },
       providers = {
         copilot = {
           name = "copilot",

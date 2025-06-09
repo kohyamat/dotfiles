@@ -5,7 +5,7 @@ return {
       "williamboman/mason-lspconfig.nvim",
       "neovim/nvim-lspconfig",
       "SmiteshP/nvim-navic",
-      "saghen/blink.cmp"
+      "saghen/blink.cmp",
     },
     config = function()
       local enable_servers = {
@@ -33,7 +33,7 @@ return {
         vim.keymap.set("n", "gD", vim.lsp.buf.declaration, bufopts)
         vim.keymap.set("n", "gd", vim.lsp.buf.definition, bufopts)
         vim.keymap.set("n", "gr", vim.lsp.buf.references, bufopts)
-        vim.keymap.set("n", "K", vim.lsp.buf.hover, bufopts)
+        vim.keymap.set("n", "K", function() vim.lsp.buf.hover({ border = "rounded" }) end, bufopts)
         -- vim.keymap.set("n", "<leader>f", function()
         --   vim.lsp.buf.format({ async = true })
         -- end, bufopts)
@@ -54,14 +54,6 @@ return {
       vim.lsp.enable("r_language_server")
       vim.lsp.enable("rust_analyzer")
       vim.lsp.enable("vue_ls")
-
-      vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, {
-        border = "single",
-      })
-      vim.lsp.handlers["textDocument/signatureHelp"] = vim.lsp.with(vim.lsp.handlers.signatureHelp, {
-        border = "single",
-      })
-      vim.diagnostic.config({ float = { border = "single" } })
     end,
   },
 }
