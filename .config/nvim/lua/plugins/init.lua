@@ -93,24 +93,23 @@ return {
     build = ":TSUpdate",
     config = function()
       require("nvim-treesitter.configs").setup({
-        ensured_installed = {
-          "bash",
-          "comment",
-          "css",
-          "html",
-          "javascript",
-          "jsdoc",
-          "jsonc",
-          "lua",
-          "markdown",
-          "python",
-          "r",
-          "regex",
-          "scss",
-          "toml",
-          "typescript",
-          "yaml",
+        ensure_installed = { "c", "lua", "vim", "vimdoc", "query", "elixir", "heex", "javascript", "html" },
+        sync_install = false,
+        highlight = { enable = true },
+        indent = { enable = true },
+      })
+
+      local parser_config = require("nvim-treesitter.parsers").get_parser_configs()
+      parser_config.stan = {
+        install_info = {
+          url = "https://github.com/WardBrian/tree-sitter-stan",
+          files = { "src/parser.c" },
+          branch = "main",
         },
+      }
+
+      vim.filetype.add({
+        extension = { stan = "stan" },
       })
     end,
   },
@@ -123,6 +122,11 @@ return {
     ---@module 'render-markdown'
     ---@type render.md.UserConfig
     opts = {},
+    config = function()
+      require("render-markdown").setup({
+        completions = { blink = { enabled = true } },
+      })
+    end,
   },
 
   -- Gitsigns
@@ -266,41 +270,36 @@ return {
     config = function()
       require("hlchunk").setup({
         chunk = {
-          enabled = true,
+          enable = true,
           chars = {
             horizontal_line = "─",
             vertical_line = "│",
             left_top = "╭",
             left_bottom = "╰",
-            right_arrow = ">",
+            right_arrow = "─",
           },
-          style = "#806d9c",
-        },
-        indent = {
-          enabled = true,
+          style = "#b4befe",
+          delay = 30,
+          duration = 0,
         },
       })
     end,
   },
-
 
   -- noice.nvim
   {
     "folke/noice.nvim",
     opts = {
       lsp = {
-        -- override markdown rendering so that **cmp** and other plugins use **Treesitter**
-        override = {
-          ["vim.lsp.util.convert_input_to_markdown_lines"] = true,
-          ["vim.lsp.util.stylize_markdown"] = true,
-          ["cmp.entry.get_documentation"] = true, -- requires hrsh7th/nvim-cmp
-        },
+        progress = { enabled = false },
+        hover = { enabled = false },
+        signature = { enabled = false },
       },
       -- you can enable a preset for easier configuration
       presets = {
         bottom_search = true, -- use a classic bottom cmdline for search
-        -- command_palette = true, -- position the cmdline and popupmenu together
-        long_message_to_split = true, -- long messages will be sent to a split
+        command_palette = false, -- position the cmdline and popupmenu together
+        long_message_to_split = false, -- long messages will be sent to a split
         inc_rename = false, -- enables an input dialog for inc-rename.nvim
         lsp_doc_border = false, -- add a border to hover docs and signature help
       },
