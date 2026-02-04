@@ -35,6 +35,7 @@ return {
     name = "catppuccin",
     config = function()
       require("catppuccin").setup({
+        flavour = "mocha",
         transparent_background = true,
         integrations = {
           cmp = true,
@@ -46,6 +47,28 @@ return {
           hop = true,
           mason = true,
           lsp_trouble = true,
+          fzf = true,
+          dap = true,
+          native_lsp = {
+            enabled = true,
+            virtual_text = {
+              errors = { "italic" },
+              hints = { "italic" },
+              warnings = { "italic" },
+              information = { "italic" },
+              ok = { "italic" },
+            },
+            underlines = {
+              errors = { "underline" },
+              hints = { "underline" },
+              warnings = { "underline" },
+              information = { "underline" },
+              ok = { "underline" },
+            },
+            inlay_hints = {
+              background = true,
+            },
+          },
           navic = {
             enabled = true,
             custom_bg = "NONE", -- "lualine" will set background to mantle
@@ -93,9 +116,12 @@ return {
     build = ":TSUpdate",
     config = function()
       require("nvim-treesitter.configs").setup({
-        ensure_installed = { "c", "lua", "vim", "vimdoc", "query", "elixir", "heex", "javascript", "html" },
+        ensure_installed = { "c", "lua", "python", "rust", "r", "vim", "vimdoc", "javascript", "typescript", "html" },
         sync_install = false,
-        highlight = { enable = true },
+        highlight = {
+          enable = true,
+          additional_vim_regex_highlighting = false,
+        },
         indent = { enable = true },
       })
 
@@ -110,21 +136,6 @@ return {
 
       vim.filetype.add({
         extension = { stan = "stan" },
-      })
-    end,
-  },
-
-  {
-    "MeanderingProgrammer/render-markdown.nvim",
-    -- dependencies = { 'nvim-treesitter/nvim-treesitter', 'echasnovski/mini.nvim' }, -- if you use the mini.nvim suite
-    -- dependencies = { 'nvim-treesitter/nvim-treesitter', 'echasnovski/mini.icons' }, -- if you use standalone mini plugins
-    dependencies = { "nvim-treesitter/nvim-treesitter", "nvim-tree/nvim-web-devicons" }, -- if you prefer nvim-web-devicons
-    ---@module 'render-markdown'
-    ---@type render.md.UserConfig
-    opts = {},
-    config = function()
-      require("render-markdown").setup({
-        completions = { blink = { enabled = true } },
       })
     end,
   },
@@ -261,29 +272,6 @@ return {
         },
       },
     },
-  },
-
-  -- hlchunk.nvim
-  {
-    "shellRaining/hlchunk.nvim",
-    event = { "BufReadPre", "BufNewFile" },
-    config = function()
-      require("hlchunk").setup({
-        chunk = {
-          enable = true,
-          chars = {
-            horizontal_line = "─",
-            vertical_line = "│",
-            left_top = "╭",
-            left_bottom = "╰",
-            right_arrow = "─",
-          },
-          style = "#b4befe",
-          delay = 30,
-          duration = 0,
-        },
-      })
-    end,
   },
 
   -- noice.nvim
