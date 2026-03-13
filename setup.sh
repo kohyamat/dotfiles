@@ -26,10 +26,16 @@ if [ "${OS}" == "Darwin" ]; then
         /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
     fi
     brew update
-    brew install stow git neovim tmux ripgrep fzf node python3 r zsh
+    brew install stow git neovim tmux ripgrep fzf python3 r zsh curl
 elif [ "${OS}" == "Linux" ]; then
     sudo apt update
-    sudo apt install -y stow git neovim tmux ripgrep fzf nodejs python3 python3-pip zsh curl
+    sudo apt install -y stow git neovim tmux ripgrep fzf python3 python3-pip zsh curl
+fi
+
+# Install fnm (Fast Node Manager)
+if ! command -v fnm &> /dev/null; then
+    echo "Installing fnm..."
+    curl -fsSL https://fnm.vercel.app/install | bash -s -- --skip-shell
 fi
 
 # Install Miniconda if not already installed
