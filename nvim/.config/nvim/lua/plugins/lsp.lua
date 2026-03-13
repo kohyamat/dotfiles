@@ -18,10 +18,9 @@ return {
         "vue_ls",
       }
 
-      -- Formatters and Linters
+      -- Formatters and Linters (Consolidated to Ruff for Python)
       local formatters = {
-        "black",
-        "isort",
+        "ruff", -- Replaces black, isort, flake8
         "prettier",
         "stylua",
         "shfmt",
