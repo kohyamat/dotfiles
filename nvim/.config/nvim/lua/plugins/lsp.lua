@@ -8,7 +8,7 @@ return {
       "saghen/blink.cmp",
     },
     config = function()
-      local enable_servers = {
+      local servers = {
         "lua_ls",
         "ts_ls",
         "pylsp",
@@ -18,9 +18,29 @@ return {
         "vue_ls",
       }
 
+      -- Formatters and Linters
+      local formatters = {
+        "black",
+        "isort",
+        "prettier",
+        "stylua",
+        "shfmt",
+      }
+
       require("mason").setup()
+      local mr = require("mason-registry")
+      local function ensure_installed()
+        for _, tool in ipairs(formatters) do
+          local p = mr.get_package(tool)
+          if not p:is_installed() then
+            p:install()
+          end
+        end
+      end
+      mr.refresh(ensure_installed)
+
       require("mason-lspconfig").setup({
-        ensure_installed = enable_servers,
+        ensure_installed = servers,
       })
 
       local navic = require("nvim-navic")
@@ -33,10 +53,9 @@ return {
         vim.keymap.set("n", "gD", vim.lsp.buf.declaration, bufopts)
         vim.keymap.set("n", "gd", vim.lsp.buf.definition, bufopts)
         vim.keymap.set("n", "gr", vim.lsp.buf.references, bufopts)
-        vim.keymap.set("n", "K", function() vim.lsp.buf.hover({ border = "rounded" }) end, bufopts)
-        -- vim.keymap.set("n", "<leader>f", function()
-        --   vim.lsp.buf.format({ async = true })
-        -- end, bufopts)
+        vim.keymap.set("n", "K", function()
+          vim.lsp.buf.hover({ border = "rounded" })
+        end, bufopts)
       end
 
       local capabilities = require("blink.cmp").get_lsp_capabilities()
@@ -47,13 +66,9 @@ return {
       })
 
       -- enable servers
-      vim.lsp.enable("lua_ls")
-      vim.lsp.enable("ts_ls")
-      vim.lsp.enable("pylsp")
-      vim.lsp.enable("clangd")
-      vim.lsp.enable("r_language_server")
-      vim.lsp.enable("rust_analyzer")
-      vim.lsp.enable("vue_ls")
+      for _, server in ipairs(servers) do
+        vim.lsp.enable(server)
+      end
     end,
   },
 }
