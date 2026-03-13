@@ -16,7 +16,8 @@ return {
     formatters_by_ft = {
       sh = { "shfmt" },
       lua = { "stylua" },
-      python = { "isort", "black" },
+      -- Ruff (extremely fast and combines isort + black)
+      python = { "ruff_organize_imports", "ruff_format" },
       rust = { "rustfmt", lsp_format = "fallback" },
       javascript = { "prettierd", "prettier", stop_after_first = true },
       typescript = { "prettierd", "prettier", stop_after_first = true },
@@ -30,8 +31,6 @@ return {
     formatters = {
       shfmt = { prepend_args = { "-i", "2" } },
       stylua = { prepend_args = { "--indent-type", "Spaces", "--indent-width", "2" } },
-      black = { prepend_args = { "-l", "120" } },
-      isort = { prepend_args = { "-l", "120" } },
       styler = {
         args = { "-s", "-e", "styler::style_file(commandArgs(TRUE))", "--args", "$FILENAME" },
         stdin = false,
