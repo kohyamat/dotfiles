@@ -5,27 +5,12 @@ return {
     name = "nightfly",
     lazy = true,
     priority = 1000,
-    config = function()
-      -- vim.g.nightflyNormalFloat = true
-      -- vim.g.nightflyTransparent = true
-      -- vim.cmd("colorscheme nightfly")
-    end,
   },
 
   {
     "folke/tokyonight.nvim",
     lazy = true,
     priority = 1000,
-    config = function()
-      -- require("tokyonight").setup({
-      --   transparent = true,
-      --   styles = {
-      --     sidebars = "transparent",
-      --     floats = "transparent",
-      --   },
-      -- })
-      -- vim.cmd("colorscheme tokyonight-night")
-    end,
   },
 
   {
@@ -40,9 +25,7 @@ return {
         integrations = {
           cmp = true,
           gitsigns = true,
-          neotree = true,
           treesitter = true,
-          notify = false,
           fidget = true,
           hop = true,
           mason = true,
@@ -58,20 +41,10 @@ return {
               information = { "italic" },
               ok = { "italic" },
             },
-            underlines = {
-              errors = { "underline" },
-              hints = { "underline" },
-              warnings = { "underline" },
-              information = { "underline" },
-              ok = { "underline" },
-            },
-            inlay_hints = {
-              background = true,
-            },
           },
           navic = {
             enabled = true,
-            custom_bg = "NONE", -- "lualine" will set background to mantle
+            custom_bg = "NONE",
           },
         },
       })
@@ -94,20 +67,25 @@ return {
         },
       })
     end,
-    dependencies = { "nvim-tree/nvim-web-devicons", lazy = true },
+    dependencies = { "nvim-tree/nvim-web-devicons" },
   },
 
-  -- Nvim-tree
+  -- Oil.nvim (Modern File Explorer)
   {
-    "nvim-tree/nvim-tree.lua",
+    "stevearc/oil.nvim",
+    opts = {},
+    dependencies = { "nvim-tree/nvim-web-devicons" },
     config = function()
-      require("nvim-tree").setup({})
-      vim.keymap.set("n", "\\", vim.cmd.NvimTreeFocus)
-      vim.keymap.set("n", "|", vim.cmd.NvimTreeToggle)
+      require("oil").setup({
+        default_file_explorer = true,
+        view_options = {
+          show_hidden = true,
+        },
+      })
+      vim.keymap.set("n", "-", "<CMD>Oil<CR>", { desc = "Open parent directory" })
+      -- Also keep nvim-tree like mappings if you prefer
+      vim.keymap.set("n", "\\", "<CMD>Oil<CR>", { desc = "Open parent directory" })
     end,
-    dependencies = {
-      "nvim-tree/nvim-web-devicons",
-    },
   },
 
   -- Treesitter
@@ -154,41 +132,44 @@ return {
   -- Trouble
   {
     "folke/trouble.nvim",
-    dependencies = {
-      "nvim-tree/nvim-web-devicons",
+    dependencies = { "nvim-tree/nvim-web-devicons" },
+    opts = {
+      auto_preview = true,
+      auto_jump = { "lsp_definitions" },
+      modes = {
+        diagnostics = {
+          auto_open = false,
+          auto_close = true,
+        },
+      },
     },
-    opts = {}, -- for default options, refer to the configuration section for custom setup.
     cmd = "Trouble",
     keys = {
+      { "<leader>xx", "<cmd>Trouble diagnostics toggle<cr>", desc = "Diagnostics (Trouble)" },
+      { "<leader>xX", "<cmd>Trouble diagnostics toggle filter.buf=0<cr>", desc = "Buffer Diagnostics (Trouble)" },
+      { "<leader>cs", "<cmd>Trouble symbols toggle focus=false<cr>", desc = "Symbols (Trouble)" },
+      { "<leader>cl", "<cmd>Trouble lsp toggle focus=false win.position=right<cr>", desc = "LSP Definitions / references / ... (Trouble)" },
       {
-        "<leader>xx",
-        "<cmd>Trouble diagnostics toggle<cr>",
-        desc = "Diagnostics (Trouble)",
+        "[x",
+        function()
+          if require("trouble").is_open() then
+            require("trouble").prev({ skip_groups = true, jump = true })
+          else
+            vim.diagnostic.goto_prev()
+          end
+        end,
+        desc = "Previous Trouble/Diagnostic Item",
       },
       {
-        "<leader>xX",
-        "<cmd>Trouble diagnostics toggle filter.buf=0<cr>",
-        desc = "Buffer Diagnostics (Trouble)",
-      },
-      {
-        "<leader>cs",
-        "<cmd>Trouble symbols toggle focus=false<cr>",
-        desc = "Symbols (Trouble)",
-      },
-      {
-        "<leader>cl",
-        "<cmd>Trouble lsp toggle focus=false win.position=right<cr>",
-        desc = "LSP Definitions / references / ... (Trouble)",
-      },
-      {
-        "<leader>xL",
-        "<cmd>Trouble loclist toggle<cr>",
-        desc = "Location List (Trouble)",
-      },
-      {
-        "<leader>xQ",
-        "<cmd>Trouble qflist toggle<cr>",
-        desc = "Quickfix List (Trouble)",
+        "]x",
+        function()
+          if require("trouble").is_open() then
+            require("trouble").next({ skip_groups = true, jump = true })
+          else
+            vim.diagnostic.goto_next()
+          end
+        end,
+        desc = "Next Trouble/Diagnostic Item",
       },
     },
   },
@@ -270,45 +251,6 @@ return {
         window = {
           winblend = 0,
         },
-      },
-    },
-  },
-
-  -- noice.nvim
-  {
-    "folke/noice.nvim",
-    opts = {
-      lsp = {
-        progress = { enabled = false },
-        hover = { enabled = false },
-        signature = { enabled = false },
-      },
-      -- you can enable a preset for easier configuration
-      presets = {
-        bottom_search = true, -- use a classic bottom cmdline for search
-        command_palette = false, -- position the cmdline and popupmenu together
-        long_message_to_split = false, -- long messages will be sent to a split
-        inc_rename = false, -- enables an input dialog for inc-rename.nvim
-        lsp_doc_border = false, -- add a border to hover docs and signature help
-      },
-    },
-    dependencies = {
-      "MunifTanjim/nui.nvim",
-      {
-        "rcarriga/nvim-notify",
-        config = function()
-          require("notify").setup({
-            background_colour = "#000000",
-            -- stages = "fade_in_slide_out",
-            -- timeout = 3000,
-            max_height = function()
-              return math.floor(vim.o.lines * 0.8)
-            end,
-            max_width = function()
-              return math.floor(vim.o.columns * 0.8)
-            end,
-          })
-        end,
       },
     },
   },
