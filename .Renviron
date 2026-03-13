@@ -1,2 +1,0 @@
-R_USER=${HOME}/.R
-R_LIBS_USER=${R_USER}/library
