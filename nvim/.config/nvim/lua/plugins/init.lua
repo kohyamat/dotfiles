@@ -23,15 +23,14 @@ return {
         flavour = "mocha",
         transparent_background = true,
         integrations = {
-          cmp = true,
+          blink_cmp = true,
           gitsigns = true,
           treesitter = true,
           fidget = true,
-          hop = true,
+          flash = true,
           mason = true,
           lsp_trouble = true,
           fzf = true,
-          dap = true,
           native_lsp = {
             enabled = true,
             virtual_text = {
@@ -83,7 +82,6 @@ return {
         },
       })
       vim.keymap.set("n", "-", "<CMD>Oil<CR>", { desc = "Open parent directory" })
-      -- Also keep nvim-tree like mappings if you prefer
       vim.keymap.set("n", "\\", "<CMD>Oil<CR>", { desc = "Open parent directory" })
     end,
   },
@@ -174,6 +172,42 @@ return {
     },
   },
 
+  -- Flash.nvim (Modern Jump)
+  {
+    "folke/flash.nvim",
+    event = "VeryLazy",
+    opts = {},
+    keys = {
+      { "s", mode = { "n", "x", "o" }, function() require("flash").jump() end, desc = "Flash" },
+      { "S", mode = { "n", "x", "o" }, function() require("flash").treesitter() end, desc = "Flash Treesitter" },
+      { "r", mode = "o", function() require("flash").remote() end, desc = "Remote Flash" },
+      { "R", mode = { "o", "x" }, function() require("flash").treesitter_search() end, desc = "Treesitter Search" },
+      { "<c-s>", mode = { "c" }, function() require("flash").toggle() end, desc = "Toggle Flash Search" },
+    },
+  },
+
+  -- Mini.nvim (Consolidated Utilities)
+  {
+    "echasnovski/mini.nvim",
+    version = false,
+    config = function()
+      -- Autopairs
+      require("mini.pairs").setup({})
+      -- Comments
+      require("mini.comment").setup({})
+      -- Surround
+      require("mini.surround").setup({})
+      -- Bracketed (jump to next/prev with [ / ])
+      require("mini.bracketed").setup({})
+    end,
+  },
+
+  -- Dressing.nvim (Improved UI for vim.ui.select/input)
+  {
+    "stevearc/dressing.nvim",
+    opts = {},
+  },
+
   -- Markdown preview
   {
     "iamcco/markdown-preview.nvim",
@@ -185,50 +219,11 @@ return {
     ft = { "markdown" },
   },
 
-  -- Hop
-  {
-    "phaazon/hop.nvim",
-    branch = "v2",
-    config = function()
-      require("hop").setup()
-      local hop = require("hop")
-      local directions = require("hop.hint").HintDirection
-
-      vim.keymap.set("n", "<leader>l", function()
-        hop.hint_words({ direction = directions.AFTER_CURSOR, current_line_only = true })
-      end, {})
-      vim.keymap.set("n", "<leader>h", function()
-        hop.hint_words({ direction = directions.BEFORE_CURSOR, current_line_only = true })
-      end, {})
-      vim.keymap.set("n", "<leader>j", function()
-        hop.hint_vertical({ direction = directions.AFTER_CURSOR })
-      end, {})
-      vim.keymap.set("n", "<leader>k", function()
-        hop.hint_vertical({ direction = directions.BEFORE_CURSOR })
-      end, {})
-    end,
-  },
-
   -- neoscroll
   {
     "karb94/neoscroll.nvim",
     config = function()
       require("neoscroll").setup()
-    end,
-  },
-
-  -- Autopairs
-  {
-    "windwp/nvim-autopairs",
-    event = "InsertEnter",
-    config = true,
-  },
-
-  -- Comment
-  {
-    "numToStr/Comment.nvim",
-    config = function()
-      require("Comment").setup()
     end,
   },
 
