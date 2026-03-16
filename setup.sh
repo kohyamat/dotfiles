@@ -49,8 +49,6 @@ if ! command -v conda &> /dev/null; then
     curl -O "https://repo.anaconda.com/miniconda/${CONDA_INSTALLER}"
     bash "${CONDA_INSTALLER}" -b -p "${HOME}/miniconda3"
     rm "${CONDA_INSTALLER}"
-    # Initialize conda (this adds the block to .zshrc)
-    "${HOME}/miniconda3/bin/conda" init zsh
 fi
 
 # Install PDM if not already installed
@@ -65,12 +63,27 @@ if [ ! -d "${HOME}/.oh-my-zsh" ]; then
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
 fi
 
+# --- Solve Symlink Conflicts ---
+echo "Cleaning up conflicting default configuration files..."
+# インストーラーが作成したファイルを削除し、Stowがリンクを貼れるようにする
+rm -f "${HOME}/.zshrc"
+rm -f "${HOME}/.zshrc.pre-oh-my-zsh"
+rm -f "${HOME}/.bashrc"
+[ -L "${HOME}/.config/nvim" ] || rm -rf "${HOME}/.config/nvim"
+rm -f "${HOME}/.tmux.conf"
+
 # Link configuration files using GNU Stow
 echo "Creating symlinks with GNU Stow..."
 stow -v -t "${HOME}" nvim
 stow -v -t "${HOME}" tmux
 stow -v -t "${HOME}" config
 stow -v -t "${HOME}" zsh
+
+# Initialize conda after linking (so it writes to our repo-managed .zshrc)
+if [ -f "${HOME}/miniconda3/bin/conda" ]; then
+    echo "Initializing Conda..."
+    "${HOME}/miniconda3/bin/conda" init zsh
+fi
 
 # Set zsh as default shell if not already
 if [ "$SHELL" != "$(which zsh)" ]; then
