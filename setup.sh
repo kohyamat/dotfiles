@@ -46,7 +46,7 @@ if ! command -v conda &> /dev/null; then
     else
         CONDA_INSTALLER="Miniconda3-latest-Linux-x86_64.sh"
     fi
-    curl -O "https://repo.anaconda.com/miniconda/${CONDA_INSTALLER}"
+    curl -LO "https://repo.anaconda.com/miniconda/${CONDA_INSTALLER}"
     bash "${CONDA_INSTALLER}" -b -p "${HOME}/miniconda3"
     rm "${CONDA_INSTALLER}"
 fi
@@ -64,26 +64,40 @@ if [ ! -d "${HOME}/.oh-my-zsh" ]; then
 fi
 
 # --- Solve Symlink Conflicts ---
-echo "Cleaning up conflicting default configuration files..."
-# インストーラーが作成したファイルを削除し、Stowがリンクを貼れるようにする
-rm -f "${HOME}/.zshrc"
-rm -f "${HOME}/.zshrc.pre-oh-my-zsh"
-rm -f "${HOME}/.bashrc"
+echo "Force cleaning up conflicting default configuration files..."
+# 強力に削除（ディレクトリの場合も考慮して -rf）
+rm -rf "${HOME}/.zshrc"
+rm -rf "${HOME}/.zshrc.pre-oh-my-zsh"
+rm -rf "${HOME}/.p10k.zsh"
+rm -rf "${HOME}/.zshenv"
+rm -rf "${HOME}/.tmux.conf"
 [ -L "${HOME}/.config/nvim" ] || rm -rf "${HOME}/.config/nvim"
-rm -f "${HOME}/.tmux.conf"
+[ -L "${HOME}/.config/pdm" ] || rm -rf "${HOME}/.config/pdm"
+[ -L "${HOME}/.config/ruff" ] || rm -rf "${HOME}/.config/ruff"
 
 # Link configuration files using GNU Stow
 echo "Creating symlinks with GNU Stow..."
-stow -v -t "${HOME}" nvim
-stow -v -t "${HOME}" tmux
-stow -v -t "${HOME}" config
-stow -v -t "${HOME}" zsh
+# カレントディレクトリから実行
+stow -v -R -t "${HOME}" nvim
+stow -v -R -t "${HOME}" tmux
+stow -v -R -t "${HOME}" config
+stow -v -R -t "${HOME}" zsh
 
 # Initialize conda after linking (so it writes to our repo-managed .zshrc)
 if [ -f "${HOME}/miniconda3/bin/conda" ]; then
     echo "Initializing Conda..."
     "${HOME}/miniconda3/bin/conda" init zsh
 fi
+
+# Tmux Plugin Manager (TPM) setup
+if [ ! -d "${HOME}/.tmux/plugins/tpm" ]; then
+    echo "Installing TPM..."
+    git clone https://github.com/tmux-plugins/tpm "${HOME}/.tmux/plugins/tpm"
+fi
+
+# Install/Update Tmux plugins from CLI
+echo "Installing Tmux plugins..."
+"${HOME}/.tmux/plugins/tpm/bin/install_plugins"
 
 # Set zsh as default shell if not already
 if [ "$SHELL" != "$(which zsh)" ]; then
@@ -92,3 +106,4 @@ if [ "$SHELL" != "$(which zsh)" ]; then
 fi
 
 echo "Setup completed successfully!"
+echo "Please restart your terminal or run 'source ~/.zshrc'"
