@@ -39,7 +39,8 @@ if ! command -v fnm &> /dev/null; then
 fi
 
 # Install Miniconda if not already installed
-if ! command -v conda &> /dev/null; then
+# Check both PATH and the default directory
+if ! command -v conda &> /dev/null && [ ! -d "${HOME}/miniconda3" ]; then
     echo "Installing Miniconda..."
     if [ "${OS}" == "Darwin" ]; then
         CONDA_INSTALLER="Miniconda3-latest-MacOSX-x86_64.sh"
@@ -49,6 +50,8 @@ if ! command -v conda &> /dev/null; then
     curl -LO "https://repo.anaconda.com/miniconda/${CONDA_INSTALLER}"
     bash "${CONDA_INSTALLER}" -b -p "${HOME}/miniconda3"
     rm "${CONDA_INSTALLER}"
+else
+    echo "Miniconda is already installed. Skipping..."
 fi
 
 # Install PDM if not already installed
@@ -65,7 +68,6 @@ fi
 
 # --- Solve Symlink Conflicts ---
 echo "Force cleaning up conflicting default configuration files..."
-# 強力に削除（ディレクトリの場合も考慮して -rf）
 rm -rf "${HOME}/.zshrc"
 rm -rf "${HOME}/.zshrc.pre-oh-my-zsh"
 rm -rf "${HOME}/.p10k.zsh"
@@ -77,7 +79,6 @@ rm -rf "${HOME}/.tmux.conf"
 
 # Link configuration files using GNU Stow
 echo "Creating symlinks with GNU Stow..."
-# カレントディレクトリから実行
 stow -v -R -t "${HOME}" nvim
 stow -v -R -t "${HOME}" tmux
 stow -v -R -t "${HOME}" config
