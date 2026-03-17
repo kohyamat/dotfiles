@@ -1,8 +1,56 @@
-.netrwhist
-.vim/plugged
-.config/nvim/lazy-lock.json
-__pycache__/
+# OS generated files
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Backup / Temporary files
 *~
+*.swp
+*.tmp
+.netrwhist
+undo/
+backup/
+
+# Neovim / Vim
+# lazy-lock.json should be COMMITTED to keep plugin versions consistent
+# .vim/plugged should be ignored if you only use Neovim now
+.vim/plugged/
+.python-version
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+ENV/
+env/
+
+# R
+.Rproj.user/
+.Rhistory
+.RData
+.Ruserdata
 .R/library/*
 !.gitkeep
+
+# Node / fnm
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# History files (keep them out of the repo!)
+.zsh_history
+.bash_history
+.sqlite_history
+.python_history
+.node_repl_history
