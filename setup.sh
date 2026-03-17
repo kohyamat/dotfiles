@@ -39,7 +39,6 @@ if ! command -v fnm &> /dev/null; then
 fi
 
 # Install Miniconda if not already installed
-# Check both PATH and the default directory
 if ! command -v conda &> /dev/null && [ ! -d "${HOME}/miniconda3" ]; then
     echo "Installing Miniconda..."
     if [ "${OS}" == "Darwin" ]; then
@@ -50,8 +49,6 @@ if ! command -v conda &> /dev/null && [ ! -d "${HOME}/miniconda3" ]; then
     curl -LO "https://repo.anaconda.com/miniconda/${CONDA_INSTALLER}"
     bash "${CONDA_INSTALLER}" -b -p "${HOME}/miniconda3"
     rm "${CONDA_INSTALLER}"
-else
-    echo "Miniconda is already installed. Skipping..."
 fi
 
 # Install PDM if not already installed
@@ -60,10 +57,21 @@ if ! command -v pdm &> /dev/null; then
     curl -sSL https://pdm-project.org/install-pdm.py | python3 -
 fi
 
-# Install Oh-My-Zsh if not already installed
+# Install Oh-My-Zsh & Plugins
 if [ ! -d "${HOME}/.oh-my-zsh" ]; then
     echo "Installing Oh-My-Zsh..."
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+fi
+
+# Zsh Plugins (p10k & autosuggestions)
+ZSH_CUSTOM="${HOME}/.oh-my-zsh/custom"
+if [ ! -d "${ZSH_CUSTOM}/themes/powerlevel10k" ]; then
+    echo "Installing Powerlevel10k..."
+    git clone --depth=1 https://github.com/romkatv/powerlevel10k.git "${ZSH_CUSTOM}/themes/powerlevel10k"
+fi
+if [ ! -d "${ZSH_CUSTOM}/plugins/zsh-autosuggestions" ]; then
+    echo "Installing zsh-autosuggestions..."
+    git clone https://github.com/zsh-users/zsh-autosuggestions "${ZSH_CUSTOM}/plugins/zsh-autosuggestions"
 fi
 
 # --- Solve Symlink Conflicts ---
@@ -84,27 +92,15 @@ stow -v -R -t "${HOME}" tmux
 stow -v -R -t "${HOME}" config
 stow -v -R -t "${HOME}" zsh
 
-# Initialize conda after linking (so it writes to our repo-managed .zshrc)
+# Initialize conda after linking
 if [ -f "${HOME}/miniconda3/bin/conda" ]; then
-    echo "Initializing Conda..."
     "${HOME}/miniconda3/bin/conda" init zsh
 fi
 
-# Tmux Plugin Manager (TPM) setup
+# Tmux Plugin Manager (TPM)
 if [ ! -d "${HOME}/.tmux/plugins/tpm" ]; then
-    echo "Installing TPM..."
     git clone https://github.com/tmux-plugins/tpm "${HOME}/.tmux/plugins/tpm"
 fi
-
-# Install/Update Tmux plugins from CLI
-echo "Installing Tmux plugins..."
 "${HOME}/.tmux/plugins/tpm/bin/install_plugins"
 
-# Set zsh as default shell if not already
-if [ "$SHELL" != "$(which zsh)" ]; then
-    echo "Changing default shell to zsh..."
-    chsh -s "$(which zsh)"
-fi
-
-echo "Setup completed successfully!"
-echo "Please restart your terminal or run 'source ~/.zshrc'"
+echo "Setup completed!"
