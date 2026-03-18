@@ -41,32 +41,10 @@ return {
               ok = { "italic" },
             },
           },
-          navic = {
-            enabled = true,
-            custom_bg = "NONE",
-          },
         },
       })
       vim.cmd("colorscheme catppuccin")
     end,
-  },
-
-  -- Status line
-  {
-    "nvim-lualine/lualine.nvim",
-    config = function()
-      require("lualine").setup({
-        options = {
-          theme = "catppuccin",
-          globalstatus = true,
-        },
-        tabline = {
-          lualine_a = { "buffers" },
-          lualine_c = { "navic" },
-        },
-      })
-    end,
-    dependencies = { "nvim-tree/nvim-web-devicons" },
   },
 
   -- Oil.nvim (Modern File Explorer)
@@ -199,6 +177,8 @@ return {
       require("mini.surround").setup({})
       -- Bracketed (jump to next/prev with [ / ])
       require("mini.bracketed").setup({})
+      -- Statusline (Replaces lualine)
+      require("mini.statusline").setup({ set_vim_settings = true })
     end,
   },
 
@@ -224,17 +204,6 @@ return {
     "karb94/neoscroll.nvim",
     config = function()
       require("neoscroll").setup()
-    end,
-  },
-
-  -- nvim-navic
-  {
-    "SmiteshP/nvim-navic",
-    dependencies = { "neovim/nvim-lspconfig" },
-    config = function()
-      require("nvim-navic").setup({
-        highlight = true,
-      })
     end,
   },
 
