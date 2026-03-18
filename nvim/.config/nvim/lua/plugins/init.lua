@@ -135,78 +135,17 @@ return {
     },
   },
 
-  -- Flash.nvim (Modern Jump)
+  -- Flash.nvim (Standard)
   {
     "folke/flash.nvim",
     event = "VeryLazy",
-    opts = {
-      modes = {
-        char = {
-          enabled = true,
-          jump_labels = true,
-          multi_line = false,
-        },
-      },
-    },
+    opts = {},
     keys = {
       { "s", mode = { "n", "x", "o" }, function() require("flash").jump() end, desc = "Flash" },
       { "S", mode = { "n", "x", "o" }, function() require("flash").treesitter() end, desc = "Flash Treesitter" },
       { "r", mode = "o", function() require("flash").remote() end, desc = "Remote Flash" },
       { "R", mode = { "o", "x" }, function() require("flash").treesitter_search() end, desc = "Treesitter Search" },
       { "<c-s>", mode = { "c" }, function() require("flash").toggle() end, desc = "Toggle Flash Search" },
-      
-      -- Hop-like line jumps (上下移動の加速)
-      {
-        "<leader>j",
-        mode = { "n", "x", "o" },
-        function()
-          require("flash").jump({
-            search = { mode = "search", max_length = 0 },
-            label = { after = { 0, 0 } },
-            pattern = "^"
-          })
-        end,
-        desc = "Jump to Line (Down)",
-      },
-      {
-        "<leader>k",
-        mode = { "n", "x", "o" },
-        function()
-          require("flash").jump({
-            search = { mode = "search", max_length = 0, forward = false },
-            label = { after = { 0, 0 } },
-            pattern = "^"
-          })
-        end,
-        desc = "Jump to Line (Up)",
-      },
-
-      -- Hop-like word jumps in current line (左右移動の加速 - 日本語対応)
-      {
-        "<leader>l",
-        mode = { "n", "x", "o" },
-        function()
-          require("flash").jump({
-            search = { mode = "search", max_length = 0, multi_window = false, wrap = false },
-            label = { after = { 0, 0 } },
-            -- \<\w (英単語先頭) or [^\x00-\x7f] (マルチバイト文字)
-            pattern = [[\<\w\|[^\x00-\x7f]]]
-          })
-        end,
-        desc = "Jump to Word in Line (Forward)",
-      },
-      {
-        "<leader>h",
-        mode = { "n", "x", "o" },
-        function()
-          require("flash").jump({
-            search = { mode = "search", max_length = 0, forward = false, multi_window = false, wrap = false },
-            label = { after = { 0, 0 } },
-            pattern = [[\<\w\|[^\x00-\x7f]]]
-          })
-        end,
-        desc = "Jump to Word in Line (Backward)",
-      },
     },
   },
 
