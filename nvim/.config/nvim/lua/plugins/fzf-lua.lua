@@ -1,6 +1,6 @@
 return {
   "ibhagwan/fzf-lua",
-  dependencies = { "nvim-tree/nvim-web-devicons", "folke/trouble.nvim" },
+  dependencies = { "folke/trouble.nvim" },
   opts = {},
   config = function()
     local fzf = require("fzf-lua")
@@ -15,7 +15,6 @@ return {
       },
       keymap = {
         builtin = {
-          -- fzf の結果を Trouble に送る
           ["<C-t>"] = actions.open,
         },
       },
@@ -28,7 +27,7 @@ return {
     vim.keymap.set("n", "<leader>fb", fzf.buffers, { desc = "buffers" })
     vim.keymap.set("n", "<leader>fr", fzf.resume, { desc = "resume last search" })
 
-    -- 診断とジャンプ (これが重要)
+    -- 診断とジャンプ
     vim.keymap.set("n", "<leader>fd", fzf.lsp_document_diagnostics, { desc = "diagnostics (current file)" })
     vim.keymap.set("n", "<leader>fD", fzf.lsp_workspace_diagnostics, { desc = "diagnostics (workspace)" })
     vim.keymap.set("n", "<leader>fs", fzf.lsp_document_symbols, { desc = "document symbols" })
