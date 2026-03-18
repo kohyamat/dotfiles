@@ -7,16 +7,17 @@ return {
       "saghen/blink.cmp",
     },
     config = function()
-      -- Modern, fast server list optimized for uv
+      -- Modern, fast server list
       local servers = {
         "lua_ls",
         "ts_ls",
         "clangd",
         "rust_analyzer",
         "r_language_server",
-        "basedpyright", -- Better than pylsp for uv
-        "ruff",         -- LSP version of ruff
+        "basedpyright",
+        "ruff",
         "vue_ls",
+        "marksman", -- Markdown structure support
       }
 
       -- External tools
