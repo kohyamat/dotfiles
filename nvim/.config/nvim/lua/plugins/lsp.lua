@@ -13,7 +13,6 @@ return {
         "pylsp",
         "clangd",
         "r_language_server",
-        "rust_analyzer",
         "vue_ls",
       }
 
