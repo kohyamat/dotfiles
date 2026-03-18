@@ -67,7 +67,7 @@ return {
     build = ":TSUpdate",
     config = function()
       require("nvim-treesitter.configs").setup({
-        ensure_installed = { "c", "lua", "python", "rust", "r", "vim", "vimdoc", "javascript", "typescript", "html" },
+        ensure_installed = { "c", "lua", "python", "rust", "r", "vim", "vimdoc", "javascript", "typescript", "html", "markdown", "markdown_inline" },
         sync_install = false,
         highlight = {
           enable = true,
@@ -149,28 +149,28 @@ return {
     },
   },
 
-  -- Mini.nvim (The Engine of Performance)
+  -- Mini.nvim
   {
     "echasnovski/mini.nvim",
     version = false,
     config = function()
-      -- Icons (Replaces nvim-web-devicons)
       require("mini.icons").setup({})
       MiniIcons.mock_nvim_web_devicons()
-
-      -- Git Diff (Replaces gitsigns)
       require("mini.diff").setup({})
-
-      -- Autopairs
       require("mini.pairs").setup({})
-      -- Comments
       require("mini.comment").setup({})
-      -- Surround
       require("mini.surround").setup({})
-      -- Bracketed
       require("mini.bracketed").setup({})
-      -- Statusline
       require("mini.statusline").setup({ set_vim_settings = true })
+    end,
+  },
+
+  -- Bullets.vim (Smart list handling)
+  {
+    "dkarter/bullets.vim",
+    ft = { "markdown", "text", "gitcommit" },
+    init = function()
+      vim.g.bullets_enabled_file_types = { "markdown", "text", "gitcommit" }
     end,
   },
 
