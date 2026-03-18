@@ -23,20 +23,22 @@ esac
 
 echo "Detected OS: ${OS} (${DISTRO})"
 
-# Function to ask and backup
+# Function to handle existing items:
+# - If it's a symlink, remove it.
+# - If it's a real file/directory, ask to backup.
 maybe_backup() {
     local target="$1"
-    if [ -e "$target" ] || [ -L "$target" ]; then
-        # If it's already a symlink pointing to our dotfiles, skip
-        if [ -L "$target" ]; then
-            local link_target
-            link_target=$(readlink "$target")
-            if [[ "$link_target" == *"$DOTFILES_DIR"* ]]; then
-                return
-            fi
-        fi
+    
+    # If it's a symlink, just remove it to let Stow handle it
+    if [ -L "$target" ]; then
+        echo "Removing existing symlink: $target"
+        rm "$target"
+        return
+    fi
 
-        echo "Found existing item: $target"
+    # If it's a real file or directory
+    if [ -e "$target" ]; then
+        echo "Found existing file/directory: $target"
         read -p "Do you want to back it up to ${BACKUP_DIR}? [y/N] " -n 1 -r
         echo
         if [[ $REPLY =~ ^[Yy]$ ]]; then
@@ -66,7 +68,6 @@ elif [ "${OS}" == "Linux" ]; then
 fi
 
 # Install fnm, uv, Miniconda, Oh-My-Zsh (Previously defined logic...)
-# [省略可ですが、一貫性のために含めます]
 if ! command -v fnm &> /dev/null; then
     curl -fsSL https://fnm.vercel.app/install | bash -s -- --skip-shell
 fi
@@ -87,25 +88,38 @@ if [ ! -d "${HOME}/.oh-my-zsh" ]; then
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
 fi
 
+# Zsh Plugins (p10k & autosuggestions)
+ZSH_CUSTOM="${HOME}/.oh-my-zsh/custom"
+if [ ! -d "${ZSH_CUSTOM}/themes/powerlevel10k" ]; then
+    git clone --depth=1 https://github.com/romkatv/powerlevel10k.git "${ZSH_CUSTOM}/themes/powerlevel10k"
+fi
+if [ ! -d "${ZSH_CUSTOM}/plugins/zsh-autosuggestions" ]; then
+    git clone https://github.com/zsh-users/zsh-autosuggestions "${ZSH_CUSTOM}/plugins/zsh-autosuggestions"
+fi
+
 # --- Check and Backup existing files before Stow ---
 echo "Checking for existing files to backup..."
 maybe_backup "${HOME}/.zshrc"
 maybe_backup "${HOME}/.zshenv"
 maybe_backup "${HOME}/.p10k.zsh"
 maybe_backup "${HOME}/.tmux.conf"
+
+# Automatically check for managed configs in .config
+for config_path in "${DOTFILES_DIR}/config/.config/"*; do
+    config_name=$(basename "$config_path")
+    maybe_backup "${HOME}/.config/$config_name"
+done
+# Specialized check for nvim
 maybe_backup "${HOME}/.config/nvim"
-maybe_backup "${HOME}/.config/ruff"
 
 # --- Execute Stow ---
 echo "Creating symlinks with GNU Stow..."
-# To avoid "Absolute/relative mismatch", we cd into the dotfiles directory
-# and use stow with explicit target. This is the most robust way.
 cd "$DOTFILES_DIR"
 
 # Run stow for each package
 for pkg in nvim tmux config zsh; do
     echo "Stowing $pkg..."
-    # -R (restow) can cause the mismatch bug. We use -D then default stow for safety.
+    # Always try to unstow first to clean up existing links
     stow -D -t "$HOME" "$pkg" 2>/dev/null
     stow -v -t "$HOME" "$pkg"
 done
