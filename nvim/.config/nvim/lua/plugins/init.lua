@@ -139,13 +139,41 @@ return {
   {
     "folke/flash.nvim",
     event = "VeryLazy",
-    opts = {},
+    opts = {
+      modes = {
+        char = {
+          enabled = true,
+          jump_labels = true, -- Add labels for f, F, t, T motions
+        },
+      },
+    },
     keys = {
       { "s", mode = { "n", "x", "o" }, function() require("flash").jump() end, desc = "Flash" },
       { "S", mode = { "n", "x", "o" }, function() require("flash").treesitter() end, desc = "Flash Treesitter" },
       { "r", mode = "o", function() require("flash").remote() end, desc = "Remote Flash" },
       { "R", mode = { "o", "x" }, function() require("flash").treesitter_search() end, desc = "Treesitter Search" },
       { "<c-s>", mode = { "c" }, function() require("flash").toggle() end, desc = "Toggle Flash Search" },
+    },
+  },
+
+  -- Hop.nvim (Stable and fast alternative for jumping)
+  {
+    "smoka7/hop.nvim",
+    version = "*",
+    opts = {
+      keys = "etovxqpdygfblzhckisuran",
+    },
+    keys = {
+      {
+        "W",
+        function()
+          -- hint_words() は文字入力を待たず、画面内の「単語の頭」に一斉にラベルを表示します
+          -- 日本語でも文字種が切り替わる地点をターゲットにしてくれます
+          require("hop").hint_words()
+        end,
+        mode = { "n", "x", "o" },
+        desc = "Hop to word (No input needed)",
+      },
     },
   },
 
