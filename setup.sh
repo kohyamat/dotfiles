@@ -2,6 +2,9 @@
 
 set -u
 
+# Get absolute path of the dotfiles directory
+DOTFILES_DIR="$(cd "$(dirname "$0")" && pwd)"
+
 # Check OS
 OS="$(uname)"
 case "${OS}" in
@@ -76,22 +79,28 @@ fi
 
 # --- Solve Symlink Conflicts ---
 echo "Force cleaning up conflicting default configuration files..."
-rm -rf "${HOME}/.zshrc"
-rm -rf "${HOME}/.zshrc.pre-oh-my-zsh"
-rm -rf "${HOME}/.p10k.zsh"
-rm -rf "${HOME}/.zshenv"
-rm -rf "${HOME}/.tmux.conf"
-[ -L "${HOME}/.config/nvim" ] || rm -rf "${HOME}/.config/nvim"
-[ -L "${HOME}/.config/ruff" ] || rm -rf "${HOME}/.config/ruff"
-# Remove old pdm config if exists as a directory
-[ -d "${HOME}/.config/pdm" ] && rm -rf "${HOME}/.config/pdm"
+# 既存のファイルを確実に削除
+files=(
+    ".zshrc" ".zshrc.pre-oh-my-zsh" ".p10k.zsh" ".zshenv" ".tmux.conf"
+    ".lintr" ".pydocstyle" ".prettierrc.json" ".pycodestyle"
+)
+for file in "${files[@]}"; do
+    rm -rf "${HOME}/${file}"
+done
+
+# .config 内のディレクトリも整理
+dirs=("nvim" "pdm" "ruff" "prettier" "pydocstyle" "pycodestyle")
+for dir in "${dirs[@]}"; do
+    [ -L "${HOME}/.config/${dir}" ] || rm -rf "${HOME}/.config/${dir}"
+done
 
 # Link configuration files using GNU Stow
 echo "Creating symlinks with GNU Stow..."
-stow -v -R -t "${HOME}" nvim
-stow -v -R -t "${HOME}" tmux
-stow -v -R -t "${HOME}" config
-stow -v -R -t "${HOME}" zsh
+# Use absolute paths for both -d (source) and -t (target) to avoid "Absolute/relative mismatch"
+stow -v -R -d "${DOTFILES_DIR}" -t "${HOME}" nvim
+stow -v -R -d "${DOTFILES_DIR}" -t "${HOME}" tmux
+stow -v -R -d "${DOTFILES_DIR}" -t "${HOME}" config
+stow -v -R -d "${DOTFILES_DIR}" -t "${HOME}" zsh
 
 # Initialize conda after linking
 if [ -f "${HOME}/miniconda3/bin/conda" ]; then
