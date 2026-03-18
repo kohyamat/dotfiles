@@ -3,19 +3,13 @@ return {
   lazy = false,
   dependencies = { "neovim/nvim-lspconfig" },
   config = function()
-    -- local mason_registry = require("mason-registry")
-    -- mason_registry.get_package("codelldb"):get_install_path() .. "/extension/"
     local codelldb_root = vim.fn.stdpath("data") .. "/mason/packages/codelldb/extension/"
     local codelldb_path = codelldb_root .. "adapter/codelldb"
     local liblldb_path = codelldb_root .. "lldb/lib/liblldb.so"
 
     local cfg = require("rustaceanvim.config")
-    local navic = require("nvim-navic")
     local rlsp = vim.cmd.RustLsp
     local on_attach = function(client, bufnr)
-      if client.server_capabilities.documentSymbolProvider then
-        navic.attach(client, bufnr)
-      end
       local bufopts = { silent = true, buffer = bufnr }
       vim.keymap.set("n", "gi", vim.lsp.buf.implementation, bufopts)
       vim.keymap.set("n", "gD", vim.lsp.buf.declaration, bufopts)
@@ -37,19 +31,11 @@ return {
         rlsp("debug")
       end, { desc = "Rust Debug", buffer = bufnr })
     end
+
     vim.g.rustaceanvim = {
       tools = {
         hover_actions = {
-          border = {
-            { "╭", "FloatBorder" },
-            { "─", "FloatBorder" },
-            { "╮", "FloatBorder" },
-            { "│", "FloatBorder" },
-            { "╯", "FloatBorder" },
-            { "─", "FloatBorder" },
-            { "╰", "FloatBorder" },
-            { "│", "FloatBorder" },
-          },
+          border = "rounded",
           auto_focus = false,
         },
       },
