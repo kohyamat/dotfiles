@@ -1,10 +1,9 @@
 return {
   {
-    "williamboman/mason.nvim",
+    "neovim/nvim-lspconfig",
     dependencies = {
+      "williamboman/mason.nvim",
       "williamboman/mason-lspconfig.nvim",
-      "neovim/nvim-lspconfig",
-      "SmiteshP/nvim-navic",
       "saghen/blink.cmp",
     },
     config = function()
@@ -18,9 +17,9 @@ return {
         "vue_ls",
       }
 
-      -- Formatters and Linters (Consolidated to Ruff for Python)
-      local formatters = {
-        "ruff", -- Replaces black, isort, flake8
+      -- Formatters and Linters
+      local tools = {
+        "ruff",
         "prettier",
         "stylua",
         "shfmt",
@@ -28,25 +27,19 @@ return {
 
       require("mason").setup()
       local mr = require("mason-registry")
-      local function ensure_installed()
-        for _, tool in ipairs(formatters) do
+      
+      -- Tool auto-installation
+      mr.refresh(function()
+        for _, tool in ipairs(tools) do
           local p = mr.get_package(tool)
           if not p:is_installed() then
             p:install()
           end
         end
-      end
-      mr.refresh(ensure_installed)
+      end)
 
-      require("mason-lspconfig").setup({
-        ensure_installed = servers,
-      })
-
-      local navic = require("nvim-navic")
+      -- Common on_attach
       local on_attach = function(client, bufnr)
-        if client.server_capabilities.documentSymbolProvider then
-          navic.attach(client, bufnr)
-        end
         local bufopts = { silent = true, buffer = bufnr }
         vim.keymap.set("n", "gi", vim.lsp.buf.implementation, bufopts)
         vim.keymap.set("n", "gD", vim.lsp.buf.declaration, bufopts)
@@ -55,19 +48,50 @@ return {
         vim.keymap.set("n", "K", function()
           vim.lsp.buf.hover({ border = "rounded" })
         end, bufopts)
+        vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, bufopts)
+        vim.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, bufopts)
       end
 
       local capabilities = require("blink.cmp").get_lsp_capabilities()
 
-      vim.lsp.config("*", {
-        on_attach = on_attach,
-        capabilities = capabilities,
+      -- Setup via mason-lspconfig handlers
+      require("mason-lspconfig").setup({
+        ensure_installed = servers,
+        handlers = {
+          function(server_name)
+            require("lspconfig")[server_name].setup({
+              on_attach = on_attach,
+              capabilities = capabilities,
+            })
+          end,
+          ["lua_ls"] = function()
+            require("lspconfig").lua_ls.setup({
+              on_attach = on_attach,
+              capabilities = capabilities,
+              settings = {
+                Lua = {
+                  diagnostics = { globals = { "vim" } },
+                },
+              },
+            })
+          end,
+        },
       })
 
-      -- enable servers
-      for _, server in ipairs(servers) do
-        vim.lsp.enable(server)
-      end
+      -- Diagnostic display configuration
+      vim.diagnostic.config({
+        virtual_text = {
+          prefix = "●",
+        },
+        signs = true,
+        underline = true,
+        update_in_insert = false,
+        severity_sort = true,
+        float = {
+          border = "rounded",
+          source = "always",
+        },
+      })
     end,
   },
 }
