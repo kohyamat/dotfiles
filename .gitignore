@@ -16,8 +16,7 @@ undo/
 backup/
 
 # Neovim / Vim
-# lazy-lock.json should be COMMITTED to keep plugin versions consistent
-# .vim/plugged should be ignored if you only use Neovim now
+lazy-lock.json
 .vim/plugged/
 .python-version
 
