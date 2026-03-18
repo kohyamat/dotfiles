@@ -7,27 +7,23 @@ return {
       "saghen/blink.cmp",
     },
     config = function()
+      -- Modern, fast server list optimized for uv
       local servers = {
         "lua_ls",
         "ts_ls",
-        "pylsp",
         "clangd",
+        "rust_analyzer",
         "r_language_server",
+        "basedpyright", -- Better than pylsp for uv
+        "ruff",         -- LSP version of ruff
         "vue_ls",
       }
 
-      -- Formatters and Linters
-      local tools = {
-        "ruff",
-        "prettier",
-        "stylua",
-        "shfmt",
-      }
+      -- External tools
+      local tools = { "prettier", "stylua", "shfmt" }
 
       require("mason").setup()
       local mr = require("mason-registry")
-      
-      -- Tool auto-installation
       mr.refresh(function()
         for _, tool in ipairs(tools) do
           local p = mr.get_package(tool)
@@ -36,6 +32,20 @@ return {
           end
         end
       end)
+
+      -- Helper to find Python path in uv/venv environments
+      local function get_python_path(workspace)
+        local util = require("lspconfig/util")
+        local path = util.path
+        local venv = path.join(workspace, ".venv")
+        if path.is_dir(venv) then
+          if vim.fn.has("win32") == 1 then
+            return path.join(venv, "Scripts", "python.exe")
+          end
+          return path.join(venv, "bin", "python")
+        end
+        return vim.fn.exepath("python3") or vim.fn.exepath("python") or "python"
+      end
 
       -- Common on_attach
       local on_attach = function(client, bufnr)
@@ -53,13 +63,41 @@ return {
 
       local capabilities = require("blink.cmp").get_lsp_capabilities()
 
-      -- Setup via mason-lspconfig handlers
       require("mason-lspconfig").setup({
         ensure_installed = servers,
         handlers = {
           function(server_name)
             require("lspconfig")[server_name].setup({
               on_attach = on_attach,
+              capabilities = capabilities,
+            })
+          end,
+          ["basedpyright"] = function()
+            require("lspconfig").basedpyright.setup({
+              on_attach = on_attach,
+              capabilities = capabilities,
+              before_init = function(_, config)
+                config.settings.python.pythonPath = get_python_path(config.root_dir)
+              end,
+              settings = {
+                basedpyright = {
+                  analysis = {
+                    autoSearchPaths = true,
+                    useLibraryCodeForTypes = true,
+                    diagnosticMode = "openFilesOnly",
+                    typeCheckingMode = "basic",
+                  },
+                },
+              },
+            })
+          end,
+          ["ruff"] = function()
+            require("lspconfig").ruff.setup({
+              on_attach = function(client, bufnr)
+                -- Disable hover in favor of Pyright
+                client.server_capabilities.hoverProvider = false
+                on_attach(client, bufnr)
+              end,
               capabilities = capabilities,
             })
           end,
@@ -77,14 +115,10 @@ return {
         },
       })
 
-      -- Diagnostic display configuration
       vim.diagnostic.config({
-        virtual_text = {
-          prefix = "●",
-        },
+        virtual_text = { prefix = "●" },
         signs = true,
         underline = true,
-        update_in_insert = false,
         severity_sort = true,
         float = {
           border = "rounded",
