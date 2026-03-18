@@ -141,7 +141,6 @@ return {
     event = "VeryLazy",
     opts = {
       modes = {
-        -- f, F, t, T を Flash 化してラベル表示
         char = {
           enabled = true,
           jump_labels = true,
@@ -182,7 +181,7 @@ return {
         desc = "Jump to Line (Up)",
       },
 
-      -- Hop-like word jumps in current line (左右移動の加速)
+      -- Hop-like word jumps in current line (左右移動の加速 - 日本語対応)
       {
         "<leader>l",
         mode = { "n", "x", "o" },
@@ -190,7 +189,8 @@ return {
           require("flash").jump({
             search = { mode = "search", max_length = 0, multi_window = false, wrap = false },
             label = { after = { 0, 0 } },
-            pattern = [[\<\w]]
+            -- \<\w (英単語先頭) or [^\x00-\x7f] (マルチバイト文字)
+            pattern = [[\<\w\|[^\x00-\x7f]]]
           })
         end,
         desc = "Jump to Word in Line (Forward)",
@@ -202,7 +202,7 @@ return {
           require("flash").jump({
             search = { mode = "search", max_length = 0, forward = false, multi_window = false, wrap = false },
             label = { after = { 0, 0 } },
-            pattern = [[\<\w]]
+            pattern = [[\<\w\|[^\x00-\x7f]]]
           })
         end,
         desc = "Jump to Word in Line (Backward)",
