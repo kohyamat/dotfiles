@@ -38,6 +38,12 @@ if ! command -v fnm &> /dev/null; then
     curl -fsSL https://fnm.vercel.app/install | bash -s -- --skip-shell
 fi
 
+# Install uv (Modern Python Toolchain)
+if ! command -v uv &> /dev/null; then
+    echo "Installing uv..."
+    curl -LsSf https://astral.sh/uv/install.sh | sh
+fi
+
 # Install Miniconda if not already installed
 if ! command -v conda &> /dev/null && [ ! -d "${HOME}/miniconda3" ]; then
     echo "Installing Miniconda..."
@@ -49,12 +55,6 @@ if ! command -v conda &> /dev/null && [ ! -d "${HOME}/miniconda3" ]; then
     curl -LO "https://repo.anaconda.com/miniconda/${CONDA_INSTALLER}"
     bash "${CONDA_INSTALLER}" -b -p "${HOME}/miniconda3"
     rm "${CONDA_INSTALLER}"
-fi
-
-# Install PDM if not already installed
-if ! command -v pdm &> /dev/null; then
-    echo "Installing PDM..."
-    curl -sSL https://pdm-project.org/install-pdm.py | python3 -
 fi
 
 # Install Oh-My-Zsh & Plugins
@@ -82,8 +82,9 @@ rm -rf "${HOME}/.p10k.zsh"
 rm -rf "${HOME}/.zshenv"
 rm -rf "${HOME}/.tmux.conf"
 [ -L "${HOME}/.config/nvim" ] || rm -rf "${HOME}/.config/nvim"
-[ -L "${HOME}/.config/pdm" ] || rm -rf "${HOME}/.config/pdm"
 [ -L "${HOME}/.config/ruff" ] || rm -rf "${HOME}/.config/ruff"
+# Remove old pdm config if exists as a directory
+[ -d "${HOME}/.config/pdm" ] && rm -rf "${HOME}/.config/pdm"
 
 # Link configuration files using GNU Stow
 echo "Creating symlinks with GNU Stow..."
