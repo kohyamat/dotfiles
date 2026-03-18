@@ -24,9 +24,7 @@ return {
         transparent_background = true,
         integrations = {
           blink_cmp = true,
-          gitsigns = true,
           treesitter = true,
-          fidget = true,
           flash = true,
           mason = true,
           lsp_trouble = true,
@@ -51,7 +49,6 @@ return {
   {
     "stevearc/oil.nvim",
     opts = {},
-    dependencies = { "nvim-tree/nvim-web-devicons" },
     config = function()
       require("oil").setup({
         default_file_explorer = true,
@@ -94,21 +91,9 @@ return {
     end,
   },
 
-  -- Gitsigns
-  {
-    "lewis6991/gitsigns.nvim",
-    config = function()
-      require("gitsigns").setup({
-        signcolumn = false,
-        numhl = true,
-      })
-    end,
-  },
-
   -- Trouble
   {
     "folke/trouble.nvim",
-    dependencies = { "nvim-tree/nvim-web-devicons" },
     opts = {
       auto_preview = true,
       auto_jump = { "lsp_definitions" },
@@ -164,25 +149,32 @@ return {
     },
   },
 
-  -- Mini.nvim (Consolidated Utilities)
+  -- Mini.nvim (The Engine of Performance)
   {
     "echasnovski/mini.nvim",
     version = false,
     config = function()
+      -- Icons (Replaces nvim-web-devicons)
+      require("mini.icons").setup({})
+      MiniIcons.mock_nvim_web_devicons()
+
+      -- Git Diff (Replaces gitsigns)
+      require("mini.diff").setup({})
+
       -- Autopairs
       require("mini.pairs").setup({})
       -- Comments
       require("mini.comment").setup({})
       -- Surround
       require("mini.surround").setup({})
-      -- Bracketed (jump to next/prev with [ / ])
+      -- Bracketed
       require("mini.bracketed").setup({})
-      -- Statusline (Replaces lualine)
+      -- Statusline
       require("mini.statusline").setup({ set_vim_settings = true })
     end,
   },
 
-  -- Dressing.nvim (Improved UI for vim.ui.select/input)
+  -- Dressing.nvim
   {
     "stevearc/dressing.nvim",
     opts = {},
@@ -197,25 +189,5 @@ return {
       vim.g.mkdp_filetypes = { "markdown" }
     end,
     ft = { "markdown" },
-  },
-
-  -- neoscroll
-  {
-    "karb94/neoscroll.nvim",
-    config = function()
-      require("neoscroll").setup()
-    end,
-  },
-
-  -- fidget.nvim
-  {
-    "j-hui/fidget.nvim",
-    opts = {
-      notification = {
-        window = {
-          winblend = 0,
-        },
-      },
-    },
   },
 }
