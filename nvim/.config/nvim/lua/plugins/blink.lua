@@ -1,11 +1,10 @@
 return {
-  'saghen/blink.cmp',
+  "saghen/blink.cmp",
   dependencies = {
     "L3MON4D3/LuaSnip",
-    "onsails/lspkind.nvim",
     "fang2hou/blink-copilot",
   },
-  version = '1.*',
+  version = "1.*",
 
   ---@module 'blink.cmp'
   ---@type blink.cmp.Config
@@ -26,7 +25,7 @@ return {
     },
 
     appearance = {
-      nerd_font_variant = 'mono'
+      nerd_font_variant = "mono",
     },
 
     completion = {
@@ -38,34 +37,23 @@ return {
           components = {
             kind_icon = {
               text = function(ctx)
-                local lspkind = require("lspkind")
-                lspkind.init({
-                  symbol_map = {
-                    Copilot = "",
-                  },
-                })
-                local icon = ctx.kind_icon
-                if vim.tbl_contains({ "Path" }, ctx.source_name) then
-                  -- Use mini.icons via the mock
-                  local dev_icon, _ = require("nvim-web-devicons").get_icon(ctx.label)
-                  if dev_icon then
-                    icon = dev_icon
-                  end
-                else
-                  icon = lspkind.symbolic(ctx.kind, {
-                    mode = "symbol",
-                  })
+                -- Copilot の特別対応
+                if ctx.source_name == "copilot" then
+                  return "" .. ctx.icon_gap
+                end
+                -- mini.icons を使用してLSPアイコンを取得
+                local icon, _, _ = require("mini.icons").get("lsp", ctx.kind)
+                -- パスソースの場合はファイル/ディレクトリのアイコンを取得
+                if ctx.source_name == "Path" then
+                  icon, _, _ = require("mini.icons").get("file", ctx.label)
                 end
                 return icon .. ctx.icon_gap
               end,
 
               highlight = function(ctx)
-                local hl = ctx.kind_hl
-                if vim.tbl_contains({ "Path" }, ctx.source_name) then
-                  local _, dev_hl = require("nvim-web-devicons").get_icon(ctx.label)
-                  if dev_hl then
-                    hl = dev_hl
-                  end
+                local _, hl, _ = require("mini.icons").get("lsp", ctx.kind)
+                if ctx.source_name == "Path" then
+                  _, hl, _ = require("mini.icons").get("file", ctx.label)
                 end
                 return hl
               end,
@@ -101,5 +89,5 @@ return {
       },
     },
   },
-  opts_extend = { "sources.default" }
+  opts_extend = { "sources.default" },
 }
