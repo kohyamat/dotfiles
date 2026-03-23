@@ -1,36 +1,19 @@
 return {
   "mrcjkb/rustaceanvim",
+  version = "^5", -- 推奨されるメジャーバージョン指定
   lazy = false,
-  dependencies = { "neovim/nvim-lspconfig" },
+  ft = { "rust" },
   config = function()
     local codelldb_root = vim.fn.stdpath("data") .. "/mason/packages/codelldb/extension/"
     local codelldb_path = codelldb_root .. "adapter/codelldb"
-    local liblldb_path = codelldb_root .. "lldb/lib/liblldb.so"
+    local liblldb_path = codelldb_root .. "lldb/lib/liblldb.dylib" -- Darwin (Mac) の場合は .dylib
+
+    -- OS判定（Linuxの場合は .so）
+    if vim.loop.os_uname().sysname ~= "Darwin" then
+      liblldb_path = codelldb_root .. "lldb/lib/liblldb.so"
+    end
 
     local cfg = require("rustaceanvim.config")
-    local rlsp = vim.cmd.RustLsp
-    local on_attach = function(client, bufnr)
-      local bufopts = { silent = true, buffer = bufnr }
-      vim.keymap.set("n", "gi", vim.lsp.buf.implementation, bufopts)
-      vim.keymap.set("n", "gD", vim.lsp.buf.declaration, bufopts)
-      vim.keymap.set("n", "gd", vim.lsp.buf.definition, bufopts)
-      vim.keymap.set("n", "gr", vim.lsp.buf.references, bufopts)
-      vim.keymap.set("n", "K", vim.lsp.buf.hover, bufopts)
-      vim.keymap.set("n", "<leader>f", function()
-        vim.lsp.buf.format({ async = true })
-      end, bufopts)
-
-      -- keymaps for rustaceanvim
-      vim.keymap.set("n", "<leader>ca", function()
-        rlsp("codeAction")
-      end, { desc = "Code Action", buffer = bufnr })
-      vim.keymap.set("n", "<leader>dr", function()
-        rlsp("debuggables")
-      end, { desc = "Rust Debuggables", buffer = bufnr })
-      vim.keymap.set("n", "<leader>d", function()
-        rlsp("debug")
-      end, { desc = "Rust Debug", buffer = bufnr })
-    end
 
     vim.g.rustaceanvim = {
       tools = {
@@ -40,10 +23,23 @@ return {
         },
       },
       server = {
-        on_attach = on_attach,
-        ["rust-analyzer"] = {
-          checkOnSave = {
-            command = "clippy",
+        -- LSPの設定は lspconfig の流儀に合わせる
+        on_attach = function(client, bufnr)
+          -- 標準的なLSPキーバインド (lsp.luaと同じもの)
+          local bufopts = { silent = true, buffer = bufnr }
+          vim.keymap.set("n", "gd", vim.lsp.buf.definition, bufopts)
+          vim.keymap.set("n", "gr", vim.lsp.buf.references, bufopts)
+          vim.keymap.set("n", "K", vim.lsp.buf.hover, bufopts)
+          vim.keymap.set("n", "<leader>ca", function() vim.cmd.RustLsp("codeAction") end, { desc = "Rust Code Action", buffer = bufnr })
+
+          -- Rust固有のデバッグ支援
+          vim.keymap.set("n", "<leader>dr", function() vim.cmd.RustLsp("debuggables") end, { desc = "Rust Debuggables", buffer = bufnr })
+        end,
+        default_settings = {
+          ["rust-analyzer"] = {
+            checkOnSave = {
+              command = "clippy",
+            },
           },
         },
       },

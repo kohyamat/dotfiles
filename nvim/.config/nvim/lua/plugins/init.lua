@@ -65,6 +65,9 @@ return {
   {
     "nvim-treesitter/nvim-treesitter",
     build = ":TSUpdate",
+    dependencies = {
+      "nvim-treesitter/nvim-treesitter-textobjects", -- 移動とテキストオブジェクトの強化
+    },
     config = function()
       require("nvim-treesitter.configs").setup({
         ensure_installed = { "c", "lua", "python", "rust", "r", "vim", "vimdoc", "javascript", "typescript", "html", "markdown", "markdown_inline" },
@@ -74,6 +77,38 @@ return {
           additional_vim_regex_highlighting = false,
         },
         indent = { enable = true },
+        textobjects = {
+          select = {
+            enable = true,
+            lookahead = true,
+            keymaps = {
+              ["af"] = "@function.outer",
+              ["if"] = "@function.inner",
+              ["ac"] = "@class.outer",
+              ["ic"] = "@class.inner",
+            },
+          },
+          move = {
+            enable = true,
+            set_jumps = true,
+            goto_next_start = {
+              ["]m"] = "@function.outer",
+              ["]]"] = "@class.outer",
+            },
+            goto_next_end = {
+              ["]M"] = "@function.outer",
+              ["]["] = "@class.outer",
+            },
+            goto_previous_start = {
+              ["[m"] = "@function.outer",
+              ["[["] = "@class.outer",
+            },
+            goto_previous_end = {
+              ["[M"] = "@function.outer",
+              ["[]"] = "@class.outer",
+            },
+          },
+        },
       })
 
       local parser_config = require("nvim-treesitter.parsers").get_parser_configs()
@@ -167,8 +202,6 @@ return {
       {
         "W",
         function()
-          -- hint_words() は文字入力を待たず、画面内の「単語の頭」に一斉にラベルを表示します
-          -- 日本語でも文字種が切り替わる地点をターゲットにしてくれます
           require("hop").hint_words()
         end,
         mode = { "n", "x", "o" },
