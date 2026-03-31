@@ -22,7 +22,6 @@ return {
       javascript = { "prettierd", "prettier", stop_after_first = true },
       typescript = { "prettierd", "prettier", stop_after_first = true },
       vue = { "prettierd", "prettier", stop_after_first = true },
-      r = { "styler" },
       ["_"] = { "trim_whitespace" },
     },
     default_format_opts = {

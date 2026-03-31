@@ -24,7 +24,6 @@ return {
         "prettierd",
         "stylua",
         "shfmt",
-        "styler",
       }
 
       require("mason").setup()
