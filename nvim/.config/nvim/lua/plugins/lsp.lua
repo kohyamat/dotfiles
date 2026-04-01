@@ -4,12 +4,11 @@ return {
     dependencies = {
       "williamboman/mason.nvim",
       "williamboman/mason-lspconfig.nvim",
-      "WhoIsSethDaniel/mason-tool-installer.nvim", -- ツール管理を一元化
+      "saghen/blink.cmp",
     },
     config = function()
-      -- インストールする全ツール（LSPサーバー + フォーマッタ/リンター）
-      local ensure_installed = {
-        -- LSP Servers
+      -- Modern, fast server list optimized for uv
+      local servers = {
         "lua_ls",
         "ts_ls",
         "clangd",
@@ -19,15 +18,27 @@ return {
         "ruff",
         "vue_ls",
         "marksman",
-        -- Formatting / Linting Tools
+      }
+
+      -- External tools
+      local tools = {
+        "ruff",
         "prettier",
-        "prettierd",
         "stylua",
         "shfmt",
+        -- Note: styler (R) should be installed via install.packages("styler") in R
       }
 
       require("mason").setup()
-      require("mason-tool-installer").setup({ ensure_installed = ensure_installed })
+      local mr = require("mason-registry")
+      mr.refresh(function()
+        for _, tool in ipairs(tools) do
+          local p = mr.get_package(tool)
+          if not p:is_installed() then
+            p:install()
+          end
+        end
+      end)
 
       -- Helper to find Python path in uv/venv environments
       local function get_python_path(workspace)
@@ -46,8 +57,10 @@ return {
       -- Common on_attach
       local on_attach = function(client, bufnr)
         local bufopts = { silent = true, buffer = bufnr }
-        -- gd, gr, gi は fzf-lua.lua 側で定義しているためここでは省略
+        vim.keymap.set("n", "gi", vim.lsp.buf.implementation, bufopts)
         vim.keymap.set("n", "gD", vim.lsp.buf.declaration, bufopts)
+        vim.keymap.set("n", "gd", vim.lsp.buf.definition, bufopts)
+        vim.keymap.set("n", "gr", vim.lsp.buf.references, bufopts)
         vim.keymap.set("n", "K", function()
           vim.lsp.buf.hover({ border = "rounded" })
         end, bufopts)
@@ -55,12 +68,12 @@ return {
         vim.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, bufopts)
       end
 
-      -- blink.cmp から capabilities を取得
       local capabilities = require("blink.cmp").get_lsp_capabilities()
 
+      -- Setup via mason-lspconfig handlers
       require("mason-lspconfig").setup({
+        ensure_installed = servers,
         handlers = {
-          -- デフォルト設定
           function(server_name)
             require("lspconfig")[server_name].setup({
               on_attach = on_attach,
@@ -110,7 +123,7 @@ return {
         },
       })
 
-      -- Diagnostics UI
+      -- Diagnostic display configuration
       vim.diagnostic.config({
         virtual_text = { prefix = "●" },
         signs = true,
