@@ -4,47 +4,52 @@ return {
   opts = {},
   config = function()
     local fzf = require("fzf-lua")
+    local config = require("fzf-lua.config")
     local actions = require("trouble.sources.fzf").actions
 
+    -- 検索結果のデフォルトアクションに Trouble を追加
+    config.defaults.actions.files["ctrl-t"] = actions.open
+
     fzf.setup({
-      -- 推奨キーマップの設定
+      -- 基本的な検索動作の設定
       keymap = {
         builtin = {
-          -- fzf-lua本体の操作
-          ["<C-t>"] = actions.open,      -- 検索結果を Trouble に送る
-          ["<C-g>"] = "toggle-preview",  -- プレビューの表示/非表示
-          ["<F1>"]  = "help",            -- ヘルプの表示
+          ["<C-g>"] = "toggle-preview",
+          ["<F1>"]  = "help",
         },
         fzf = {
-          -- fzfプロセス側の操作 (入力中)
-          ["ctrl-n"] = "down",           -- 次の候補
-          ["ctrl-p"] = "up",             -- 前の候補
-          ["ctrl-j"] = "down",           -- 次の候補 (Vimスタイル)
-          ["ctrl-k"] = "up",             -- 前の候補 (Vimスタイル)
-          ["ctrl-u"] = "preview-page-up",   -- プレビューを上にスクロール
-          ["ctrl-d"] = "preview-page-down", -- プレビューを下にスクロール
-          ["ctrl-a"] = "select-all",     -- 全選択
+          -- 移動
+          ["ctrl-n"] = "down",
+          ["ctrl-p"] = "up",
+          ["ctrl-j"] = "down",
+          ["ctrl-k"] = "up",
+          -- プレビュー
+          ["ctrl-u"] = "preview-page-up",
+          ["ctrl-d"] = "preview-page-down",
+          -- 選択と決定 (明示的に設定)
+          ["enter"]  = "accept",
+          ["tab"]    = "toggle-dt-sign", -- 複数選択の切り替え
+          ["ctrl-a"] = "select-all",
         },
       },
-      -- 見た目とレイアウトの最適化
       winopts = {
         height = 0.85,
         width = 0.80,
         preview = {
-          layout = "vertical", -- 画面に応じて縦横を自動切替
-          vertical = "up:45%", -- 縦表示の時は上にプレビュー
+          layout = "vertical",
+          vertical = "up:45%",
         },
       },
     })
 
-    -- 基本操作のキーマップ
+    -- キーマップ
     vim.keymap.set("n", "<leader>fa", fzf.builtin, { desc = "fzf-lua builtin" })
     vim.keymap.set("n", "<leader>ff", fzf.files, { desc = "find files" })
     vim.keymap.set("n", "<leader>fg", fzf.live_grep, { desc = "live grep" })
     vim.keymap.set("n", "<leader>fb", fzf.buffers, { desc = "buffers" })
     vim.keymap.set("n", "<leader>fr", fzf.resume, { desc = "resume last search" })
 
-    -- LSP / 診断関連
+    -- LSP
     vim.keymap.set("n", "<leader>fd", fzf.lsp_document_diagnostics, { desc = "diagnostics (current file)" })
     vim.keymap.set("n", "<leader>fD", fzf.lsp_workspace_diagnostics, { desc = "diagnostics (workspace)" })
     vim.keymap.set("n", "<leader>fs", fzf.lsp_document_symbols, { desc = "document symbols" })
