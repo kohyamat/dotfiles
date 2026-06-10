@@ -82,3 +82,6 @@ else
 fi
 unset __conda_setup
 # <<< conda initialize <<<
+
+# Local configuration (Not tracked by git)
+[[ ! -f ~/.zshrc.local ]] || source ~/.zshrc.local

@@ -94,6 +94,16 @@ return {
                     useLibraryCodeForTypes = true,
                     diagnosticMode = "openFilesOnly",
                     typeCheckingMode = "basic",
+                    diagnosticSeverityOverrides = {
+                      reportAny = "none",
+                      reportMissingTypeStubs = "none",
+                      reportUnknownMemberType = "none",
+                      reportUnknownVariableType = "none",
+                      reportUnknownArgumentType = "none",
+                      reportUnknownParameterType = "none",
+                      reportUnusedImport = "none", -- Ruff handles this
+                      reportUnusedVariable = "none", -- Ruff handles this
+                    },
                   },
                 },
               },
