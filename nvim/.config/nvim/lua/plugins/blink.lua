@@ -3,6 +3,35 @@ return {
   dependencies = {
     "L3MON4D3/LuaSnip",
     "fang2hou/blink-copilot",
+    {
+      "milanglacier/minuet-ai.nvim",
+      dependencies = { "nvim-lua/plenary.nvim" },
+      config = function()
+        -- 公式のQwen設定例をベースに、外部サーバーのURLだけを適用
+        require("minuet").setup({
+          provider = "openai_fim_compatible",
+          n_completions = 1,
+          context_window = 512,
+          provider_options = {
+            openai_fim_compatible = {
+              api_key = os.getenv("MINUET_API_KEY") or "TERM",
+              name = "Ollama",
+              -- セキュリティのため、エンドポイントとAPIキーは環境変数から取得するように変更
+              end_point = os.getenv("MINUET_API_ENDPOINT") or "http://localhost:11434/v1/completions",
+              model = "qwen2.5-coder:7b",
+              optional = {
+                max_tokens = 56,
+                top_p = 0.9,
+              },
+              -- ★ template や stop などの余計な上書きはすべて削除し、minuetの自動判定に任せる
+            },
+          },
+          autotrigger = {
+            enable = true,
+          },
+        })
+      end,
+    },
   },
   version = "1.*",
 
@@ -41,6 +70,10 @@ return {
                 if ctx.source_name == "copilot" then
                   return "" .. ctx.icon_gap
                 end
+                -- minuet対応
+                if ctx.source_name == "minuet" then
+                  return "💃" .. ctx.icon_gap
+                end
                 -- mini.icons を使用してLSPアイコンを取得
                 local icon, _, _ = require("mini.icons").get("lsp", ctx.kind)
                 -- パスソースの場合はファイル/ディレクトリのアイコンを取得
@@ -55,6 +88,9 @@ return {
                 if ctx.source_name == "Path" then
                   _, hl, _ = require("mini.icons").get("file", ctx.label)
                 end
+                if ctx.source_name == "minuet" then
+                  return "BlinkCmpKindCopilot"
+                end
                 return hl
               end,
             },
@@ -66,13 +102,20 @@ return {
     snippets = { preset = "luasnip" },
 
     sources = {
-      default = { "lsp", "path", "snippets", "buffer", "copilot", "cmdline" },
+      default = { "lsp", "path", "snippets", "buffer", "minuet", "copilot", "cmdline" },
       providers = {
         copilot = {
           name = "copilot",
           module = "blink-copilot",
           score_offset = 100,
           async = true,
+        },
+        minuet = {
+          name = "minuet",
+          module = "minuet.blink",
+          score_offset = 95,
+          async = true,
+          timeout_ms = 3000,
         },
       },
     },

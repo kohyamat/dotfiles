@@ -53,3 +53,8 @@ yarn-error.log*
 .sqlite_history
 .python_history
 .node_repl_history
+
+# Local / Sensitive configurations
+*.local
+.secrets
+.env
