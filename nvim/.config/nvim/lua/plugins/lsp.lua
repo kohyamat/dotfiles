@@ -85,28 +85,10 @@ return {
               on_attach = on_attach,
               capabilities = capabilities,
               before_init = function(_, config)
+                if not config.settings then config.settings = {} end
+                if not config.settings.python then config.settings.python = {} end
                 config.settings.python.pythonPath = get_python_path(config.root_dir)
               end,
-              settings = {
-                basedpyright = {
-                  analysis = {
-                    autoSearchPaths = true,
-                    useLibraryCodeForTypes = true,
-                    diagnosticMode = "openFilesOnly",
-                    typeCheckingMode = "basic",
-                    diagnosticSeverityOverrides = {
-                      reportAny = "none",
-                      reportMissingTypeStubs = "none",
-                      reportUnknownMemberType = "none",
-                      reportUnknownVariableType = "none",
-                      reportUnknownArgumentType = "none",
-                      reportUnknownParameterType = "none",
-                      reportUnusedImport = "none", -- Ruff handles this
-                      reportUnusedVariable = "none", -- Ruff handles this
-                    },
-                  },
-                },
-              },
             })
           end,
           ["ruff"] = function()
