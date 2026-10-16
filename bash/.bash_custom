@@ -1,0 +1,148 @@
+# =====================================================================
+# Custom Bash Configuration (Cross-platform: Linux / WSL2 / macOS)
+# =====================================================================
+
+# インタラクティブシェルでなければ何もしない
+case $- in
+  *i*) ;;
+    *) return;;
+esac
+
+# --- macOS Homebrew PATH (最優先で評価) ---
+if [ -x /opt/homebrew/bin/brew ]; then
+  eval "$(/opt/homebrew/bin/brew shellenv)"
+elif [ -x /usr/local/bin/brew ]; then
+  eval "$(/usr/local/bin/brew shellenv)"
+fi
+
+# User local bin
+export PATH="$HOME/.local/bin:$PATH"
+
+# --- History Settings (Ubuntu default + expanded) ---
+HISTCONTROL=ignoreboth
+shopt -s histappend
+HISTSIZE=10000
+HISTFILESIZE=20000
+
+# ウィンドウサイズ変更時に LINES と COLUMNS を自動更新
+shopt -s checkwinsize
+
+# --- Prompt (SSH detection + Git branch & dirty status) ---
+_bash_git_prompt() {
+  command -v git &>/dev/null || return
+  local branch
+  if branch=$(git symbolic-ref --short -q HEAD 2>/dev/null) || branch=$(git rev-parse --short -q HEAD 2>/dev/null); then
+    local dirty=""
+    if [ -n "$(git status --porcelain --ignore-submodules=dirty 2>/dev/null)" ]; then
+      dirty="*"
+    fi
+    printf " (%s%s)" "$branch" "$dirty"
+  fi
+}
+
+case "$TERM" in
+  xterm-color|*-256color|alacritty)
+    if [ -n "${SSH_CONNECTION:-}" ] || [ -n "${SSH_CLIENT:-}" ] || [ -n "${SSH_TTY:-}" ]; then
+      # SSH接続時: シアン (水色) + [SSH]
+      _HOST_COLOR='\[\033[01;36m\]⚡\u@\h\[\033[00m\]'
+    else
+      # ローカル環境: 緑色
+      _HOST_COLOR='\[\033[01;32m\]\u@\h\[\033[00m\]'
+    fi
+    PS1="${_HOST_COLOR}:\[\033[01;34m\]\w\[\033[01;33m\]\$(_bash_git_prompt)\[\033[00m\]\$ "
+    unset _HOST_COLOR
+    ;;
+  *)
+    PS1='\u@\h:\w$(_bash_git_prompt)\$ '
+    ;;
+esac
+
+# ターミナルのタイトルバーに user@host: dir を表示
+case "$TERM" in
+  xterm*|rxvt*|alacritty)
+    PS1="\[\e]0;\u@\h: \w\a\]$PS1"
+    ;;
+esac
+
+# --- Colors & Aliases (Linux / macOS 両対応) ---
+if [ "$(uname -s)" = "Darwin" ]; then
+  # macOS (BSD ls)
+  export CLICOLOR=1
+  export LSCOLORS=ExFxBxDxCxegedabagacad
+  alias ls='ls -G'
+else
+  # Linux (GNU ls)
+  if command -v dircolors &>/dev/null; then
+    test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+    alias ls='ls --color=auto'
+  fi
+fi
+
+alias grep='grep --color=auto'
+alias fgrep='fgrep --color=auto'
+alias egrep='egrep --color=auto'
+alias ll='ls -alF'
+alias la='ls -A'
+alias l='ls -CF'
+
+# --- Bash Completion ---
+if ! shopt -oq posix; then
+  if [ -f /usr/share/bash-completion/bash_completion ]; then
+    . /usr/share/bash-completion/bash_completion
+  elif [ -f /etc/bash_completion ]; then
+    . /etc/bash_completion
+  elif [ -f /opt/homebrew/etc/profile.d/bash_completion.sh ]; then
+    . /opt/homebrew/etc/profile.d/bash_completion.sh
+  elif [ -f /usr/local/etc/profile.d/bash_completion.sh ]; then
+    . /usr/local/etc/profile.d/bash_completion.sh
+  fi
+fi
+
+# --- Editor ---
+if command -v nvim &> /dev/null; then
+  export EDITOR='nvim'
+else
+  export EDITOR='vi'
+fi
+
+# --- pnpm ---
+export PNPM_HOME="$HOME/.local/share/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+
+# --- fnm (Fast Node Manager) ---
+export PATH="$HOME/.local/share/fnm:$PATH"
+if command -v fnm &> /dev/null; then
+  eval "$(fnm env --use-on-cd --shell bash)"
+fi
+
+# --- uv (Python Toolchain) ---
+export PATH="$HOME/.cargo/bin:$PATH"
+if command -v uv &> /dev/null; then
+  eval "$(uv generate-shell-completion bash)"
+  eval "$(uvx --generate-shell-completion bash)"
+fi
+
+# --- zoxide (Better cd) ---
+if command -v zoxide &> /dev/null; then
+  eval "$(zoxide init bash)"
+  alias cd="z"
+fi
+
+# --- fzf (Fuzzy Finder) ---
+if command -v fzf &> /dev/null; then
+  eval "$(fzf --bash)"
+
+  # fzfのデフォルト検索コマンドをfdにする (隠しファイルを含め、.gitは除外)
+  if command -v fd &> /dev/null; then
+    export FZF_DEFAULT_COMMAND='fd --type f --hidden --exclude .git'
+    export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+  fi
+
+  # bat があれば Ctrl+T のファイル検索時にシンタックスハイライト付きでプレビュー表示する
+  if command -v bat &> /dev/null; then
+    export FZF_CTRL_T_OPTS="--preview 'bat --color=always --style=numbers --line-range=:500 {}'"
+  fi
+fi

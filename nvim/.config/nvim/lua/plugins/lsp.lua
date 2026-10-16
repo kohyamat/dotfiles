@@ -13,12 +13,16 @@ return {
         "ts_ls",
         "clangd",
         "rust_analyzer",
-        "r_language_server",
         "basedpyright",
         "ruff",
         "vue_ls",
         "marksman",
       }
+
+      -- システムに R がインストールされている環境でのみ R のLSPを有効化する
+      if vim.fn.executable("R") == 1 then
+        table.insert(servers, "r_language_server")
+      end
 
       -- External tools
       local tools = {
@@ -44,13 +48,21 @@ return {
       local function get_python_path(workspace)
         local util = require("lspconfig/util")
         local path = util.path
+
+        -- 1. Miniforge等のアクティブなConda環境を最優先
+        if os.getenv("CONDA_PREFIX") then
+          return path.join(os.getenv("CONDA_PREFIX"), "bin", "python")
+        end
+        -- 2. uv等によるアクティブな仮想環境
+        if os.getenv("VIRTUAL_ENV") then
+          return path.join(os.getenv("VIRTUAL_ENV"), "bin", "python")
+        end
+        -- 3. プロジェクト直下の .venv
         local venv = path.join(workspace, ".venv")
         if path.is_dir(venv) then
-          if vim.fn.has("win32") == 1 then
-            return path.join(venv, "Scripts", "python.exe")
-          end
           return path.join(venv, "bin", "python")
         end
+
         return vim.fn.exepath("python3") or vim.fn.exepath("python") or "python"
       end
 
@@ -85,8 +97,12 @@ return {
               on_attach = on_attach,
               capabilities = capabilities,
               before_init = function(_, config)
-                if not config.settings then config.settings = {} end
-                if not config.settings.python then config.settings.python = {} end
+                if not config.settings then
+                  config.settings = {}
+                end
+                if not config.settings.python then
+                  config.settings.python = {}
+                end
                 config.settings.python.pythonPath = get_python_path(config.root_dir)
               end,
             })

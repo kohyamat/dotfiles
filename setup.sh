@@ -1,55 +1,50 @@
 #!/bin/bash
 
-set -u
+set -euo pipefail
 
-# Get absolute path of the dotfiles directory
 DOTFILES_DIR="$(cd "$(dirname "$0")" && pwd)"
 BACKUP_DIR="${HOME}/dotfiles_old/$(date +%Y%m%d_%H%M%S)"
 
-# Check OS
-OS="$(uname)"
-case "${OS}" in
-'Linux')
-  DISTRO="$(lsb_release -i | cut -f2 2>/dev/null || echo "Linux")"
-  ;;
-'Darwin')
-  DISTRO='macOS'
-  ;;
-*)
-  echo "Unknown OS: ${OS}"
-  exit 1
-  ;;
-esac
-
-# Check if running under WSL2
+# --- OS & Environment Detection ---
+OS="$(uname -s)"
+ARCH="$(uname -m)"
 IS_WSL=false
-if [ "${OS}" == "Linux" ] && grep -q "Microsoft" /proc/version 2>/dev/null; then
-  IS_WSL=true
+
+if [ "${OS}" = "Linux" ]; then
+  if [ -f /etc/os-release ]; then
+    # shellcheck disable=SC1091
+    . /etc/os-release
+    DISTRO="${ID:-linux}"
+  else
+    DISTRO="linux"
+  fi
+  if grep -qi "microsoft" /proc/version 2>/dev/null; then
+    IS_WSL=true
+  fi
+elif [ "${OS}" = "Darwin" ]; then
+  DISTRO="macOS"
+else
+  echo "Unsupported OS: ${OS}"
+  exit 1
 fi
 
-echo "Detected OS: ${OS} (${DISTRO}), WSL2: ${IS_WSL}"
+echo "Detected OS: ${OS} (${DISTRO}), Arch: ${ARCH}, WSL2:${IS_WSL}"
 
-# Function to handle existing items:
-# - If it's a symlink, remove it.
-# - If it's a real file/directory, ask to backup.
+# --- Backup Function ---
 maybe_backup() {
   local target="$1"
-
-  # If it's a symlink, just remove it to let Stow handle it
   if [ -L "$target" ]; then
     echo "Removing existing symlink: $target"
     rm "$target"
     return
   fi
 
-  # If it's a real file or directory
   if [ -e "$target" ]; then
     echo "Found existing file/directory: $target"
     read -p "Do you want to back it up to ${BACKUP_DIR}? [y/N] " -n 1 -r
     echo
     if [[ $REPLY =~ ^[Yy]$ ]]; then
       mkdir -p "$BACKUP_DIR"
-      # Maintain directory structure in backup
       local relative_path="${target#$HOME/}"
       mkdir -p "$(dirname "$BACKUP_DIR/$relative_path")"
       mv "$target" "$BACKUP_DIR/$relative_path"
@@ -60,120 +55,244 @@ maybe_backup() {
   fi
 }
 
-# Install dependencies
-if [ "${OS}" == "Darwin" ]; then
+# --- System Dependencies (Multi-Distro) ---
+install_linux_packages() {
+  if command -v apt-get &>/dev/null; then
+    sudo apt-get update
+    sudo apt-get install -y stow git tmux ripgrep fd-find bat jq python3 python3-pip python3-venv curl build-essential unzip xsel bash-completion
+  elif command -v dnf &>/dev/null; then
+    sudo dnf install -y stow git tmux ripgrep fd-find bat jq python3 python3-pip curl gcc gcc-c++ make unzip xsel bash-completion
+  elif command -v pacman &>/dev/null; then
+    sudo pacman -Sy --noconfirm --needed stow git tmux ripgrep fd bat jq python python-pip curl base-devel unzip xsel bash-completion
+  elif command -v zypper &>/dev/null; then
+    sudo zypper install -y stow git tmux ripgrep fd bat jq python3 python3-pip curl gcc gcc-c++ make unzip xsel bash-completion
+  else
+    echo "Warning: Supported package manager not found. Please install dependencies manually."
+  fi
+
+  mkdir -p "${HOME}/.local/bin"
+
+  # Debian/Ubuntu 等でコマンド名が fdfind になる場合のシンボリックリンク対応
+  if command -v fdfind &>/dev/null && ! command -v fd &>/dev/null; then
+    ln -sf "$(command -v fdfind)" "${HOME}/.local/bin/fd"
+  fi
+
+  # Debian/Ubuntu 等でコマンド名が batcat になる場合のシンボリックリンク対応
+  if command -v batcat &>/dev/null && ! command -v bat &>/dev/null; then
+    ln -sf "$(command -v batcat)" "${HOME}/.local/bin/bat"
+  fi
+}
+
+if [ "${OS}" = "Darwin" ]; then
   if ! command -v brew &>/dev/null; then
     echo "Installing Homebrew..."
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    if [ -x /opt/homebrew/bin/brew ]; then
+      eval "$(/opt/homebrew/bin/brew shellenv)"
+    elif [ -x /usr/local/bin/brew ]; then
+      eval "$(/usr/local/bin/brew shellenv)"
+    fi
   fi
-  brew update
-  brew install stow git neovim tmux ripgrep fzf python3 r zsh curl alacritty
-elif [ "${OS}" == "Linux" ]; then
-  sudo apt update
-  sudo apt install -y stow git neovim tmux ripgrep fzf python3 python3-pip zsh curl build-essential
 
-  if [ "$IS_WSL" = false ]; then
-    echo "Installing Alacritty for native Linux environment..."
-    sudo apt install -y alacritty
+  # すでにインストール済みのパッケージを勝手にアップグレードして止まるのを防ぐため、未導入のものだけ入れる
+  BREW_PACKAGES=(stow git neovim tmux ripgrep fd fzf bat jq bash bash-completion@2)
+  MISSING_PACKAGES=()
+  for pkg in "${BREW_PACKAGES[@]}"; do
+    if ! brew list --formula "$pkg" &>/dev/null; then
+      MISSING_PACKAGES+=("$pkg")
+    fi
+  done
+
+  if [ ${#MISSING_PACKAGES[@]} -gt 0 ]; then
+    echo "Installing missing Homebrew packages: ${MISSING_PACKAGES[*]}"
+    HOMEBREW_NO_AUTO_UPDATE=1 brew install "${MISSING_PACKAGES[@]}" || true
+  else
+    echo "All Homebrew packages are already installed."
+  fi
+elif [ "${OS}" = "Linux" ]; then
+  install_linux_packages
+fi
+
+# インストールチェックのために一時的にPATHを通す
+mkdir -p "${HOME}/.local/bin"
+export PATH="${HOME}/.local/bin:${HOME}/.cargo/bin:${HOME}/.local/share/fnm:${PATH}"
+
+# --- fzf (Linuxではディストロ標準が古く `fzf --bash` が使えないためGitから導入) ---
+if ! command -v fzf &>/dev/null; then
+  echo "Installing fzf..."
+  if [ ! -d "${HOME}/.fzf" ]; then
+    git clone --depth 1 https://github.com/junegunn/fzf.git "${HOME}/.fzf"
+  fi
+  "${HOME}/.fzf/install" --bin
+  ln -sf "${HOME}/.fzf/bin/fzf" "${HOME}/.local/bin/fzf"
+fi
+
+# --- Neovim (Linuxではディストロ標準が古いため公式最新バイナリを配置) ---
+if ! command -v nvim &>/dev/null; then
+  echo "Installing latest Neovim..."
+  if [ "${ARCH}" = "x86_64" ]; then
+    NVIM_ARCH="x86_64"
+  elif [ "${ARCH}" = "aarch64" ] \vert{}\vert{} [ "${ARCH}" = "arm64" ]; then
+    NVIM_ARCH="arm64"
+  else
+    echo "Unsupported architecture for Neovim binary: ${ARCH}. Please install Neovim manually."
+    NVIM_ARCH=""
+  fi
+
+  if [ -n "${NVIM_ARCH}" ]; then
+    curl -LO "https://github.com/neovim/neovim/releases/latest/download/nvim-linux-${NVIM_ARCH}.tar.gz"
+    rm -rf "${HOME}/.local/nvim"
+    mkdir -p "${HOME}/.local/nvim"
+    tar -C "${HOME}/.local/nvim" --strip-components=1 -xzf "nvim-linux-${NVIM_ARCH}.tar.gz"
+    ln -sf "${HOME}/.local/nvim/bin/nvim" "${HOME}/.local/bin/nvim"
+    rm "nvim-linux-${NVIM_ARCH}.tar.gz"
   fi
 fi
 
-# --- Node.js Environment (fnm) ---
+# --- fnm (Node.js) ---
 if ! command -v fnm &>/dev/null; then
   echo "Installing fnm..."
-  curl -fsSL https://fnm.vercel.app/install | bash -s -- --skip-shell
+  curl -fsSL https://fnm.vercel.app/install | bash -s -- --install-dir "${HOME}/.local/share/fnm" --skip-shell
 fi
-
-export PATH="${HOME}/.local/share/fnm:${PATH}"
 eval "$(fnm env)"
-
-echo "Installing Node.js latest LTS via fnm..."
 fnm install --lts
 fnm default lts-latest
 
-# --- Rust Environment (rustup) ---
-if ! command -v rustup &>/dev/null; then
-  echo "Installing Rust (rustup)..."
-  curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --no-modify-path
+# corepack を有効化して yarn と pnpm を使えるようにする（Neovimプラグインのビルド対策）
+echo "Enabling corepack for yarn and pnpm..."
+corepack enable
+
+if ! command -v tree-sitter &>/dev/null; then
+  echo "Installing tree-sitter-cli..."
+  npm install -g tree-sitter-cli
 fi
 
+# --- rustup (Rust) ---
+if ! command -v rustup &>/dev/null; then
+  echo "Installing Rust..."
+  curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --no-modify-path
+fi
+# shellcheck disable=SC1091
 source "${HOME}/.cargo/env" 2>/dev/null || true
-
-echo "Updating Rust to the latest stable version..."
 rustup update stable
 rustup default stable
 
-# Install uv, Miniconda, Oh-My-Zsh
+# --- uv (Python Package Manager) ---
 if ! command -v uv &>/dev/null; then
+  echo "Installing uv..."
   curl -LsSf https://astral.sh/uv/install.sh | sh
 fi
-if ! command -v conda &>/dev/null && [ ! -d "${HOME}/miniconda3" ]; then
-  if [ "${OS}" == "Darwin" ]; then
-    CONDA_INSTALLER="Miniconda3-latest-MacOSX-x86_64.sh"
+
+# --- zoxide (Better cd) ---
+if ! command -v zoxide &>/dev/null; then
+  echo "Installing zoxide..."
+  curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash
+fi
+
+# --- Miniforge3 (Data Science / Bioinformatics) ---
+if ! command -v conda &>/dev/null && [ ! -d "${HOME}/miniforge3" ]; then
+  echo "Installing Miniforge3..."
+  if [ "${OS}" = "Darwin" ]; then
+    FORGE_INSTALLER="Miniforge3-MacOSX-${ARCH}.sh"
   else
-    CONDA_INSTALLER="Miniconda3-latest-Linux-x86_64.sh"
+    FORGE_INSTALLER="Miniforge3-Linux-${ARCH}.sh"
   fi
-  curl -LO "https://repo.anaconda.com/miniconda/${CONDA_INSTALLER}"
-  bash "${CONDA_INSTALLER}" -b -p "${HOME}/miniconda3"
-  rm "${CONDA_INSTALLER}"
-fi
-if [ ! -d "${HOME}/.oh-my-zsh" ]; then
-  sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+  curl -LO "https://github.com/conda-forge/miniforge/releases/latest/download/${FORGE_INSTALLER}"
+  bash "${FORGE_INSTALLER}" -b -p "${HOME}/miniforge3"
+  rm "${FORGE_INSTALLER}"
+
+  echo "Configuring Conda channels for Bioinformatics (Bioconda)..."
+  "${HOME}/miniforge3/bin/conda" config --add channels defaults
+  "${HOME}/miniforge3/bin/conda" config --add channels bioconda
+  "${HOME}/miniforge3/bin/conda" config --add channels conda-forge
+  "${HOME}/miniforge3/bin/conda" config --set channel_priority strict
+
+  echo "Configuring Conda package cache directory..."
+  "${HOME}/miniforge3/bin/conda" config --add pkgs_dirs "${HOME}/.cache/conda_pkgs"
+
+  echo "Disabling auto-activation of conda base environment..."
+  "${HOME}/miniforge3/bin/conda" config --set auto_activate_base false
 fi
 
-# Zsh Plugins (p10k & autosuggestions)
-ZSH_CUSTOM="${HOME}/.oh-my-zsh/custom"
-if [ ! -d "${ZSH_CUSTOM}/themes/powerlevel10k" ]; then
-  git clone --depth=1 https://github.com/romkatv/powerlevel10k.git "${ZSH_CUSTOM}/themes/powerlevel10k"
-fi
-if [ ! -d "${ZSH_CUSTOM}/plugins/zsh-autosuggestions" ]; then
-  git clone https://github.com/zsh-users/zsh-autosuggestions "${ZSH_CUSTOM}/plugins/zsh-autosuggestions"
-fi
-
-# --- Check and Backup existing files before Stow ---
+# --- Prepare & Stow ---
 echo "Checking for existing files to backup..."
-maybe_backup "${HOME}/.zshrc"
-maybe_backup "${HOME}/.zshenv"
-maybe_backup "${HOME}/.p10k.zsh"
+maybe_backup "${HOME}/.bash_custom"
+maybe_backup "${HOME}/.inputrc"
 maybe_backup "${HOME}/.tmux.conf"
 
-# Automatically check for managed configs in .config
+mkdir -p "${HOME}/.config"
 for config_path in "${DOTFILES_DIR}/config/.config/"*; do
   config_name=$(basename "$config_path")
   maybe_backup "${HOME}/.config/$config_name"
 done
-# Specialized check for nvim
 maybe_backup "${HOME}/.config/nvim"
 
-if [ "$IS_WSL" = false ]; then
-  maybe_backup "${HOME}/.config/alacritty"
-fi
-
-# --- Execute Stow ---
 echo "Creating symlinks with GNU Stow..."
 cd "$DOTFILES_DIR"
-
-PACKAGES=("nvim" "tmux" "config" "zsh")
-
-if [ "$IS_WSL" = false ]; then
-  PACKAGES+=("alacritty")
-fi
+PACKAGES=("nvim" "tmux" "config" "bash")
 
 for pkg in "${PACKAGES[@]}"; do
-  echo "Stowing $pkg..."
-  stow -D -t "$HOME" "$pkg" 2>/dev/null
+  stow -D -t "$HOME" "$pkg" 2>/dev/null || true
   stow -v -t "$HOME" "$pkg"
 done
 
-# Initialize conda after linking
-if [ -f "${HOME}/miniconda3/bin/conda" ]; then
-  "${HOME}/miniconda3/bin/conda" init zsh
+# --- Safe .bashrc & .bash_profile Update ---
+BASHRC="${HOME}/.bashrc"
+touch "$BASHRC"
+
+if ! grep -q "source ~/.bash_custom" "$BASHRC"; then
+  {
+    echo ""
+    echo "# Load custom dotfiles configuration"
+    echo "if [ -f ~/.bash_custom ]; then"
+    echo "    source ~/.bash_custom"
+    echo "fi"
+  } >>"$BASHRC"
+  echo "Added ~/.bash_custom sourcing to ~/.bashrc"
 fi
 
-# Tmux Plugin Manager
+# Miniforgeの初期化処理を.bashrcに書き込み (.bash_customの後に配置されるようここで実行)
+if [ -f "${HOME}/miniforge3/bin/conda" ] && ! grep -q "conda initialize" "$BASHRC"; then
+  "${HOME}/miniforge3/bin/conda" init bash
+fi
+
+# macOS向けのログインシェル設定 (.bash_profileの生成とHomebrew版Bashへの切り替え)
+if [ "${OS}" = "Darwin" ]; then
+  BASH_PROFILE="${HOME}/.bash_profile"
+  touch "$BASH_PROFILE"
+  if ! grep -q "\.bashrc" "$BASH_PROFILE"; then
+    {
+      echo ""
+      echo "# Load .bashrc for login shells (macOS Terminal default)"
+      echo "if [ -f ~/.bashrc ]; then"
+      echo "    source ~/.bashrc"
+      echo "fi"
+    } >>"$BASH_PROFILE"
+    echo "Added ~/.bashrc sourcing to ~/.bash_profile"
+  fi
+
+  BREW_BASH="$(brew --prefix)/bin/bash"
+  if [ -x "$BREW_BASH" ]; then
+    if ! grep -q "$BREW_BASH" /etc/shells; then
+      echo "Adding $BREW_BASH to /etc/shells (requires sudo)..."
+      echo "$BREW_BASH" | sudo tee -a /etc/shells >/dev/null
+    fi
+    if [ "$SHELL" != "$BREW_BASH" ]; then
+      echo "Changing default login shell to Homebrew Bash..."
+      chsh -s "$BREW_BASH"
+    fi
+  fi
+fi
+
+# --- Tmux Plugin Manager ---
 if [ ! -d "${HOME}/.tmux/plugins/tpm" ]; then
   git clone https://github.com/tmux-plugins/tpm "${HOME}/.tmux/plugins/tpm"
 fi
-"${HOME}/.tmux/plugins/tpm/bin/install_plugins"
+"${HOME}/.tmux/plugins/tpm/bin/install_plugins" || true
 
-echo "Setup completed!"
+echo ""
+echo "====================================================================="
+echo "Setup completed successfully!"
+echo "Please restart your terminal or run: source ~/.bashrc"
+echo "(Optional) For desktop GUI environments, run 'stow -v -t ~ alacritty' if needed."
+echo "====================================================================="

@@ -1,0 +1,41 @@
+# ==========================================
+# 基本設定
+# ==========================================
+# ビープ音（ベル）を完全に無効化する
+set bell-style none
+
+# ==========================================
+# 補完 (Completion) の高度化
+# ==========================================
+# Tabを押した直後に候補をサイクル選択する（Zsh風の挙動）
+"\t": menu-complete
+# Shift+Tabで逆順にサイクルする
+"\e[Z": menu-complete-backward
+
+# 補完の共通プレフィックスは入力欄に自動で補完してからサイクルする
+set menu-complete-display-prefix on
+
+# 候補が複数ある場合、1回目のTabで一覧を表示する
+set show-all-if-ambiguous on
+
+# 大文字・小文字を区別せずに補完する
+set completion-ignore-case on
+# ハイフン(-)とアンダースコア(_)を区別せずに補完する
+set completion-map-case on
+
+# 補完候補に色を付ける
+set colored-stats on
+set colored-completion-prefix on
+
+# 補完候補にファイルタイプ記号(/, *, @など)を表示する
+set visible-stats on
+
+# ==========================================
+# 履歴 (History) とキーバインド
+# ==========================================
+# 上下矢印キーで入力中の文字列から始まる履歴だけを検索する
+"\e[A": history-search-backward
+"\e[B": history-search-forward
+
+# !! や !$ などの履歴参照を、スペースを押した瞬間に展開する
+Space: magic-space

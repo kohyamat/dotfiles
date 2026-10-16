@@ -6,8 +6,8 @@ neovim, zsh, tmux 等の個人的な設定
 - **Python**: [uv](https://github.com/astral-sh/uv) (高速なパッケージ・バージョン管理)
 - **Node.js**: [fnm](https://github.com/voronianski/fnm) (Rust製の高速なバージョン管理)
 - **Editor**: Neovim (Lazy.nvim, Blink.cmp, Ruff)
-- **Terminal**: Tmux (Catppuccin theme)
-- **Shell**: Zsh (Oh-My-Zsh, Powerlevel10k)
+- **Terminal**: Tmux
+- **Shell**: Bash (zoxide, fzf)
 
 ## 📦 事前に必要な依存関係
 インストール前に以下のツールがシステムに導入されていることを確認してください。

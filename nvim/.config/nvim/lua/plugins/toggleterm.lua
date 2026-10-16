@@ -44,7 +44,7 @@ return {
         cmd = "python3 " .. filename
       elseif filetype == "r" then
         cmd = "Rscript " .. filename
-      elseif filetype == "sh" or filetype == "zsh" then
+      elseif filetype == "sh" or filetype == "bash" then
         cmd = "bash " .. filename
       elseif filetype == "lua" then
         cmd = "lua " .. filename
