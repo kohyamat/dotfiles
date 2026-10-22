@@ -95,7 +95,7 @@ if [ "${OS}" = "Darwin" ]; then
   fi
 
   # すでにインストール済みのパッケージを勝手にアップグレードして止まるのを防ぐため、未導入のものだけ入れる
-  BREW_PACKAGES=(stow git neovim tmux ripgrep fd fzf bat jq bash bash-completion@2)
+  BREW_PACKAGES=(stow git neovim tmux ripgrep fd fzf bat jq bash bash-completion@2 lazygit)
   MISSING_PACKAGES=()
   for pkg in "${BREW_PACKAGES[@]}"; do
     if ! brew list --formula "$pkg" &>/dev/null; then
@@ -189,6 +189,29 @@ if ! command -v zoxide &>/dev/null; then
   curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash
 fi
 
+# --- lazygit (Linux用: 最新バイナリをGitHub releasesから取得) ---
+if ! command -v lazygit &>/dev/null; then
+  echo "Installing lazygit..."
+  if [ "${OS}" = "Linux" ]; then
+    LAZYGIT_VERSION=$(curl -s "https://api.github.com/repos/jesseduffield/lazygit/releases/latest" | grep -Po '"tag_name": *"v\K[^"]*')
+    if [ "${ARCH}" = "x86_64" ]; then
+      LG_ARCH="x86_64"
+    elif [ "${ARCH}" = "aarch64" ] \vert{}\vert{} [ "${ARCH}" = "arm64" ]; then
+      LG_ARCH="arm64"
+    else
+      echo "Unsupported architecture for lazygit: ${ARCH}"
+      LG_ARCH=""
+    fi
+
+    if [ -n "${LG_ARCH}" ]; then
+      curl -Lo lazygit.tar.gz "https://github.com/jesseduffield/lazygit/releases/download/v${LAZYGIT_VERSION}/lazygit_${LAZYGIT_VERSION}_Linux_${LG_ARCH}.tar.gz"
+      tar xf lazygit.tar.gz lazygit
+      install -m 755 lazygit "${HOME}/.local/bin/lazygit"
+      rm -f lazygit lazygit.tar.gz
+    fi
+  fi
+fi
+
 # --- Miniforge3 (Data Science / Bioinformatics) ---
 if ! command -v conda &>/dev/null && [ ! -d "${HOME}/miniforge3" ]; then
   echo "Installing Miniforge3..."
@@ -268,7 +291,7 @@ if [ "${OS}" = "Darwin" ]; then
       echo "    source ~/.bashrc"
       echo "fi"
     } >>"$BASH_PROFILE"
-    echo "Added ~/.bashrc sourcing to ~/.bash_profile"
+    echo "Added ~/.bash_custom sourcing to ~/.bash_profile"
   fi
 
   BREW_BASH="$(brew --prefix)/bin/bash"
@@ -285,7 +308,7 @@ if [ "${OS}" = "Darwin" ]; then
 fi
 
 # --- Tmux Plugin Manager ---
-if [ ! -d "${HOME}/.tmux/plugins/tpm" ]; then
+if ! [ -d "${HOME}/.tmux/plugins/tpm" ]; then
   git clone https://github.com/tmux-plugins/tpm "${HOME}/.tmux/plugins/tpm"
 fi
 "${HOME}/.tmux/plugins/tpm/bin/install_plugins" || true
