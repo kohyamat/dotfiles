@@ -154,12 +154,17 @@ if ! command -v fnm &>/dev/null; then
   echo "Installing fnm..."
   curl -fsSL https://fnm.vercel.app/install | bash -s -- --install-dir "${HOME}/.local/share/fnm" --skip-shell
 fi
+
 eval "$(fnm env)"
 fnm install --lts
 fnm default lts-latest
+fnm use lts-latest
 
-# corepack を有効化して yarn と pnpm を使えるようにする（Neovimプラグインのビルド対策）
+# corepack の有効化
 echo "Enabling corepack for yarn and pnpm..."
+if ! command -v corepack &>/dev/null; then
+  npm install -g corepack
+fi
 corepack enable
 
 if ! command -v tree-sitter &>/dev/null; then
